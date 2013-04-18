@@ -97,7 +97,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1043', 'msg'=>'No subscriptions specified'));
 	}
 
-	if( $mailing['status'] >= 40 ) {
+	if( $mailing['status'] >= 40 && (!isset($args['test']) || $args['test'] != 'yes') ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1036', 'msg'=>'Mailing has already been sent'));
 	}
 
@@ -115,7 +115,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		if( $rc['stat'] != 'ok' || !isset($rc['user']) ) {
 			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1047', 'msg'=>'Unable to find email information', 'err'=>$rc['err']));
 		}
-		$emails = array(array('customer_id'=>0, 'customer_name'=>$rc['user']['name'], 'email'=>$rc['user']['email']));
+		$emails = array(array('customer_id'=>0, 'customer_name'=>$rc['user']['name'], 'email'=>$rc['user']['email'], 'subscription_uuid'=>'Test'));
 	} else {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'subscriptions', 'private', 'emailList');
 		$rc = ciniki_subscriptions_emailList($ciniki, $args['business_id'], explode(',', $mailing['subscription_ids']));
@@ -265,6 +265,16 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	}
 
 	//
+	// Get the business site url
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'web', 'private', 'lookupBusinessURL');
+	$rc = ciniki_web_lookupBusinessURL($ciniki, $args['business_id']);
+	if( $rc['stat'] != 'ok' ) {	
+		return $rc;
+	}
+	$business_url = $rc['url'];
+
+	//
 	// Create all the customer emails, and load into ciniki_mail table.
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'createCustomerMail');
@@ -288,7 +298,8 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		//
 		// Create the unsubscribe url for the customer
 		//
-		$unsubscribe_url = '/unusb';
+		$unsubscribe_key = substr(md5(date('Y-m-d-H-i-s') . rand()), 0, 32);
+		$unsubscribe_url = $business_url . '/account/unsubscribe/?e=' . urlencode($email['email']) . '&s=' . $email['subscription_uuid'] . '&k=' . $unsubscribe_key;
 		$text_message = preg_replace('/\{_unsubscribe_url\}/', $unsubscribe_url, $text_message);
 		$html_message = preg_replace('/\{_unsubscribe_url\}/', $unsubscribe_url, $html_message);
 
@@ -325,6 +336,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 			'mailing_id'=>$mailing['id'],
 			'flags'=>$flags,
 			'survey_invite_id'=>$invite_id,
+			'unsubscribe_key'=>$unsubscribe_key,
 			));
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
@@ -342,13 +354,15 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	//
 	// Change the status to Sending
 	//
-	$strsql = "UPDATE ciniki_mailings SET status = 40, last_updated = UTC_TIMESTAMP() "
-		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "AND id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
-		. "";
-	$rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.mail');
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;	
+	if( !isset($args['test']) || $args['test'] != 'yes' ) {
+		$strsql = "UPDATE ciniki_mailings SET status = 40, last_updated = UTC_TIMESTAMP() "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
+			. "";
+		$rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.mail');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;	
+		}
 	}
 
 	return array('stat'=>'ok');

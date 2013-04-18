@@ -66,6 +66,7 @@ create table ciniki_mail (
 	business_id int not null,
 	parent_id int not null,
 	mailing_id int not null,
+	unsubscribe_key char(32) not null,
 	survey_invite_id int not null,
 	customer_id int not null,
 	customer_name varchar(250) not null,
@@ -87,5 +88,6 @@ create table ciniki_mail (
 	last_updated datetime not null,
 	primary key(id),
 	index (business_id, uuid, last_updated),
-	index (mailing_id, customer_email)
+	index (mailing_id, customer_email),
+	index (unsubscribe_key)
 ) ENGINE='InnoDB', COMMENT='v1.01';

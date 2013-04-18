@@ -29,7 +29,7 @@ function ciniki_mail_createCustomerMail($ciniki, $business_id, $settings, $email
 	//
 	// Prepare the insert
 	//
-	$strsql = "INSERT INTO ciniki_mail (uuid, business_id, mailing_id, "
+	$strsql = "INSERT INTO ciniki_mail (uuid, business_id, mailing_id, unsubscribe_key, "
 		. "survey_invite_id, "
 		. "customer_id, customer_name, customer_email, flags, status, "
 		. "mail_to, mail_cc, mail_from, "
@@ -41,6 +41,11 @@ function ciniki_mail_createCustomerMail($ciniki, $business_id, $settings, $email
 		$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "', ";
 	} else {
 		$strsql .= "'0', ";
+	}
+	if( isset($args['unsubscribe_key']) ) {
+		$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['unsubscribe_key']) . "', ";
+	} else {
+		$strsql .= "'', ";
 	}
 	if( isset($args['survey_invite_id']) ) {
 		$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['survey_invite_id']) . "', ";
