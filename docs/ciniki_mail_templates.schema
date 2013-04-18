@@ -1,0 +1,31 @@
+#
+# Description
+# -----------
+# The mail templates table stores the details for the mail templates for a company.
+#
+# Fields
+# -------
+# id:				The id of the art catalog item.
+# uuid:				The Universal Unique ID.
+# business_id:		The business the item is attached to.
+#
+# date_added:       The UTC date and time the mailing customer was added.
+# last_updated:     The UTC date and time the mailing customer was last updated.
+#
+create table ciniki_mail_templates (
+	id int not null auto_increment,
+	uuid char(36) not null,
+	business_id int not null,
+	name varchar(150) not null,
+	html_header text not null,
+	html_footer text not null,
+	html_p_style varchar(250) not null,
+	html_h2_style varchar(250) not null,
+	html_h3_style varchar(250) not null,
+	text_header text not null,
+	text_footer text not null,
+	date_added datetime not null,
+	last_updated datetime not null,
+	primary key(id),
+	index (business_id, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

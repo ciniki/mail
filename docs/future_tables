@@ -1,0 +1,68 @@
+#
+# Description
+# -----------
+#
+# Fields
+# -------
+# id:				The id of the art catalog item.
+# uuid:				The Universal Unique ID.
+# business_id:		The business the item is attached to.
+#
+# date_added:       The UTC date and time the mailing was added.
+# last_updated:     The UTC date and time the mailing was last updated.
+#
+create table ciniki_mailings (
+	id int not null auto_increment,
+	uuid char(36) not null,
+	business_id int not null,
+	subject varchar(250) not null,
+	html_content text not null,
+	text_content text not null,
+	date_added datetime not null,
+	last_updated datetime not null,
+	primary key(id),
+	index (business_id, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';
+
+#
+# atype:		
+#				0 - unknown
+#				10 - pdf
+#				20 - jpg
+#				21 - png
+#				22 - gif
+#				60 - other
+create table ciniki_mail_attachments (
+	id int not null auto_increment,
+	uuid char(36) not null,
+	business_id int not null,
+	name varchar(150) not null,
+	filename varchar(150) not null,
+	atype tinyint not null,
+	attachment largeblob,
+	date_added datetime not null,
+	last_updated datetime not null,
+	primary key(id),
+	index (business_id, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';
+
+#
+# Description
+# -----------
+# The attachments are not directly attached to mail messages so they can be setup
+# once and attached to multiple messages.
+#
+
+create table ciniki_mail_message_attachments (
+	id int not null auto_increment,
+	uuid char(36) not null,
+	business_id int not null,
+	mail_id int not null,
+	attachment_id int not null,
+	date_added datetime not null,
+	last_updated datetime not null,
+	primary key(id),
+	index (business_id, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';
+
+

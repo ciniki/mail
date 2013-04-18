@@ -1,0 +1,91 @@
+#
+# Description
+# -----------
+# The mail_messages table stores messages sent to customers.
+#
+# Fields
+# -------
+# id:				The id of the art catalog item.
+# uuid:				The Universal Unique ID.
+# business_id:		The business the item is attached to.
+#
+# parent_id:		The ID of the head of the mail thread.  The first message
+#					sent or received becomes the head of the thread. **future**
+#
+# mailing_id:		The ID of the mailing this messages is part of.  If set to 0 then 
+#					it's not part of any mailing.
+#
+# survey_invite_id:		The ID of the survey invite, if a survey was included in the message.
+#
+# customer_id:		The ID of the customer the message was sent to.  The customer may have
+#					multiple emails for one mailing, if they're provided more than one primary
+#					email address.
+#
+# flags:			The flags/settings for this mail message.  By default messages,
+#					will be send normal speed, but if smtp-highspeed is enabled, then
+#					the option for sending high priority alerts is enabled.  This is 
+#					designed to send emails as fast as possible.
+#				
+#					0x01 - Alert (fast priority)
+#
+# status:			The current status of this message.
+#
+#					0 - unknown
+#					10 - queued to be sent
+#					20 - sending
+#					30 - sent
+#					40 - received **future**
+#					60 - deleted
+#
+# date_sent:		The UTC date and time the message was sent from Ciniki.
+#					This is only used for sent/outgoing messages.
+#
+# date_received:	The UTC date and time the message was received by Ciniki.
+#					This is only used for received/incoming messages.
+#
+# subject:			The subject of the message.
+#
+# to:				Who the message was addressed to.
+# cc:				The cc addresses for the message.
+# from:				Who the message was from.
+#
+# html_content:		The html content of the message.
+# text_content:		The alt/text content of the message.
+#
+# raw_headers:		The raw mail headers of the message, used for incoming only.
+# raw_content:		The raw mail body of the message, used for incoming only.
+#
+# date_read:		The UTC date and time the message was viewed in Ciniki.
+#
+# date_added:       The UTC date and time the mailing customer was added.
+# last_updated:     The UTC date and time the mailing customer was last updated.
+#
+create table ciniki_mail (
+	id int not null auto_increment,
+	uuid char(36) not null,
+	business_id int not null,
+	parent_id int not null,
+	mailing_id int not null,
+	survey_invite_id int not null,
+	customer_id int not null,
+	customer_name varchar(250) not null,
+	customer_email varchar(255) not null,
+	flags tinyint unsigned not null,
+	status tinyint unsigned not null,
+	date_sent datetime not null,
+	date_received datetime not null,
+	mail_to varchar(250) not null,
+	mail_cc varchar(1000) not null,
+	mail_from varchar(250) not null,
+	subject varchar(250) not null,
+	html_content text not null,
+	text_content text not null,
+	raw_headers text not null,
+	raw_content text not null,
+	date_read datetime not null,
+	date_added datetime not null,
+	last_updated datetime not null,
+	primary key(id),
+	index (business_id, uuid, last_updated),
+	index (mailing_id, customer_email)
+) ENGINE='InnoDB', COMMENT='v1.01';
