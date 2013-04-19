@@ -113,7 +113,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 			. "";
 		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.users', 'user');
 		if( $rc['stat'] != 'ok' || !isset($rc['user']) ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1047', 'msg'=>'Unable to find email information', 'err'=>$rc['err']));
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1038', 'msg'=>'Unable to find email information', 'err'=>$rc['err']));
 		}
 		$emails = array(array('customer_id'=>0, 'customer_name'=>$rc['user']['name'], 'email'=>$rc['user']['email'], 'subscription_uuid'=>'Test'));
 	} else {
@@ -139,51 +139,32 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	}
 
 	//
-	// Load the theme
+	// Load the business mail template
 	//
-	if( !file_exists($ciniki['config']['ciniki.core']['modules_dir'] . '/mail/private/theme' . $mailing['theme'] . '.php') ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1044', 'msg'=>'Theme does not exist'));
-	}
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'theme' . $mailing['theme']);
-	$theme_load = 'ciniki_mail_theme' . $mailing['theme'];
-	$rc = $theme_load($ciniki, $args['business_id']);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'loadBusinessTemplate');
+	$rc = ciniki_mail_loadBusinessTemplate($ciniki, $args['business_id'], array(
+		'theme'=>$mailing['theme'],
+		'unsubscribe_link'=>'yes',
+		'title'=>$business_details['name'],
+		'business_name'=>$business_details['name'],
+		));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
+	$template = $rc['template'];
 	$theme = $rc['theme'];
-	$title_style = $theme['title_style'];
-	$subtitle_style = $theme['subtitle_style'];
-	$logo_style = $theme['logo_style'];
-	$a_style = $theme['a'];
-	$p_style = $theme['p'];
-	$p_footer = $theme['p_footer'];
-	$td_header = $theme['td_header'];
-	$td_body = $theme['td_body'];
-	$td_footer = $theme['td_footer'];
 
 	//
-	// Prepare both the html and text version of the email messages
+	// Prepare Messages
 	//
-	$text_message = $mailing['text_content'];
-
-	$html_message = "<html><head><style>\n"
-		. $theme['header_style']
-		. "</style></head>\n"
-		. "<body>\n"
-		. "<div style='" . $theme['wrapper_style'] . "'>"
-		. "<table width='100%' style='width:100%;'>\n"
-		. "";
-
-	//
-	// Add header to the email
-	//
-	$html_message .= "<tr><td style='$td_header'><p style='$title_style'>" . $business_details['name'] . "</p></td></tr>";
+	$html_message = $template['html_header'];
+	$text_message = $template['text_header'] . $mailing['text_content'];
 
 	//
 	// Convert to HTML
 	//
 	if( $mailing['html_content'] == '' ) {
-		$html_content = "<tr><td style='$td_body'><p style='$p_style'>" . preg_replace('/\n\s*\n/m', "</p><p style='$p_style'>", $text_message) . '</p></td></tr>';
+		$html_content = "<tr><td style='" . $theme['td_body'] . "'><p style='" . $theme['p'] . "'>" . preg_replace('/\n\s*\n/m', "</p><p style='" . $theme['p'] . "'>", $text_message) . '</p></td></tr>';
 		$html_content = preg_replace('/\n/m', '<br/>', $html_content);
 		// FUTURE: Add processing to find links and replace with email tracking links
 	} else {
@@ -204,43 +185,25 @@ function ciniki_mail_mailingSend(&$ciniki) {
 			return $rc;
 		}
 		$invite_message = $rc['survey']['email_preface'];
-		$html_message = "<tr><td style='$td_body'>"
-			. "<p style='$p_style'>$invite_message<br/><a style='$a_style' href='{_survey_url}'>{_survey_url}</a></p>"
+		$html_message = "<tr><td style='" . $theme['td_body'] . "'>"
+			. "<p style='" . $theme['p'] . "'>$invite_message<br/><a style='" . $theme['a'] . "' href='{_survey_url_}'>{_survey_url_}</a></p>"
 			. "</td></tr>\n";
-		$text_message .= "\n\n" . $invite_message . "\n{_survey_url}";
+		$text_message .= "\n\n" . $invite_message . "\n{_survey_url_}";
 	}
 
 	//
 	// Add disclaimer
 	//
 	if( isset($settings['message-disclaimer']) && $settings['message-disclaimer'] != '' ) {
-		$html_message .= "<tr><td style='$td_body'><p style='$p_style'>" . $settings['message-disclaimer'] . "</p></td></tr>";
+		$html_message .= "<tr><td style='" . $theme['td_body'] . "'><p style='" . $theme['p'] . "'>" . $settings['message-disclaimer'] . "</p></td></tr>";
 		$text_message .= "\n\n" . $settings['message-disclaimer'];
 	}
 
 	//
-	// Add powered by and unsubscribe
+	// Add footer
 	//
-	$html_message .= "<tr><td style='$td_footer'>"
-		. "<p style='$p_footer'>All content &copy; Copyright " . date('Y') . " by " . $business_details['name'] . "</p>"
-		. "";
-	$text_message .= "\n\nAll content Copyright " . date('Y') . " by " . $business_details['name'];
-	if( isset($ciniki['config']['ciniki.mail']['poweredby.url']) 
-		&& $ciniki['config']['ciniki.mail']['poweredby.url'] != '' 
-		&& $ciniki['config']['ciniki.core']['master_business_id'] != $args['business_id'] ) {
-		$html_message .= "<p style='$p_footer'>Powered by <a style='$a_style' href='" . $ciniki['config']['ciniki.mail']['poweredby.url'] . "'>" . $ciniki['config']['ciniki.mail']['poweredby.name'] . "</a></p>";
-		$text_message .= "\nPowered by Ciniki: " . $ciniki['config']['ciniki.mail']['poweredby.url'];
-	}
-	$html_message .= "<p style='$p_footer'><a style='$a_style' href='{_unsubscribe_url}'>Unsubscribe</a></p>";
-	$text_message .= "\nUnsubscribe: {_unsubscribe_url}";
-	$text_message .= "\n\n";
-
-	$html_message .= "</td></tr>\n";
-	$html_message .= "</table>\n"
-		. "</div>\n"
-		. "</body>\n"
-		. "</html>\n"
-		. "";
+	$html_message .= $template['html_footer'];
+	$text_message .= $template['text_footer'];
 
 	//
 	// Get the list of existing emails for this mailing, make sure we don't send twice
@@ -292,16 +255,16 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		//
 		// Make the basic substitutions in email content
 		//
-		$text_message = preg_replace('/\{_name\}/', $email['customer_name'], $text_message);
-		$html_message = preg_replace('/\{_name\}/', $email['customer_name'], $html_message);
+		$text_message = preg_replace('/\{_name_\}/', $email['customer_name'], $text_message);
+		$html_message = preg_replace('/\{_name_\}/', $email['customer_name'], $html_message);
 
 		//
 		// Create the unsubscribe url for the customer
 		//
 		$unsubscribe_key = substr(md5(date('Y-m-d-H-i-s') . rand()), 0, 32);
 		$unsubscribe_url = $business_url . '/account/unsubscribe/?e=' . urlencode($email['email']) . '&s=' . $email['subscription_uuid'] . '&k=' . $unsubscribe_key;
-		$text_message = preg_replace('/\{_unsubscribe_url\}/', $unsubscribe_url, $text_message);
-		$html_message = preg_replace('/\{_unsubscribe_url\}/', $unsubscribe_url, $html_message);
+		$text_message = preg_replace('/\{_unsubscribe_url_\}/', $unsubscribe_url, $text_message);
+		$html_message = preg_replace('/\{_unsubscribe_url_\}/', $unsubscribe_url, $html_message);
 
 		if( isset($args['test']) && $args['test'] == 'yes' ) {
 			ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'emailUser');
