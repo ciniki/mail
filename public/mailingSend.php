@@ -268,7 +268,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 
 		if( isset($args['test']) && $args['test'] == 'yes' ) {
 			ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'emailUser');
-			ciniki_users_emailUser($ciniki, $ciniki['session']['user']['id'], $mailing['subject'], $text_message, $html_message);
+			ciniki_users_emailUser($ciniki, $args['business_id'], $ciniki['session']['user']['id'], $mailing['subject'], $text_message, $html_message);
 			continue;
 		}
 
