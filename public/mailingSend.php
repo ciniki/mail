@@ -213,7 +213,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "AND mailing_id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
 		. "";
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuerylist');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
 	$rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.mail', 'emails', 'customer_email');
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
