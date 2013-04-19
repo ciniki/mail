@@ -22,7 +22,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
 		'mailing_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Mailing'),
-		'test'=>array('required'=>'no', 'default'=>'no', 'name'=>'Text'),
+		'test'=>array('required'=>'no', 'default'=>'no', 'name'=>'Test'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -208,17 +208,21 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	//
 	// Get the list of existing emails for this mailing, make sure we don't send twice
 	//
-	$strsql = "SELECT customer_email "
-		. "FROM ciniki_mail "
-		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "AND mailing_id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
-		. "";
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
-	$rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.mail', 'emails', 'customer_email');
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
+	if( !isset($args['test']) || $args['test'] != 'yes' ) {
+		$strsql = "SELECT customer_email "
+			. "FROM ciniki_mail "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND mailing_id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
+			. "";
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
+		$rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.mail', 'emails', 'customer_email');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		$existing_emails = $rc['emails'];
+	} else {
+		$existing_emails = array();
 	}
-	$existing_emails = $rc['emails'];
 
 	$email_alert = 'no';
 	if( isset($modules['ciniki.mail']['flags']) && (($modules['ciniki.mail']['flags'])&0x01) == 1 
