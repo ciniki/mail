@@ -309,7 +309,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 			return $rc;
 		}
 		$emails[$eid]['mail_id'] = $rc['id'];
-		
+
 		//
 		// Add to the email queue, if the emails are an alert and need to get send immediately
 		//
