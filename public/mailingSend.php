@@ -60,10 +60,13 @@ function ciniki_mail_mailingSend(&$ciniki) {
     }   
 	$business_details = $rc['details'];
 
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbAddModuleHistory');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUpdate');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
 	$date_format = ciniki_users_dateFormat($ciniki);
+
+	date_default_timezone_set('UTC');
 
 	//
 	// Get the mailing information
@@ -157,21 +160,21 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	//
 	// Prepare Messages
 	//
-	$html_message = $template['html_header'];
-	$text_message = $template['text_header'] . $mailing['text_content'];
+	$html_template = $template['html_header'];
+	$text_template = $template['text_header'] . $mailing['text_content'];
 
 	//
 	// Convert to HTML
 	//
 	if( $mailing['html_content'] == '' ) {
-		$html_content = "<tr><td style='" . $theme['td_body'] . "'><p style='" . $theme['p'] . "'>" . preg_replace('/\n\s*\n/m', "</p><p style='" . $theme['p'] . "'>", $text_message) . '</p></td></tr>';
+		$html_content = "<tr><td style='" . $theme['td_body'] . "'><p style='" . $theme['p'] . "'>" . preg_replace('/\n\s*\n/m', "</p><p style='" . $theme['p'] . "'>", $text_template) . '</p></td></tr>';
 		$html_content = preg_replace('/\n/m', '<br/>', $html_content);
 		// FUTURE: Add processing to find links and replace with email tracking links
 	} else {
 		$html_content = $mailing['html_content'];
 	}
 
-	$html_message .= $html_content;
+	$html_template .= $html_content;
 
 	//
 	// Check if surveys is enabled, and one is set for this mailing
@@ -180,30 +183,25 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		//
 		// Get the survey message, url will be inserted later on
 		//
-		$rc = ciniki_surveys_emailDetails($ciniki, $business_id, $mailing['survey_id']);
-		if( $rc['stat'] != 'ok' ) {
-			return $rc;
-		}
-		$invite_message = $rc['survey']['email_preface'];
-		$html_message = "<tr><td style='" . $theme['td_body'] . "'>"
-			. "<p style='" . $theme['p'] . "'>$invite_message<br/><a style='" . $theme['a'] . "' href='{_survey_url_}'>{_survey_url_}</a></p>"
+		$html_template .= "<tr><td style='" . $theme['td_body'] . "'>"
+			. "<p style='" . $theme['p'] . "'><a style='" . $theme['a'] . "' href='{_survey_url_}'>{_survey_url_}</a></p>"
 			. "</td></tr>\n";
-		$text_message .= "\n\n" . $invite_message . "\n{_survey_url_}";
+		$text_template .= "\n\n{_survey_url_}";
 	}
 
 	//
 	// Add disclaimer
 	//
 	if( isset($settings['message-disclaimer']) && $settings['message-disclaimer'] != '' ) {
-		$html_message .= "<tr><td style='" . $theme['td_body'] . "'><p style='" . $theme['p'] . "'>" . $settings['message-disclaimer'] . "</p></td></tr>";
-		$text_message .= "\n\n" . $settings['message-disclaimer'];
+		$html_template .= "<tr><td style='" . $theme['td_body'] . "'><p style='" . $theme['p'] . "'>" . $settings['message-disclaimer'] . "</p></td></tr>";
+		$text_template .= "\n\n" . $settings['message-disclaimer'];
 	}
 
 	//
 	// Add footer
 	//
-	$html_message .= $template['html_footer'];
-	$text_message .= $template['text_footer'];
+	$html_template .= $template['html_footer'];
+	$text_template .= $template['text_footer'];
 
 	//
 	// Get the list of existing emails for this mailing, make sure we don't send twice
@@ -257,6 +255,12 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		}
 
 		//
+		// Copy the template into the email
+		//
+		$html_message = $html_template;
+		$text_message = $text_template;
+
+		//
 		// Make the basic substitutions in email content
 		//
 		$text_message = preg_replace('/\{_name_\}/', $email['customer_name'], $text_message);
@@ -279,19 +283,19 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		//
 		// Check if surveys is enabled, and one is set for this mailing
 		//
-		if( isset($modules['ciniki.surveys']) && $mailing['survey_id'] > 0 ) {
+		if( isset($modules['ciniki.surveys']) && $mailing['survey_id'] > 0 && (!isset($args['test']) || $args['test'] != 'yes') ) {
 			//
 			// Get the survey link to insert
 			//
-			$rc = ciniki_surveys_createCustomerInvite($ciniki, $business_id, $mailing['survey_id'], $mailing['id'], $email['customer_id']);
+			$rc = ciniki_surveys_createCustomerInvite($ciniki, $args['business_id'], $mailing['survey_id'], $mailing['id'], $email['customer_id'], array());
 			if( $rc['stat'] != 'ok' ) {
 				return $rc;
 			}
 			$invite_id = $rc['id'];
-			$invite_url = $rc['url'];
+			$invite_url = $business_url . $rc['url'];
 			
-			$text_message = preg_replace('/\{_survey_url\}/', $invite_url, $text_message);
-			$html_message = preg_replace('/\{_survey_url\}/', $invite_url, $html_message);
+			$text_message = preg_replace('/\{_survey_url_\}/', $invite_url, $text_message);
+			$html_message = preg_replace('/\{_survey_url_\}/', $invite_url, $html_message);
 		} else {
 			$invite_id = 0;
 		}
@@ -322,7 +326,8 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	// Change the status to Sending
 	//
 	if( !isset($args['test']) || $args['test'] != 'yes' ) {
-		$strsql = "UPDATE ciniki_mailings SET status = 40, last_updated = UTC_TIMESTAMP() "
+		$utc_datetime = strftime("%Y-%m-%d %H:%M:%S");
+		$strsql = "UPDATE ciniki_mailings SET status = 40, last_updated = '" . ciniki_core_dbQuote($ciniki, $utc_datetime) . "' "
 			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. "AND id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
 			. "";
@@ -330,6 +335,10 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;	
 		}
+		ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['business_id'],
+			2, 'ciniki_mailings', $args['mailing_id'], 'status', '40');
+		ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['business_id'],
+			2, 'ciniki_mailings', $args['mailing_id'], 'date_sent', $utc_datetime);
 	}
 
 	return array('stat'=>'ok');

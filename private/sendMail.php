@@ -20,6 +20,7 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUpdate');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbAddModuleHistory');
 	$strsql = "SELECT id, "
 		. "mailing_id, survey_invite_id, "
 		. "customer_id, customer_name, customer_email, "
@@ -37,6 +38,8 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 	}
 	$email = $rc['mail'];
 
+	date_default_timezone_set('UTC');
+
 	//
 	// Check if we can lock the message, by updating to status 20
 	//
@@ -51,6 +54,8 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 	if( $rc['num_affected_rows'] < 1 ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1035', 'msg'=>'Unable to get lock on email'));
 	}
+	ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $business_id, 
+		2, 'ciniki_mail', $mail_id, 'status', '20');
 
 	//  
 	// The from address can be set in the config file.
@@ -95,7 +100,8 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 	//
 	// Update the mail status
 	//
-	$strsql = "UPDATE ciniki_mail SET status = 30, date_sent = UTC_TIMESTAMP(), last_updated = UTC_TIMESTAMP() "
+	$utc_datetime = strftime("%Y-%m-%d %H:%M:%S");
+	$strsql = "UPDATE ciniki_mail SET status = 30, date_sent = '" . ciniki_core_dbQuote($ciniki, $utc_datetime) . "', last_updated = UTC_TIMESTAMP() "
 		. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $mail_id) . "' "
 		. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 		. "";
@@ -103,18 +109,29 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
+	ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $business_id, 
+		2, 'ciniki_mail', $mail_id, 'status', '30');
+	ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $business_id, 
+		2, 'ciniki_mail', $mail_id, 'date_sent', $utc_datetime);
 
 	//
 	// Update the survey invite
 	//
 	if( $email['survey_invite_id'] > 0 ) {
-		$strsql = "UPDATE ciniki_survey_invites SET date_sent = UTC_TIMESTAMP(), last_updated = UTC_TIMESTAMP() "
-			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $mail_id) . "' "
+		$strsql = "UPDATE ciniki_survey_invites SET status = 10, date_sent = '" . ciniki_core_dbQuote($ciniki, $utc_datetime) . "', last_updated = UTC_TIMESTAMP() "
+			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $email['survey_invite_id']) . "' "
 			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "AND status = 5 "
 			. "";
 		$rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.surveys');
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
+		}
+		if( $rc['num_affected_rows'] > 0 ) {
+			ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id, 
+				2, 'ciniki_survey_invites', $email['survey_invite_id'], 'status', '10');
+			ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id, 
+				2, 'ciniki_survey_invites', $email['survey_invite_id'], 'date_sent', $utc_datetime);
 		}
 	}
 
