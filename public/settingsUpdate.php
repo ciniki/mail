@@ -66,6 +66,7 @@ function ciniki_mail_settingsUpdate(&$ciniki) {
 		'smtp-from-address',
 		'mail-default-theme',
 		'message-disclaimer',
+		'smtp-5min-limit',
 		);
 	//
 	// Check each valid setting and see if a new value was passed in the arguments for it.
