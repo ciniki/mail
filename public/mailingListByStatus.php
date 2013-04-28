@@ -31,7 +31,7 @@ function ciniki_mail_mailingListByStatus($ciniki) {
     // Check access to business_id as owner, or sys admin. 
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'checkAccess');
-    $ac = ciniki_mail_checkAccess($ciniki, $args['business_id'], 'ciniki.mail.mailingList');
+    $ac = ciniki_mail_checkAccess($ciniki, $args['business_id'], 'ciniki.mail.mailingListByStatus');
     if( $ac['stat'] != 'ok' ) { 
         return $ac;
     }   
