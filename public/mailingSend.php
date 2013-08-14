@@ -96,7 +96,8 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1030', 'msg'=>'Unable to find mailing'));
 	}
 	$mailing = $rc['mailings'][0]['mailing'];
-	if( !is_array($mailing['subscription_ids']) && count($mailing['subscription_ids']) == 0 ) {
+	// Check for the subscriptions if this is not a test message
+	if( (!isset($args['test']) || $args['test'] != 'yes') && !is_array($mailing['subscription_ids']) && count($mailing['subscription_ids']) == 0 ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1043', 'msg'=>'No subscriptions specified'));
 	}
 
