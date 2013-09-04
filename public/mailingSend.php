@@ -169,7 +169,8 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	//
 	if( $mailing['html_content'] == '' ) {
 		$html_content = "<tr><td style='" . $theme['td_body'] . "'><p style='" . $theme['p'] . "'>" . preg_replace('/\n\s*\n/m', "</p><p style='" . $theme['p'] . "'>", $text_template) . '</p></td></tr>';
-		$html_content = preg_replace('/\n/m', '<br/>', $html_content);
+		$html_content = preg_replace('/\n/m', "<br/>\n", $html_content);
+		$html_content = preg_replace('/<\/p><p/', "</p>\n<p", $html_content);
 		// FUTURE: Add processing to find links and replace with email tracking links
 	} else {
 		$html_content = $mailing['html_content'];

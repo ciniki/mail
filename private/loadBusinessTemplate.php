@@ -90,7 +90,7 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
 	//
 	// Add header to the email
 	//
-	if( isset($args['title']) && $args['title'] != '' ) {
+	if( isset($args['title']) && $args['title'] != '' && (!isset($theme['title_show']) || $theme['title_show'] != 'no') ) {
 		$html_header .= "<tr><td style='$td_header'><p style='$title_style'>" . $args['title'] . "</p></td></tr>";
 	}
 
@@ -98,17 +98,17 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
 	// Add powered by and unsubscribe
 	//
 	$html_footer = "<tr><td style='$td_footer'>"
-		. "<p style='$p_footer'>All content &copy; Copyright " . date('Y') . " by " . $args['business_name'] . "</p>"
+		. "<p style='$p_footer'>All content &copy; Copyright " . date('Y') . " by " . $args['business_name'] . "</p>\n"
 		. "";
 	$text_footer = "\n\nAll content Copyright " . date('Y') . " by " . $args['business_name'];
 	if( isset($ciniki['config']['ciniki.mail']['poweredby.url']) 
 		&& $ciniki['config']['ciniki.mail']['poweredby.url'] != '' 
 		&& $ciniki['config']['ciniki.core']['master_business_id'] != $business_id ) {
-		$html_footer .= "<p style='$p_footer'>Powered by <a style='$a_style' href='" . $ciniki['config']['ciniki.mail']['poweredby.url'] . "'>" . $ciniki['config']['ciniki.mail']['poweredby.name'] . "</a></p>";
+		$html_footer .= "<p style='$p_footer'>Powered by <a style='$a_style' href='" . $ciniki['config']['ciniki.mail']['poweredby.url'] . "'>" . $ciniki['config']['ciniki.mail']['poweredby.name'] . "</a></p>\n";
 		$text_footer .= "\nPowered by Ciniki: " . $ciniki['config']['ciniki.mail']['poweredby.url'];
 	}
 	if( isset($args['unsubscribe_link']) && $args['unsubscribe_link'] == 'yes' ) {
-		$html_footer .= "<p style='$p_footer'><a style='$a_style' href='{_unsubscribe_url_}'>Unsubscribe</a></p>";
+		$html_footer .= "<p style='$p_footer'><a style='$a_style' href='{_unsubscribe_url_}'>Unsubscribe</a></p>\n";
 		$text_footer .= "\nUnsubscribe: {_unsubscribe_url_}";
 		$text_footer .= "\n\n";
 	}
