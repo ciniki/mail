@@ -11,7 +11,7 @@
 // -------
 //
 function ciniki_mail_cron_checkMail($ciniki) {
-	print("CRON: Checking mail to be sent");
+	print("CRON: Checking mail to be sent\n");
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
 	//
@@ -38,7 +38,7 @@ function ciniki_mail_cron_checkMail($ciniki) {
 	foreach($businesses as $business_id) {
 		$rc = ciniki_mail_getSettings($ciniki, $business_id);
 		if( $rc['stat'] != 'ok' ) {
-			print("CRON-ERR: Unable to load business mail settings for $business_id (" . serialize($rc) . ")");
+			error_log("CRON-ERR: Unable to load business mail settings for $business_id (" . serialize($rc) . ")");
 			continue;
 		}
 		$settings = $rc['settings'];	
@@ -57,14 +57,14 @@ function ciniki_mail_cron_checkMail($ciniki) {
 			. "";
 		$rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.mail', 'mail', 'id');
 		if( $rc['stat'] != 'ok' ) {
-			print("CRON-ERR: Unable to load mail list for $business_id (" . serialize($rc) . ")");
+			error_log("CRON-ERR: Unable to load mail list for $business_id (" . serialize($rc) . ")");
 			continue;
 		}
 		$emails = $rc['mail'];
 		foreach($emails as $mail_id) {
 			$rc = ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id);
 			if( $rc['stat'] != 'ok' ) {
-				print("CRON-ERR: Unable to send mail for $business_id (" . serialize($rc) . ")");
+				error_log("CRON-ERR: Unable to send mail for $business_id (" . serialize($rc) . ")");
 				continue;
 			}
 		}
