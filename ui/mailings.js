@@ -38,7 +38,7 @@ function ciniki_mail_mailings() {
 				'cellClasses':[''],
 				},
 			'_buttons':{'label':'', 'buttons':{
-				'download':{'label':'Download Survey Results', 'fn':'M.ciniki_mail_mailings.downloadAllResults();'},
+				'download':{'label':'Download Survey Results', 'visible':'no', 'fn':'M.ciniki_mail_mailings.downloadAllResults();'},
 			}},
 		};
 		this.menu.sectionData = function(s) {
@@ -180,6 +180,16 @@ function ciniki_mail_mailings() {
 				'20':'Newsletter',
 			};
 		}
+
+		//
+		// Check if surveys active
+		//
+		if( M.curBusiness.modules['ciniki.surveys'] != null ) {
+			this.menu.sections._buttons.buttons.download.visible = 'yes';
+		} else {
+			this.menu.sections._buttons.buttons.download.visible = 'no';
+		}
+
 		//
 		// Load the subscriptions available
 		//

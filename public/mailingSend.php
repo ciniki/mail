@@ -109,6 +109,9 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	// Pull customer list (customer_id, customer_name, email)
 	//
 	if( isset($args['test']) && $args['test'] == 'yes' ) {
+		//
+		// test message, send to session user email
+		//
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
 		$strsql = "SELECT id, CONCAT_WS(' ', firstname, lastname) AS name, email "
@@ -120,7 +123,12 @@ function ciniki_mail_mailingSend(&$ciniki) {
 			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1038', 'msg'=>'Unable to find email information', 'err'=>$rc['err']));
 		}
 		$emails = array(array('customer_id'=>0, 'customer_name'=>$rc['user']['name'], 'email'=>$rc['user']['email'], 'subscription_uuid'=>'Test'));
-	} else {
+	} 
+	
+	else {
+		//
+		// Pull the list of emails from the subscription
+		//
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'subscriptions', 'private', 'emailList');
 		$rc = ciniki_subscriptions_emailList($ciniki, $args['business_id'], explode(',', $mailing['subscription_ids']));
 		if( $rc['stat'] != 'ok' ) {
@@ -276,6 +284,9 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		$text_message = preg_replace('/\{_unsubscribe_url_\}/', $unsubscribe_url, $text_message);
 		$html_message = preg_replace('/\{_unsubscribe_url_\}/', $unsubscribe_url, $html_message);
 
+		//
+		// If sending a test message, don't load it into the database, just send and quit
+		//
 		if( isset($args['test']) && $args['test'] == 'yes' ) {
 			ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'emailUser');
 			ciniki_users_emailUser($ciniki, $args['business_id'], $ciniki['session']['user']['id'], 
