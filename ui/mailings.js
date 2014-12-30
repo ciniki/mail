@@ -68,7 +68,7 @@ function ciniki_mail_mailings() {
 				'subscription_names':{'label':'Subscriptions'},
 			}},
 			'text_content':{'label':'Message', 'type':'htmlcontent'},
-			'survey':{'label':'', 'list':{	
+			'survey':{'label':'', 'visible':'no', 'list':{	
 				'survey_name':{'label':'Survey'},
 			}},
 			'_buttons':{'label':'', 'buttons':{
@@ -123,7 +123,7 @@ function ciniki_mail_mailings() {
 			'_msg':{'label':'Message', 'fields':{
 				'text_content':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
 			}},
-			'survey':{'label':'', 'visible':'no', 'fields':{
+			'survey':{'label':'', 'active':'no', 'fields':{
 				'survey_id':{'label':'Survey', 'active':'no', 'type':'select', 'options':this.availableSurveys},
 			}},
 			'_subscriptions':{'label':'Subscriptions', 'fields':{
@@ -186,8 +186,14 @@ function ciniki_mail_mailings() {
 		//
 		if( M.curBusiness.modules['ciniki.surveys'] != null ) {
 			this.menu.sections._buttons.buttons.download.visible = 'yes';
+			this.mailing.sections.survey.visible = 'yes';
+			this.edit.sections.survey.active = 'yes';
+			this.mailing.sections._buttons.buttons.download.visible = 'yes';
 		} else {
 			this.menu.sections._buttons.buttons.download.visible = 'no';
+			this.mailing.sections.survey.visible = 'no';
+			this.edit.sections.survey.active = 'no';
+			this.mailing.sections._buttons.buttons.download.visible = 'no';
 		}
 
 		//
@@ -261,7 +267,7 @@ function ciniki_mail_mailings() {
 				} else {
 					p.sections._buttons.buttons.send.visible = 'no';
 				}
-				if( rsp.mailing.status > 20 ) {
+				if( rsp.mailing.status > 20 && M.curBusiness.modules['ciniki.surveys'] != null ) {
 					p.sections._buttons.buttons.download.visible = 'yes';
 				} else {
 					p.sections._buttons.buttons.download.visible = 'no';
