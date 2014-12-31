@@ -68,6 +68,7 @@ function ciniki_mail_mailings() {
 				'subscription_names':{'label':'Subscriptions'},
 			}},
 			'text_content':{'label':'Message', 'type':'htmlcontent'},
+			'html_content':{'label':'Message', 'type':'htmlcontent'},
 			'survey':{'label':'', 'visible':'no', 'list':{	
 				'survey_name':{'label':'Survey'},
 			}},
@@ -99,6 +100,9 @@ function ciniki_mail_mailings() {
 		this.mailing.sectionData = function(s) {
 			if( s == 'text_content' ) {
 				return this.data[s].replace(/\n/g, '<br/>');
+			}
+			if( s == 'html_content' ) {
+				return this.data[s];
 			}
 			return this.sections[s].list;
 		};
@@ -199,7 +203,7 @@ function ciniki_mail_mailings() {
 		//
 		// Load the subscriptions available
 		//
-		var rsp = M.api.getJSONCb('ciniki.subscriptions.list', 
+		M.api.getJSONCb('ciniki.subscriptions.list', 
 			{'business_id':M.curBusinessID}, function(rsp) {
 				if( rsp.stat != 'ok' ) {
 					M.api.err(rsp);
@@ -210,11 +214,30 @@ function ciniki_mail_mailings() {
 					M.ciniki_mail_mailings.subscriptions[rsp.subscriptions[i].subscription.id] = rsp.subscriptions[i].subscription.name;
 				}
 				M.ciniki_mail_mailings.edit.sections._subscriptions.fields.subscription_ids.options = M.ciniki_mail_mailings.subscriptions;
-
-				M.ciniki_mail_mailings.edit.mailing_id = 0;
-				M.ciniki_mail_mailings.showMenu(cb);
+	
+				if( args.add != null && args.add == 'yes' && args.object != null && args.object_id != null ) {
+					M.ciniki_mail_mailings.createFromObject(cb, args.object, args.object_id);
+				} else {
+					M.ciniki_mail_mailings.edit.mailing_id = 0;
+					M.ciniki_mail_mailings.showMenu(cb);
+				}
 			});
 	}
+
+	//
+	// Create new mailing from object
+	//
+	this.createFromObject = function(cb, obj, oid) {
+		M.api.getJSONCb('ciniki.mail.mailingAddFromObject', 
+			{'business_id':M.curBusinessID, 'object':obj, 'object_id':oid}, function(rsp) {
+				if( rsp.stat != 'ok' ) {
+					M.api.err(rsp);
+					return false;
+				}
+				M.ciniki_mail_mailings.mailing.mailing_id = rsp.id;
+				M.ciniki_mail_mailings.showMailingFinish(cb, rsp.mailing);
+			});
+	};
 
 	//
 	// Grab the stats for the business from the database and present the list of orders.
@@ -245,36 +268,38 @@ function ciniki_mail_mailings() {
 	};
 
 	this.showMailing = function(cb, mid) {
-		if( mid != null ) {
-			this.mailing.mailing_id = mid;
-		}
-		var rsp = M.api.getJSONCb('ciniki.mail.mailingGet', 
+		if( mid != null ) { this.mailing.mailing_id = mid; }
+		M.api.getJSONCb('ciniki.mail.mailingGet', 
 			{'business_id':M.curBusinessID, 'mailing_id':this.mailing.mailing_id}, function(rsp) {
 				if( rsp.stat != 'ok' ) {
 					M.api.err(rsp);
 					return false;
 				}
-				var p = M.ciniki_mail_mailings.mailing;
-				p.data = rsp.mailing;
-				p.survey_id = rsp.mailing.survey_id;
-				if( rsp.mailing.status == '10' ) {
-					p.sections._buttons.buttons.edit.visible = 'yes';
-				} else {
-					p.sections._buttons.buttons.edit.visible = 'no';
-				}
-				if( rsp.mailing.status == '10' || rsp.mailing.status == '20' ) {
-					p.sections._buttons.buttons.send.visible = 'yes';
-				} else {
-					p.sections._buttons.buttons.send.visible = 'no';
-				}
-				if( rsp.mailing.status > 20 && M.curBusiness.modules['ciniki.surveys'] != null ) {
-					p.sections._buttons.buttons.download.visible = 'yes';
-				} else {
-					p.sections._buttons.buttons.download.visible = 'no';
-				} 
-				p.refresh();
-				p.show(cb);
+				M.ciniki_mail_mailings.showMailingFinish(cb, rsp.mailing);
 			});
+	};
+
+	this.showMailingFinish = function(cb, mailing) {
+		var p = M.ciniki_mail_mailings.mailing;
+		p.data = mailing;
+		p.survey_id = mailing.survey_id;
+		if( mailing.status == '10' ) {
+			p.sections._buttons.buttons.edit.visible = 'yes';
+		} else {
+			p.sections._buttons.buttons.edit.visible = 'no';
+		}
+		if( mailing.status == '10' || mailing.status == '20' ) {
+			p.sections._buttons.buttons.send.visible = 'yes';
+		} else {
+			p.sections._buttons.buttons.send.visible = 'no';
+		}
+		if( mailing.status > 20 && M.curBusiness.modules['ciniki.surveys'] != null ) {
+			p.sections._buttons.buttons.download.visible = 'yes';
+		} else {
+			p.sections._buttons.buttons.download.visible = 'no';
+		} 
+		p.refresh();
+		p.show(cb);
 	};
 
 	this.showEdit = function(cb, mid) {

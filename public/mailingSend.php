@@ -181,7 +181,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		$html_content = preg_replace('/<\/p><p/', "</p>\n<p", $html_content);
 		// FUTURE: Add processing to find links and replace with email tracking links
 	} else {
-		$html_content = $mailing['html_content'];
+		$html_content = "<tr><td style='" . $theme['td_body'] . "'>" . $mailing['html_content'] . "</td></tr>";
 	}
 
 	$html_template .= $html_content;
