@@ -88,7 +88,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing)
 		return $rc;
 	}
 	$object = $rc['object'];
-	$subject = '';
+	$subject = $rc['object']['subject'];
 	$text_content = '';
 	$html_content = '';
 
@@ -109,7 +109,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing)
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'getScaledImageURL');
 	if( isset($object['image_id']) && $object['image_id'] > 0 ) {
-		$rc = ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $object['image_id'], 'original', '500', 0);
+		$rc = ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $object['image_id'], 'original', '500', '500');
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
 		}
@@ -205,7 +205,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing)
 			if( $img['image_id'] == 0 ) {
 				$img_url = $domain_base_url . '/ciniki-web-layouts/default/img/noimage_240.png';
 			} else {
-				$rc = ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $img['image_id'], 'original', '500', 0);
+				$rc = ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $img['image_id'], 'thumbnail', '125', 0);
 				if( $rc['stat'] != 'ok' ) {
 					return $rc;
 				}
