@@ -95,6 +95,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing)
 	//
 	// Prepare the content for the email
 	//
+	$a_style = isset($theme['a'])?$theme['a']:'';
 	$h2_style = isset($theme['h2'])?$theme['h2']:'';
 	$image_wrap_style = isset($theme['image_wrap'])?$theme['image_wrap']:'';
 	$image_style = isset($theme['image'])?$theme['image']:'';
@@ -103,6 +104,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing)
 	$file_description_style = isset($theme['file_description'])?$theme['file_description']:'';
 	$image_gallery_style = isset($theme['image_gallery'])?$theme['image_gallery']:'';
 	$image_gallery_thumbnail_style = isset($theme['image_gallery_thumbnail'])?$theme['image_gallery_thumbnail']:'';
+	$linkback_style = isset($theme['linkback'])?$theme['linkback']:'';
 
 	//
 	// Check for a primary image
@@ -155,7 +157,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing)
 				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2127', 'msg'=>'Unable to create mail file download'));
 			}
 			$url = $cache_url . "/" . $filename;
-			$html_content .= "<a target='_blank' href='" . $url . "' title='" . $file['name'] . "'>" . $file['name'] . "</a>";
+			$html_content .= "<a style='$a_style' target='_blank' href='" . $url . "' title='" . $file['name'] . "'>" . $file['name'] . "</a>";
 			$text_files .= $file['name'] . ": " . $url . "\n";
 			if( isset($file['description']) && $file['description'] != '' ) {
 				$html_content .= "<br/><span style='file_description_style'>" . $file['description'] . "</span>";
@@ -186,7 +188,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing)
 				$display_url = preg_replace('/\/$/i', '', $display_url);
 			}
 			$text_links .= $display_url . "\n";
-			$html_content .= "<br/><a href='" . $url . "' title='" . ($link['name']!=''?$link['name']:$display_url) . "'>" . $display_url . "</a>";
+			$html_content .= "<br/><a style='$a_style' href='" . $url . "' title='" . ($link['name']!=''?$link['name']:$display_url) . "'>" . $display_url . "</a>";
 		}
 		if( $text_links != '' ) {
 			$text_content .= "\n" . $text_links;
@@ -214,6 +216,21 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing)
 			}
 		}
 		$html_content .= "</div>";
+	}
+
+	//
+	// Check for linkback
+	//
+	if( isset($object['linkback']['url']) && $object['linkback']['url'] != '' ) {
+		// IF linkback starts with / then reference website
+		if( $object['linkback']['url'][0] = '/' ) {
+			$url = $domain_base_url . $object['linkback']['url'];
+		} else {
+			$url = $object['linkback']['url'];
+		}
+		$text = isset($object['linkback']['text'])?$object['linkback']['text']:'View Online';
+		$text_content .= "\n\n$text: " . $url;
+		$html_content .= "<br/><center><a style='$linkback_style' href='$url' title='$text'>$text</a></center>";
 	}
 
 	return array('stat'=>'ok', 'subject'=>$subject, 'text_content'=>$text_content, 'html_content'=>$html_content);

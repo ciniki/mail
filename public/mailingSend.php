@@ -187,7 +187,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		}
 		$mailing['subject'] = $rc['subject'];
 		$text_content = $rc['text_content'];
-		$html_content = $rc['html_content'];
+		$html_content = "<tr><td style='" . $theme['td_body'] . "'>" . $rc['html_content'] . "</td></tr>";
 	} 
 
 	//
