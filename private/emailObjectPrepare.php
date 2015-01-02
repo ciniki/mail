@@ -96,6 +96,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing,
 	$file_description_style = isset($theme['file_description'])?$theme['file_description']:'';
 	$image_gallery_style = isset($theme['image_gallery'])?$theme['image_gallery']:'';
 	$image_gallery_thumbnail_style = isset($theme['image_gallery_thumbnail'])?$theme['image_gallery_thumbnail']:'';
+	$image_gallery_thumbnail_img_style = isset($theme['image_gallery_thumbnail_img'])?$theme['image_gallery_thumbnail_img']:'';
 	$linkback_style = isset($theme['linkback'])?$theme['linkback']:'';
 
 	//
@@ -103,12 +104,12 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing,
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'getScaledImageURL');
 	if( isset($object['image_id']) && $object['image_id'] > 0 ) {
-		$rc = ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $object['image_id'], 'original', '500', '500');
+		$rc = ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $object['image_id'], 'original', '400', '500');
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
 		}
 		$html_content .= "<div style='$image_wrap_style'>"
-			. "<div style='$image_style'><img style='$img_style' title='' src='$cache_url/" . $rc['filename'] . "' /></div>";
+			. "<div style='$image_style'><img class='primary' style='$img_style' title='' src='$cache_url/" . $rc['filename'] . "' /></div>";
 		if( isset($page['image_caption']) && $page['image_caption'] != '' ) {
 			$html_content .= "<div style='$image_caption_style'>" . $page['image_caption'] . "</div>";
 		}
@@ -204,7 +205,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing,
 					return $rc;
 				}
 				$html_content .= "<div style='$image_gallery_thumbnail_style'>"
-					. "<img style='width: 100px; height: 100px; $img_style' title='' src='$cache_url/" . $rc['filename'] . "' /></div>";
+					. "<img style='width: 100px; height: 100px; $image_gallery_thumbnail_img_style' title='' src='$cache_url/" . $rc['filename'] . "' /></div>";
 			}
 		}
 		$html_content .= "</div>";
@@ -222,7 +223,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing,
 		}
 		$text = isset($object['linkback']['text'])?$object['linkback']['text']:'View Online';
 		$text_content .= "\n\n$text: " . $url;
-		$html_content .= "<br/><center><a style='$linkback_style' href='$url' title='$text'>$text</a></center>";
+		$html_content .= "<br/><center><a style='$linkback_style' href='$url' title='$text'>$text</a></center><br/>";
 	}
 
 	return array('stat'=>'ok', 'subject'=>$subject, 'text_content'=>$text_content, 'html_content'=>$html_content);

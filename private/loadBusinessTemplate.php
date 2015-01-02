@@ -74,6 +74,7 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
 	$td_header = $theme['td_header'];
 	$td_body = $theme['td_body'];
 	$td_footer = $theme['td_footer'];
+	$a_footer = $theme['a_footer'];
 
 	// 
 	// Prepare the html_header
@@ -104,11 +105,11 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
 	if( isset($ciniki['config']['ciniki.mail']['poweredby.url']) 
 		&& $ciniki['config']['ciniki.mail']['poweredby.url'] != '' 
 		&& $ciniki['config']['ciniki.core']['master_business_id'] != $business_id ) {
-		$html_footer .= "<p style='$p_footer'>Powered by <a style='$a_style' href='" . $ciniki['config']['ciniki.mail']['poweredby.url'] . "'>" . $ciniki['config']['ciniki.mail']['poweredby.name'] . "</a></p>\n";
+		$html_footer .= "<p style='$p_footer'>Powered by <a style='$a_footer' href='" . $ciniki['config']['ciniki.mail']['poweredby.url'] . "'>" . $ciniki['config']['ciniki.mail']['poweredby.name'] . "</a></p>\n";
 		$text_footer .= "\nPowered by Ciniki: " . $ciniki['config']['ciniki.mail']['poweredby.url'];
 	}
 	if( isset($args['unsubscribe_link']) && $args['unsubscribe_link'] == 'yes' ) {
-		$html_footer .= "<p style='$p_footer'><a style='$a_style' href='{_unsubscribe_url_}'>Unsubscribe</a></p>\n";
+		$html_footer .= "<p style='$p_footer'><a style='$a_footer' href='{_unsubscribe_url_}'>Unsubscribe</a></p>\n";
 		$text_footer .= "\nUnsubscribe: {_unsubscribe_url_}";
 		$text_footer .= "\n\n";
 	}
