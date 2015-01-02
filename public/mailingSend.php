@@ -154,6 +154,27 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		$flags = 0;
 	}
 
+	if( $mailing['type'] == 40 ) {
+		if( !isset($mailing['object']) || $mailing['object'] == ''
+			|| !isset($mailing['object_id']) || $mailing['object_id'] == '' ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2129', 'msg'=>'Object not specified'));
+		}
+		//
+		// Load the object content
+		//
+		list($pkg, $mod, $obj) = explode('.', $mailing['object']);
+		$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'hooks', 'mailingContent');
+		$fn = $rc['function_call'];
+		$rc = $fn($ciniki, $args['business_id'], array('object'=>$mailing['object'], 'object_id'=>$mailing['object_id']));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		$object = $rc['object'];
+		$header_title = $object['title'];
+	} else {
+		$header_title = $business_details['name'];
+	}
+
 	//
 	// Load the business mail template
 	//
@@ -161,7 +182,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	$rc = ciniki_mail_loadBusinessTemplate($ciniki, $args['business_id'], array(
 		'theme'=>$mailing['theme'],
 		'unsubscribe_link'=>'yes',
-		'title'=>$business_details['name'],
+		'title'=>$header_title,
 		'business_name'=>$business_details['name'],
 		));
 	if( $rc['stat'] != 'ok' ) {
@@ -181,7 +202,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	//
 	if( $mailing['type'] == 40 ) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'emailObjectPrepare');
-		$rc = ciniki_mail_emailObjectPrepare($ciniki, $args['business_id'], $theme, $mailing);
+		$rc = ciniki_mail_emailObjectPrepare($ciniki, $args['business_id'], $theme, $mailing, $object);
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
 		}

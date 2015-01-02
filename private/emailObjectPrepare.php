@@ -14,15 +14,15 @@
 // Returns
 // -------
 //
-function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing) {
+function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing, $object) {
 
 	//
 	// Make sure the object is specified
 	//
-	if( !isset($mailing['object']) || $mailing['object'] == '' 
-		|| !isset($mailing['object_id']) || $mailing['object_id'] == '' ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2129', 'msg'=>'Object not specified'));
-	}
+//	if( !isset($mailing['object']) || $mailing['object'] == '' 
+//		|| !isset($mailing['object_id']) || $mailing['object_id'] == '' ) {
+//		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2129', 'msg'=>'Object not specified'));
+//	}
 
 	//
 	// Get the business uuid
@@ -78,17 +78,9 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing)
 		. '/' . $mailing['uuid'][0] . '/' . $mailing['uuid'];
 
 	//
-	// Load the object content
+	// Setup the subject, text and html content
 	//
-	list($pkg, $mod, $obj) = explode('.', $mailing['object']);
-	$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'hooks', 'mailingContent');
-	$fn = $rc['function_call'];
-	$rc = $fn($ciniki, $business_id, array('object'=>$mailing['object'], 'object_id'=>$mailing['object_id']));
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
-	$object = $rc['object'];
-	$subject = $rc['object']['subject'];
+	$subject = $object['subject'];
 	$text_content = '';
 	$html_content = '';
 
@@ -207,12 +199,12 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing)
 			if( $img['image_id'] == 0 ) {
 				$img_url = $domain_base_url . '/ciniki-web-layouts/default/img/noimage_240.png';
 			} else {
-				$rc = ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $img['image_id'], 'thumbnail', '125', 0);
+				$rc = ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $img['image_id'], 'thumbnail', '100', 0);
 				if( $rc['stat'] != 'ok' ) {
 					return $rc;
 				}
 				$html_content .= "<div style='$image_gallery_thumbnail_style'>"
-					. "<img style='$img_style' title='' src='$cache_url/" . $rc['filename'] . "' /></div>";
+					. "<img style='width: 100px; height: 100px; $img_style' title='' src='$cache_url/" . $rc['filename'] . "' /></div>";
 			}
 		}
 		$html_content .= "</div>";

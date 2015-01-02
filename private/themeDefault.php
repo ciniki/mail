@@ -35,12 +35,12 @@ function ciniki_mail_themeDefault($ciniki, $business_id) {
 		'h3'=>'text-decoration: bold; font-size: 16px;',
 		'h4'=>'text-decoration: bold; font-size: 14px;',
 		'image_wrap'=>'margin: 0px auto; text-align: center;',
-		'image'=>'padding: 9px; border: 2px solid #ccc; display: inline-block;',
+		'image'=>'max-width: 30em; padding: 9px; border: 2px solid #ccc; display: inline-block;',
 		'img'=>'border: 0px; padding: 0px; margin: 0px;',
 		'image_caption'=>'',
 		'file_description'=>'',
 		'image_gallery'=>'margin: 0px auto; text-align: center;',
-		'image_gallery_thumbnail'=>'width: 120px; height: 120px; margin: 7px; padding: 7px; border: 1px solid #aaa; display: inline-block;',
+		'image_gallery_thumbnail'=>'margin: 7px; padding: 7px; border: 1px solid #aaa; display: inline-block;',
 		'linkback'=>'font-size: 16px; text-decoration: none; color: #439BBD;',
 		));
 }
