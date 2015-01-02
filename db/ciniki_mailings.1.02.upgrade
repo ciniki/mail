@@ -1,0 +1,5 @@
+#
+#
+ALTER TABLE ciniki_mailings ADD COLUMN object varchar(100) not null AFTER survey_id;
+ALTER TABLE ciniki_mailings ADD COLUMN object_id varchar(100) not null AFTER object;
+ALTER TABLE ciniki_mailings COMMENT='v1.02';

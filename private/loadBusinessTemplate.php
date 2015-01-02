@@ -19,7 +19,7 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
 	//
 	// If there is no theme sent, load them from defaults
 	//
-	if( !isset($args['theme']) ) {
+	if( !isset($args['theme']) || $args['theme'] == '' ) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'getSettings');
 		$rc = ciniki_mail_getSettings($ciniki, $business_id);
 		if( $rc['stat'] != 'ok' ) {

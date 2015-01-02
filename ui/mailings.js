@@ -203,7 +203,7 @@ function ciniki_mail_mailings() {
 		//
 		// Load the subscriptions available
 		//
-		M.api.getJSONCb('ciniki.subscriptions.list', 
+		M.api.getJSONCb('ciniki.subscriptions.subscriptionList', 
 			{'business_id':M.curBusinessID}, function(rsp) {
 				if( rsp.stat != 'ok' ) {
 					M.api.err(rsp);

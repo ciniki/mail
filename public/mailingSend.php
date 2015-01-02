@@ -72,8 +72,10 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	// Get the mailing information
 	//
 	$strsql = "SELECT "
-		. "ciniki_mailings.id, ciniki_mailings.type, "
-		. "status, theme, survey_id, subject, "
+		. "ciniki_mailings.id, "
+		. "ciniki_mailings.uuid, "
+		. "ciniki_mailings.type, "
+		. "status, theme, survey_id, object, object_id, subject, "
 		. "html_content, text_content, date_started, date_sent, "
 		. "ciniki_mailing_subscriptions.subscription_id AS subscription_ids "
 		. "FROM ciniki_mailings "
@@ -86,7 +88,9 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.mail', array(
 		array('container'=>'mailings', 'fname'=>'id', 'name'=>'mailing',
-			'fields'=>array('id', 'type', 'status', 'theme', 'survey_id', 'subject', 'html_content', 'text_content', 'subscription_ids'),
+			'fields'=>array('id', 'uuid', 'type', 'status', 'theme', 'survey_id', 
+			'object', 'object_id', 
+			'subject', 'html_content', 'text_content', 'subscription_ids'),
 			'idlists'=>array('subscription_ids')),
 		));
 	if( $rc['stat'] != 'ok' ) {
@@ -170,20 +174,41 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	// Prepare Messages
 	//
 	$html_template = $template['html_header'];
-	$text_template = $template['text_header'] . $mailing['text_content'];
+	$text_template = $template['text_header'];
 
 	//
-	// Convert to HTML
+	// Build the message from the content
 	//
-	if( $mailing['html_content'] == '' ) {
-		$html_content = "<tr><td style='" . $theme['td_body'] . "'><p style='" . $theme['p'] . "'>" . preg_replace('/\n\s*\n/m', "</p><p style='" . $theme['p'] . "'>", $text_template) . '</p></td></tr>';
-		$html_content = preg_replace('/\n/m', "<br/>\n", $html_content);
-		$html_content = preg_replace('/<\/p><p/', "</p>\n<p", $html_content);
-		// FUTURE: Add processing to find links and replace with email tracking links
-	} else {
-		$html_content = "<tr><td style='" . $theme['td_body'] . "'>" . $mailing['html_content'] . "</td></tr>";
+	if( $mailing['type'] == 40 ) {
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'emailObjectPrepare');
+		$rc = ciniki_mail_emailObjectPrepare($ciniki, $args['business_id'], $theme, $mailing);
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		$mailing['subject'] = $rc['subject'];
+		$text_content = $rc['text_content'];
+		$html_content = $rc['html_content'];
+	} 
+
+	//
+	// Build the message
+	//
+	else {
+		$text_content .= $mailing['text_content'];
+		//
+		// Convert to HTML
+		//
+		if( $mailing['html_content'] == '' ) {
+			$html_content = "<tr><td style='" . $theme['td_body'] . "'><p style='" . $theme['p'] . "'>" . preg_replace('/\n\s*\n/m', "</p><p style='" . $theme['p'] . "'>", $text_template) . '</p></td></tr>';
+			$html_content = preg_replace('/\n/m', "<br/>\n", $html_content);
+			$html_content = preg_replace('/<\/p><p/', "</p>\n<p", $html_content);
+			// FUTURE: Add processing to find links and replace with email tracking links
+		} else {
+			$html_content = "<tr><td style='" . $theme['td_body'] . "'>" . $mailing['html_content'] . "</td></tr>";
+		}
 	}
 
+	$text_template .= $text_content;
 	$html_template .= $html_content;
 
 	//

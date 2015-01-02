@@ -15,6 +15,7 @@
 #					10 - General
 #					20 - Newsletter
 #					30 - Alert
+#					40 - Object (Send email with page of object information)
 #
 # status:			The current status of the mailing.
 #
@@ -28,6 +29,11 @@
 # theme:			The name of the theme to use for this email.
 #
 # survey_id:		The ID of the survey to include a link to at the bottom of the email.
+#
+# object:			The ciniki object to send as an email. This is used to email out blog posts
+#					to subscription lists.
+#
+# object_id:		The ID of the ciniki object to send as an email. 
 #
 # subject:			The subject of the email.
 #
@@ -49,6 +55,8 @@ create table ciniki_mailings (
 	status tinyint unsigned not null,
 	theme varchar(50) not null,
 	survey_id int not null,
+	object varchar(100) not null,
+	object_id varchar(100) not null,
 	subject varchar(250) not null,
 	html_content text not null,
 	text_content text not null,
@@ -58,4 +66,4 @@ create table ciniki_mailings (
 	last_updated datetime not null,
 	primary key(id),
 	index (business_id, uuid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.01';
+) ENGINE='InnoDB', COMMENT='v1.02';

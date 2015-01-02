@@ -27,9 +27,10 @@ function ciniki_mail_themeBlack($ciniki, $business_id) {
 		'td_header'=>'padding: 10px; margin-bottom: 5px; border-bottom: 1px solid #555555;',
 		'td_body'=>'padding: 10px;',
 		'td_footer'=>'margin-top: 20px; padding: 10px; border-top: 1px solid #555555;',
-		'h1'=>'',
-		'h2'=>'',
-		'h3'=>'',
+		'h1'=>'text-decoration: bold; font-size: 22px;',
+		'h2'=>'text-decoration: bold; font-size: 18px;',
+		'h3'=>'text-decoration: bold; font-size: 16px;',
+		'h4'=>'text-decoration: bold; font-size: 14px;',
 		));
 }
 ?>
