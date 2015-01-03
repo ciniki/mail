@@ -62,56 +62,48 @@ function ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $image
 //	$img_domain_url = 'http://' . $ciniki['request']['domain'] . $ciniki['request']['cache_url'] . $filename;
 
 	//
-	// Check last_updated against the file timestamp, if the file exists
+	// Load the image from the database
 	//
-//	$utc_offset = date_offset_get(new DateTime);
-	if( !file_exists($img_filename) 
-		|| filemtime($img_filename) < $img['last_updated'] ) {
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadImage');
+	$rc = ciniki_images_loadImage($ciniki, $business_id, $img['id'], $version);
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$image = $rc['image'];
 
-		//
-		// Load the image from the database
-		//
-		ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadImage');
-		$rc = ciniki_images_loadImage($ciniki, $business_id, $img['id'], $version);
-		if( $rc['stat'] != 'ok' ) {
-			return $rc;
+	//
+	// Scale image
+	//
+	$image->scaleImage($maxwidth, $maxheight);
+
+	//
+	// Apply a border
+	//
+	// $image->borderImage("rgb(255,255,255)", 10, 10);
+
+	//
+	// Check if directory exists
+	//
+	if( !file_exists(dirname($img_filename)) ) {
+		if( !mkdir(dirname($img_filename), 0755, true) ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2128', 'msg'=>'Unable to create mail cache'));
 		}
-		$image = $rc['image'];
+	}
 
-		//
-		// Scale image
-		//
-		$image->scaleImage($maxwidth, $maxheight);
-
-		//
-		// Apply a border
-		//
-		// $image->borderImage("rgb(255,255,255)", 10, 10);
-
-		//
-		// Check if directory exists
-		//
-		if( !file_exists(dirname($img_filename)) ) {
-			if( !mkdir(dirname($img_filename), 0755, true) ) {
-				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2128', 'msg'=>'Unable to create mail cache'));
-			}
-		}
-
-		//
-		// Write the file
-		//
-		$h = fopen($img_filename, 'w');
-		if( $h ) {
-			if( $img['type'] == 2 ) {
-				$image->setImageFormat('png');
-			} else {
-				$image->setImageCompressionQuality($quality);
-			}
-			fwrite($h, $image->getImageBlob());
-			fclose($h);
+	//
+	// Write the file
+	//
+	$h = fopen($img_filename, 'w');
+	if( $h ) {
+		if( $img['type'] == 2 ) {
+			$image->setImageFormat('png');
 		} else {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2125', 'msg'=>'Unable to load image'));
+			$image->setImageCompressionQuality($quality);
 		}
+		fwrite($h, $image->getImageBlob());
+		fclose($h);
+	} else {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2125', 'msg'=>'Unable to load image'));
 	}
 
 	return array('stat'=>'ok', 'filename'=>$filename);

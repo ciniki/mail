@@ -104,7 +104,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing,
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'getScaledImageURL');
 	if( isset($object['image_id']) && $object['image_id'] > 0 ) {
-		$rc = ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $object['image_id'], 'original', '400', '500');
+		$rc = ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $object['image_id'], 'original', '400', '0');
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
 		}

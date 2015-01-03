@@ -38,7 +38,7 @@ function ciniki_mail_themeDefault($ciniki, $business_id) {
 		'h4'=>'text-decoration: bold; font-size: 16px; font-family: Helvetica, sans-serif;',
 		'image_wrap'=>'margin: 0px auto; text-align: center;',
 		'image'=>'padding: 9px; border: 2px solid #ccc; display: inline-block; line-height: 10px;',
-		'img'=>'display: block; border: 0px; padding: 0px; margin: 0px;',
+		'img'=>'display: block; max-width: 100%; border: 0px; padding: 0px; margin: 0px;',
 		'image_caption'=>'',
 		'file_description'=>'',
 		'image_gallery'=>'margin: 0px auto; text-align: center;',
