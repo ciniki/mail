@@ -120,6 +120,9 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing,
 	// Format the content
 	//
 	if( isset($object['content']) ) {
+		if( $object['content'] == '' && $object['synopsis'] != '' ) {
+			$object['content'] = $object['synopsis'];
+		}
 		$text_content = strip_tags($object['content']);
 		$text_content .= "\n";
 		$text_content = preg_replace("/\n{3,}$/", "\n\n", $text_content);	// Remove extra blank lines at end

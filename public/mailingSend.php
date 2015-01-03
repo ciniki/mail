@@ -215,14 +215,20 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	// Build the message
 	//
 	else {
-		$text_content .= $mailing['text_content'];
+		$text_content = $mailing['text_content'];
 		//
 		// Convert to HTML
 		//
 		if( $mailing['html_content'] == '' ) {
-			$html_content = "<tr><td style='" . $theme['td_body'] . "'><p style='" . $theme['p'] . "'>" . preg_replace('/\n\s*\n/m', "</p><p style='" . $theme['p'] . "'>", $text_template) . '</p></td></tr>';
-			$html_content = preg_replace('/\n/m', "<br/>\n", $html_content);
-			$html_content = preg_replace('/<\/p><p/', "</p>\n<p", $html_content);
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'emailProcessContent');
+			$rc = ciniki_mail_emailProcessContent($ciniki, $args['business_id'], $theme, $mailing['text_content']);
+			if( $rc['stat'] != 'ok' ) {
+				return $rc;
+			}
+			$html_content = "<tr><td style='" . $theme['td_body'] . "'>" . $rc['content'] . "</td></tr>";
+//			$html_content = "<tr><td style='" . $theme['td_body'] . "'><p style='" . $theme['p'] . "'>" . preg_replace('/\n\s*\n/m', "</p><p style='" . $theme['p'] . "'>", $text_template) . '</p></td></tr>';
+//			$html_content = preg_replace('/\n/m', "<br/>\n", $html_content);
+//			$html_content = preg_replace('/<\/p><p/', "</p>\n<p", $html_content);
 			// FUTURE: Add processing to find links and replace with email tracking links
 		} else {
 			$html_content = "<tr><td style='" . $theme['td_body'] . "'>" . $mailing['html_content'] . "</td></tr>";
