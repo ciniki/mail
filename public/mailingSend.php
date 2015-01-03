@@ -363,7 +363,8 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		//
 		// Setup the customer email in the database
 		//
-		$rc = ciniki_mail_createCustomerMail($ciniki, $args['business_id'], $settings, $email, $mailing['subject'], $html_message, $text_message, array(
+		$rc = ciniki_mail_createCustomerMail($ciniki, $args['business_id'], $settings, $email, 
+			$mailing['subject'], $html_message, $text_message, array(
 			'mailing_id'=>$mailing['id'],
 			'flags'=>$flags,
 			'survey_invite_id'=>$invite_id,

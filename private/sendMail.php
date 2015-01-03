@@ -66,25 +66,40 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 	$mail = new PHPMailer;
 
 	$mail->IsSMTP();
-	$mail->Host = $settings['smtp-servers'];
-	if( isset($settings['smtp-username']) && $settings['smtp-username'] != '' ) {
+	$use_config = 'yes';
+	if( isset($settings['smtp-servers']) && $settings['smtp-servers'] != ''
+		) {
+		$mail->Host = $settings['smtp-servers'];
+		if( isset($settings['smtp-username']) && $settings['smtp-username'] != '' ) {
+			$mail->SMTPAuth = true;
+			$mail->Username = $settings['smtp-username'];
+			$mail->Password = $settings['smtp-password'];
+		}
+		if( isset($settings['smtp-secure']) && $settings['smtp-secure'] != '' ) {
+			$mail->SMTPSecure = $settings['smtp-secure'];
+		}
+		if( isset($settings['smtp-port']) && $settings['smtp-port'] != '' ) {
+			$mail->Port = $settings['smtp-port'];
+		}
+		$mail->From = $settings['smtp-from-address'];
+		$mail->FromName = $settings['smtp-from-name'];
+	} else {
+		$mail->Host = $ciniki['config']['ciniki.core']['system.smtp.servers'];
 		$mail->SMTPAuth = true;
-		$mail->Username = $settings['smtp-username'];
-		$mail->Password = $settings['smtp-password'];
+		$mail->Username = $ciniki['config']['ciniki.core']['system.smtp.username'];
+		$mail->Password = $ciniki['config']['ciniki.core']['system.smtp.password'];
+		$mail->SMTPSecure = $ciniki['config']['ciniki.core']['system.smtp.secure'];
+		$mail->Port = $ciniki['config']['ciniki.core']['system.smtp.port'];
+
+		$mail->From = $ciniki['config']['ciniki.core']['system.email'];
+		$mail->FromName = $ciniki['config']['ciniki.core']['system.email.name'];
 	}
-	if( isset($settings['smtp-secure']) && $settings['smtp-secure'] != '' ) {
-		$mail->SMTPSecure = $settings['smtp-secure'];
-	}
-	if( isset($settings['smtp-port']) && $settings['smtp-port'] != '' ) {
-		$mail->Port = $settings['smtp-port'];
-	}
+
 
 //	$mail->SMTPAuth = true;
 //	$mail->Username = $ciniki['config']['ciniki.core']['system.smtp.username'];
 //	$mail->Password = $ciniki['config']['ciniki.core']['system.smtp.password'];
 
-	$mail->From = $settings['smtp-from-address'];
-	$mail->FromName = $settings['smtp-from-name'];
 	$mail->AddAddress($email['customer_email'], $email['customer_name']);
 
 	$mail->IsHTML(true);
