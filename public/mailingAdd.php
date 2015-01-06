@@ -26,7 +26,7 @@ function ciniki_mail_mailingAdd(&$ciniki) {
 		'theme'=>array('required'=>'no', 'default'=>'Default', 'trimblanks'=>'yes', 'blank'=>'no', 'name'=>'Theme'),
 		'survey_id'=>array('required'=>'no', 'default'=>'0', 'blank'=>'no', 'name'=>'Survey'),
 		'html_content'=>array('required'=>'no', 'default'=>'', 'blank'=>'yes', 'name'=>'HTML Content'),
-		'text_content'=>array('required'=>'yes', 'blank'=>'yes', 'name'=>'Text Content'),
+		'text_content'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Text Content'),
 		'subscription_ids'=>array('required'=>'no', 'type'=>'idlist', 'name'=>'Subscriptions'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -66,69 +66,6 @@ function ciniki_mail_mailingAdd(&$ciniki) {
 	}
 	$mailing_id = $rc['id'];
 
-/*	//
-	// Get a new UUID
-	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUUID');
-	$rc = ciniki_core_dbUUID($ciniki, 'ciniki.mail');
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
-	$args['uuid'] = $rc['uuid'];
-
-	//
-	// Add the mailing to the database
-	//
-	$strsql = "INSERT INTO ciniki_mailings (uuid, business_id, "
-		. "type, status, theme, survey_id, subject, html_content, text_content, "
-		. "date_added, last_updated) VALUES ("
-		. "'" . ciniki_core_dbQuote($ciniki, $args['uuid']) . "', "
-		. "'" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "', "
-		. "'" . ciniki_core_dbQuote($ciniki, $args['type']) . "', "
-		. "'" . ciniki_core_dbQuote($ciniki, $args['status']) . "', "
-		. "'" . ciniki_core_dbQuote($ciniki, $args['theme']) . "', "
-		. "'" . ciniki_core_dbQuote($ciniki, $args['survey_id']) . "', "
-		. "'" . ciniki_core_dbQuote($ciniki, $args['subject']) . "', "
-		. "'" . ciniki_core_dbQuote($ciniki, $args['html_content']) . "', "
-		. "'" . ciniki_core_dbQuote($ciniki, $args['text_content']) . "', "
-		. "UTC_TIMESTAMP(), UTC_TIMESTAMP())";
-	$rc = ciniki_core_dbInsert($ciniki, $strsql, 'ciniki.mail');
-	if( $rc['stat'] != 'ok' ) { 
-		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
-		return $rc;
-	}
-	if( !isset($rc['insert_id']) || $rc['insert_id'] < 1 ) {
-		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1029', 'msg'=>'Unable to add mailing'));
-	}
-	$mailing_id = $rc['insert_id'];
-*/
-	
-
-	//
-	// Add all the fields to the change log
-	//
-/*	$changelog_fields = array(
-		'uuid',
-		'type',
-		'status',
-		'theme',
-		'survey_id',
-		'subject',
-		'html_content',
-		'text_content',
-		);
-	foreach($changelog_fields as $field) {
-		if( isset($args[$field]) && $args[$field] != '' ) {
-			$rc = ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 
-				'ciniki_mail_history', $args['business_id'], 
-				1, 'ciniki_mailings', $mailing_id, $field, $args[$field]);
-		}
-	}
-
-	$ciniki['syncqueue'][] = array('push'=>'ciniki.mail.mailing', 
-		'args'=>array('id'=>$mailing_id));
-*/
 	//
 	// Add the subscriptions
 	//
@@ -136,47 +73,11 @@ function ciniki_mail_mailingAdd(&$ciniki) {
 		foreach($args['subscription_ids'] as $sid) {
 			if( $sid != '' && $sid > 0 ) {
 				$rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.mail.mailing_subscription', 
-					array('mailing_id'=>$args['mailing_id'], 'subscription_id'=>$sid), 0x04);
+					array('mailing_id'=>$mailing_id, 'subscription_id'=>$sid), 0x04);
 				if( $rc['stat'] != 'ok' ) { 
 					ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
 					return $rc;
 				}
-/*				//
-				// Get a new UUID
-				//
-				ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUUID');
-				$rc = ciniki_core_dbUUID($ciniki, 'ciniki.mail');
-				if( $rc['stat'] != 'ok' ) {
-					return $rc;
-				}
-				$uuid = $rc['uuid'];
-
-				$strsql = "INSERT INTO ciniki_mailing_subscriptions (uuid, business_id, mailing_id, subscription_id, "
-					. "date_added, last_updated) VALUES ("
-					. "'" . ciniki_core_dbQuote($ciniki, $uuid) . "', "
-					. "'" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "', "
-					. "'" . ciniki_core_dbQuote($ciniki, $mailing_id) . "', "
-					. "'" . ciniki_core_dbQuote($ciniki, $sid) . "', "
-					. "UTC_TIMESTAMP(), UTC_TIMESTAMP())";
-				$rc = ciniki_core_dbInsert($ciniki, $strsql, 'ciniki.mail');
-				if( $rc['stat'] != 'ok' ) { 
-					ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
-					return $rc;
-				}
-				if( !isset($rc['insert_id']) || $rc['insert_id'] < 1 ) {
-					ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
-					return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1034', 'msg'=>'Unable to add mailing'));
-				}
-				$ms_id = $rc['insert_id'];
-
-				ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['business_id'], 
-					1, 'ciniki_mailing_subscriptions', $ms_id, 'uuid', $uuid);
-				ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['business_id'], 
-					1, 'ciniki_mailing_subscriptions', $ms_id, 'mailing_id', $mailing_id);
-				ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['business_id'], 
-					1, 'ciniki_mailing_subscriptions', $ms_id, 'subscription_id', $sid);
-				$ciniki['syncqueue'][] = array('push'=>'ciniki.mail.mailingsubscription', 
-					'args'=>array('id'=>$ms_id));*/
 			}
 		}
 	}

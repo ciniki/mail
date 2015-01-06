@@ -45,10 +45,10 @@ function ciniki_mail_mailingListByStatus($ciniki) {
 	// Get the list of mailings
 	//
 	$strsql = "SELECT ciniki_mailings.id, ciniki_mailings.status, ciniki_mailings.status AS name, "
-		. "ciniki_mailings.subject "
+		. "ciniki_mailings.subject, ciniki_mailings.type, ciniki_mailings.object, ciniki_mailings.object_id "
 		. "FROM ciniki_mailings "
 		. "WHERE ciniki_mailings.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "AND ciniki_mailings.type < 40 "
+		. "AND (ciniki_mailings.type < 40 OR (ciniki_mailings.type = 40 AND ciniki_mailings.status > 10)) "
 		. "ORDER BY ciniki_mailings.status, date_added DESC ";
 	if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
 		$strsql .= "LIMIT " . ciniki_core_dbQuote($ciniki, $args['limit']) . " ";
@@ -62,7 +62,7 @@ function ciniki_mail_mailingListByStatus($ciniki) {
 			'fields'=>array('id'=>'status', 'name'),
 			'maps'=>array('name'=>array('10'=>'Creation', '20'=>'Approved', '30'=>'Queueing', '40'=>'Sending', '50'=>'Sent', '60'=>'Deleted'))),
 		array('container'=>'mailings', 'fname'=>'id', 'name'=>'mailing',
-			'fields'=>array('id', 'subject')),
+			'fields'=>array('id', 'subject', 'type', 'object', 'object_id')),
 		));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
@@ -74,7 +74,7 @@ function ciniki_mail_mailingListByStatus($ciniki) {
 	//
 	// Get the list of object mailings being sent/sending
 	//
-	$strsql = "SELECT ciniki_mailings.id, ciniki_mailings.status, ciniki_mailings.status AS name, "
+/*	$strsql = "SELECT ciniki_mailings.id, ciniki_mailings.status, ciniki_mailings.status AS name, "
 		. "ciniki_mailings.subject "
 		. "FROM ciniki_mailings "
 		. "WHERE ciniki_mailings.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -101,7 +101,7 @@ function ciniki_mail_mailingListByStatus($ciniki) {
 	if( isset($rc['statuses']) ) {
 		$rsp['object_statuses'] = $rc['statuses'];
 	} 
-
+*/
 	return $rsp;
 }
 ?>
