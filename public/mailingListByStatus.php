@@ -46,6 +46,7 @@ function ciniki_mail_mailingListByStatus($ciniki) {
 		. "ciniki_mailings.subject "
 		. "FROM ciniki_mailings "
 		. "WHERE ciniki_mailings.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "AND ciniki_mailings.type < 40 "
 		. "ORDER BY ciniki_mailings.status, date_added DESC ";
 	if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
 		$strsql .= "LIMIT " . ciniki_core_dbQuote($ciniki, $args['limit']) . " ";

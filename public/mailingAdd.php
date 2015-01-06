@@ -22,6 +22,7 @@ function ciniki_mail_mailingAdd(&$ciniki) {
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
 		'type'=>array('required'=>'no', 'trimblanks'=>'yes', 'default'=>'10', 'blank'=>'no', 'validlist'=>array('10','20','30'), 'name'=>'Type'),
 		'subject'=>array('required'=>'yes', 'trimblanks'=>'yes', 'blank'=>'no', 'name'=>'Subject'),
+		'primary_image_id'=>array('required'=>'no', 'default'=>'0', 'blank'=>'no', 'name'=>'Image'),
 		'theme'=>array('required'=>'no', 'default'=>'Default', 'trimblanks'=>'yes', 'blank'=>'no', 'name'=>'Theme'),
 		'survey_id'=>array('required'=>'no', 'default'=>'0', 'blank'=>'no', 'name'=>'Survey'),
 		'html_content'=>array('required'=>'no', 'default'=>'', 'blank'=>'yes', 'name'=>'HTML Content'),
@@ -51,14 +52,21 @@ function ciniki_mail_mailingAdd(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionRollback');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionCommit');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbInsert');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbAddModuleHistory');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
+//	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbInsert');
+//	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbAddModuleHistory');
 	$rc = ciniki_core_dbTransactionStart($ciniki, 'ciniki.mail');
 	if( $rc['stat'] != 'ok' ) { 
 		return $rc;
 	}   
 
-	//
+	$rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.mail.mailing', $args, 0x04);
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$mailing_id = $rc['id'];
+
+/*	//
 	// Get a new UUID
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUUID');
@@ -94,11 +102,13 @@ function ciniki_mail_mailingAdd(&$ciniki) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1029', 'msg'=>'Unable to add mailing'));
 	}
 	$mailing_id = $rc['insert_id'];
+*/
+	
 
 	//
 	// Add all the fields to the change log
 	//
-	$changelog_fields = array(
+/*	$changelog_fields = array(
 		'uuid',
 		'type',
 		'status',
@@ -118,14 +128,20 @@ function ciniki_mail_mailingAdd(&$ciniki) {
 
 	$ciniki['syncqueue'][] = array('push'=>'ciniki.mail.mailing', 
 		'args'=>array('id'=>$mailing_id));
-
+*/
 	//
 	// Add the subscriptions
 	//
 	if( isset($args['subscription_ids']) && is_array($args['subscription_ids']) ) {
 		foreach($args['subscription_ids'] as $sid) {
 			if( $sid != '' && $sid > 0 ) {
-				//
+				$rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.mail.mailing_subscription', 
+					array('mailing_id'=>$args['mailing_id'], 'subscription_id'=>$sid), 0x04);
+				if( $rc['stat'] != 'ok' ) { 
+					ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
+					return $rc;
+				}
+/*				//
 				// Get a new UUID
 				//
 				ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUUID');
@@ -160,7 +176,7 @@ function ciniki_mail_mailingAdd(&$ciniki) {
 				ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['business_id'], 
 					1, 'ciniki_mailing_subscriptions', $ms_id, 'subscription_id', $sid);
 				$ciniki['syncqueue'][] = array('push'=>'ciniki.mail.mailingsubscription', 
-					'args'=>array('id'=>$ms_id));
+					'args'=>array('id'=>$ms_id));*/
 			}
 		}
 	}

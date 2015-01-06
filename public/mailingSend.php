@@ -63,6 +63,8 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbAddModuleHistory');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUpdate');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
 	$date_format = ciniki_users_dateFormat($ciniki);
 
@@ -75,8 +77,8 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		. "ciniki_mailings.id, "
 		. "ciniki_mailings.uuid, "
 		. "ciniki_mailings.type, "
-		. "status, theme, survey_id, object, object_id, subject, "
-		. "html_content, text_content, date_started, date_sent, "
+		. "status, theme, survey_id, object, object_id, subject, primary_image_id, "
+		. "html_content AS content, text_content, date_started, date_sent, "
 		. "ciniki_mailing_subscriptions.subscription_id AS subscription_ids "
 		. "FROM ciniki_mailings "
 		. "LEFT JOIN ciniki_mailing_subscriptions ON (ciniki_mailings.id = ciniki_mailing_subscriptions.mailing_id "
@@ -85,12 +87,11 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		. "AND ciniki_mailings.id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
 		. "ORDER BY ciniki_mailings.id ASC ";
 
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.mail', array(
 		array('container'=>'mailings', 'fname'=>'id', 'name'=>'mailing',
 			'fields'=>array('id', 'uuid', 'type', 'status', 'theme', 'survey_id', 
 			'object', 'object_id', 
-			'subject', 'html_content', 'text_content', 'subscription_ids'),
+			'subject', 'content', 'text_content', 'subscription_ids'),
 			'idlists'=>array('subscription_ids')),
 		));
 	if( $rc['stat'] != 'ok' ) {
@@ -107,6 +108,32 @@ function ciniki_mail_mailingSend(&$ciniki) {
 
 	if( $mailing['status'] >= 40 && (!isset($args['test']) || $args['test'] != 'yes') ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1036', 'msg'=>'Mailing has already been sent'));
+	}
+
+	//
+	// Get any images for the mailing
+	//
+	$strsql = "SELECT ciniki_mailing_images.id, "
+		. "ciniki_mailing_images.name, "
+		. "0 as webflags, "
+		. "ciniki_mailing_images.image_id, "
+		. "ciniki_mailing_images.description, "
+		. "'' as url "
+		. "FROM ciniki_mailing_images "
+		. "WHERE ciniki_mailing_images.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "AND ciniki_mailing_images.mailing_id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
+		. "";
+	$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.mail', array(
+		array('container'=>'images', 'fname'=>'id', 
+			'fields'=>array('id', 'name', 'webflags', 'image_id', 'description', 'url')),
+		));
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	if( isset($rc['images']) ) {
+		$mailing['images'] = $rc['images'];
+	} else {
+		$mailing['images'] = array();
 	}
 
 	//
@@ -215,7 +242,16 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	// Build the message
 	//
 	else {
-		$text_content = $mailing['text_content'];
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'emailObjectPrepare');
+		$rc = ciniki_mail_emailObjectPrepare($ciniki, $args['business_id'], $theme, $mailing, $mailing);
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		$mailing['subject'] = $rc['subject'];
+		$text_content = $rc['text_content'];
+		$html_content = "<tr><td style='" . $theme['td_body'] . "'>" . $rc['html_content'] . "</td></tr>";
+		
+/*		$text_content = $mailing['text_content'];
 		//
 		// Convert to HTML
 		//
@@ -232,7 +268,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 			// FUTURE: Add processing to find links and replace with email tracking links
 		} else {
 			$html_content = "<tr><td style='" . $theme['td_body'] . "'>" . $mailing['html_content'] . "</td></tr>";
-		}
+		} */
 	}
 
 	$text_template .= $text_content;

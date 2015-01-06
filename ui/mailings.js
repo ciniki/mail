@@ -58,17 +58,25 @@ function ciniki_mail_mailings() {
 		//
 		this.mailing = new M.panel('Mailing',
 			'ciniki_mail_mailings', 'mailing',
-			'mc', 'medium', 'sectioned', 'ciniki.mail.mailings.edit');
+			'mc', 'medium mediumaside', 'sectioned', 'ciniki.mail.mailings.edit');
 		this.mailing.mailing_id = 0;
 		this.mailing.sections = {
-			'details':{'label':'', 'list':{	
+			'details':{'label':'', 'aside':'yes', 'list':{	
 				'status_text':{'label':'Status', 'history':'yes'},
 				'theme':{'label':'Theme'},
 				'subject':{'label':'Subject'},
 				'subscription_names':{'label':'Subscriptions'},
 			}},
-			'text_content':{'label':'Message', 'type':'htmlcontent'},
+//			'text_content':{'label':'Message', 'type':'htmlcontent'},
+			'_image':{'label':'', 'aside':'yes', 'fields':{
+				'primary_image_id':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'history':'no'},
+			}},
 			'html_content':{'label':'Message', 'type':'htmlcontent'},
+			'images':{'label':'Additional Images', 'type':'simplethumbs'},
+			'_images':{'label':'', 'type':'simplegrid', 'num_cols':1,
+				'addTxt':'Add Additional Image',
+				'addFn':'M.startApp(\'ciniki.mail.mailingimages\',null,\'M.ciniki_mail_mailings.showMailing();\',\'mc\',{\'mailing_id\':M.ciniki_mail_mailings.mailing.mailing_id,\'add\':\'yes\'});',
+			},
 			'survey':{'label':'', 'visible':'no', 'list':{	
 				'survey_name':{'label':'Survey'},
 			}},
@@ -102,9 +110,40 @@ function ciniki_mail_mailings() {
 				return this.data[s].replace(/\n/g, '<br/>');
 			}
 			if( s == 'html_content' ) {
+				return this.data[s].replace(/\n/g, '<br/>');
+			}
+			if( s == 'images' ) {
 				return this.data[s];
 			}
 			return this.sections[s].list;
+		};
+		this.mailing.addDropImage = function(iid) {
+			var rsp = M.api.getJSON('ciniki.mail.mailingImageAdd',
+				{'business_id':M.curBusinessID, 'image_id':iid, 'mailing_id':M.ciniki_mail_mailings.mailing.mailing_id});
+			if( rsp.stat != 'ok' ) {
+				M.api.err(rsp);
+				return false;
+			}
+			return true;
+		};
+		this.mailing.addDropImageRefresh = function() {
+			if( M.ciniki_mail_mailings.mailing.mailing_id > 0 ) {
+				var rsp = M.api.getJSONCb('ciniki.mail.mailingGet', {'business_id':M.curBusinessID, 
+					'mailing_id':M.ciniki_mail_mailings.mailing.mailing_id, 'images':'yes'}, function(rsp) {
+						if( rsp.stat != 'ok' ) {
+							M.api.err(rsp);
+							return false;
+						}
+						M.ciniki_mail_mailings.mailing.data.images = rsp.mailing.images;
+						M.ciniki_mail_mailings.mailing.refreshSection('images');
+					});
+			}
+		};
+		this.mailing.fieldValue = function(s, i, d) { 
+			return this.data[i];
+		};
+		this.mailing.thumbFn = function(s, i, d) {
+			return 'M.startApp(\'ciniki.mail.mailingimages\',null,\'M.ciniki_mail_mailings.showMailing();\',\'mc\',{\'mailing_image_id\':\'' + d.image.id + '\'});';
 		};
 //		this.mailing.addButton('edit', 'Edit', 'M.ciniki_mail_mailings.showEdit(\'M.ciniki_mail_mailings.showMailing()\',M.ciniki_mail_mailings.mailing.mailing_id);');
 		this.mailing.addClose('Back');
@@ -114,18 +153,21 @@ function ciniki_mail_mailings() {
 		//
 		this.edit = new M.panel('Mailing',
 			'ciniki_mail_mailings', 'edit',
-			'mc', 'medium', 'sectioned', 'ciniki.mail.mailings.edit');
+			'mc', 'medium mediumaside', 'sectioned', 'ciniki.mail.mailings.edit');
 		this.edit.mailing_id = 0;
 		this.edit.data = {};
 		this.edit.default_data = {'type':'30', 'survey_id':0};
 		this.edit.sections = {
-			'details':{'label':'', 'fields':{	
+			'details':{'label':'', 'aside':'yes', 'fields':{	
 				'type':{'label':'Type', 'type':'select', 'options':this.mailingTypes},
 				'theme':{'label':'Theme', 'type':'select', 'options':this.themes},
 				'subject':{'label':'Subject', 'type':'text'},
 			}},
+			'_image':{'label':'', 'aside':'yes', 'fields':{
+				'primary_image_id':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'history':'no', 'controls':'all'},
+			}},
 			'_msg':{'label':'Message', 'fields':{
-				'text_content':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
+				'html_content':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
 			}},
 			'survey':{'label':'', 'active':'no', 'fields':{
 				'survey_id':{'label':'Survey', 'active':'no', 'type':'select', 'options':this.availableSurveys},
@@ -144,6 +186,14 @@ function ciniki_mail_mailings() {
 		this.edit.fieldHistoryArgs = function(s, i) {
 			return {'method':'ciniki.mail.mailingHistory', 'args':{'business_id':M.curBusinessID, 
 				'mailing_id':this.mailing_id, 'field':i}};
+		};
+		this.edit.addDropImage = function(iid) {
+			M.ciniki_mail_mailings.edit.setFieldValue('primary_image_id', iid, null, null);
+			return true;
+		};
+		this.edit.deleteImage = function(fid) {
+			this.setFieldValue(fid, 0, null, null);
+			return true;
 		};
 		this.edit.addButton('save', 'Save', 'M.ciniki_mail_mailings.saveMailing();');
 		this.edit.addClose('Cancel');
@@ -270,7 +320,7 @@ function ciniki_mail_mailings() {
 	this.showMailing = function(cb, mid) {
 		if( mid != null ) { this.mailing.mailing_id = mid; }
 		M.api.getJSONCb('ciniki.mail.mailingGet', 
-			{'business_id':M.curBusinessID, 'mailing_id':this.mailing.mailing_id}, function(rsp) {
+			{'business_id':M.curBusinessID, 'mailing_id':this.mailing.mailing_id, 'images':'yes'}, function(rsp) {
 				if( rsp.stat != 'ok' ) {
 					M.api.err(rsp);
 					return false;
@@ -371,6 +421,8 @@ function ciniki_mail_mailings() {
 						} 
 						M.ciniki_mail_mailings.edit.close();
 					});
+			} else {
+				this.edit.close();
 			}
 		} else {
 			var c = this.edit.serializeForm('yes');

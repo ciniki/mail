@@ -1,0 +1,4 @@
+#
+#
+ALTER TABLE ciniki_mailings ADD COLUMN primary_image_id int not null AFTER subject;
+ALTER TABLE ciniki_mailings COMMENT='v1.03';
