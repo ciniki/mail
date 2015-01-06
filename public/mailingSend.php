@@ -162,7 +162,6 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		//
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'subscriptions', 'private', 'emailList');
 		$rc = ciniki_subscriptions_emailList($ciniki, $args['business_id'], explode(',', $mailing['subscription_ids']));
-		error_log(print_r($rc, true));
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
 		}
