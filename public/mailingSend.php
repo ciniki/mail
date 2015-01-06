@@ -162,6 +162,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		//
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'subscriptions', 'private', 'emailList');
 		$rc = ciniki_subscriptions_emailList($ciniki, $args['business_id'], explode(',', $mailing['subscription_ids']));
+		error_log(print_r($rc, true));
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
 		}
@@ -198,6 +199,11 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		}
 		$object = $rc['object'];
 		$header_title = $object['title'];
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+		$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.mail.mailing', $mailing['id'], array('subject'=>$object['subject']), 0x07);
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
 	} else {
 		$header_title = $business_details['name'];
 	}
@@ -225,7 +231,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 	$text_template = $template['text_header'];
 
 	//
-	// Build the message from the content
+	// Build the message from the another module content
 	//
 	if( $mailing['type'] == 40 ) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'emailObjectPrepare');

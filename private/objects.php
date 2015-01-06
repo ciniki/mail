@@ -12,6 +12,34 @@
 function ciniki_mail_objects($ciniki) {
 	
 	$objects = array();
+	$objects['mail'] = array(
+		'name'=>'Mail',
+		'sync'=>'yes',
+		'table'=>'ciniki_mail',
+		'fields'=>array(
+			'parent_id'=>array('ref'=>'ciniki.mail.mail'),
+			'mailing_id'=>array('ref'=>'ciniki.mail.mailing'),
+			'unsubscribe_key'=>array('default'=>''),
+			'survey_invite_id'=>array('ref'=>'ciniki.surveys.survey', 'default'=>'0'),
+			'customer_id'=>array('ref'=>'ciniki.customers.customer', 'default'=>'0'),
+			'customer_name'=>array('default'=>''),
+			'customer_email'=>array('default'=>''),
+			'flags'=>array('default'=>'0'),
+			'status'=>array('default'=>'0'),
+			'date_sent'=>array(),
+			'date_received'=>array(),
+			'mail_to'=>array(),
+			'mail_cc'=>array(),
+			'mail_from'=>array(),
+			'subject'=>array(),
+			'html_content'=>array(),
+			'text_content'=>array(),
+			'raw_headers'=>array(),
+			'raw_content'=>array(),
+			'date_read'=>array(),
+			),
+		'history_table'=>'ciniki_mail_history',
+		);
 	$objects['mailing'] = array(
 		'name'=>'Mailing',
 		'sync'=>'yes',

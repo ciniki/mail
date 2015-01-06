@@ -39,6 +39,8 @@ function ciniki_mail_mailingListByStatus($ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
 	$date_format = ciniki_users_dateFormat($ciniki);
 
+	$rsp = array('stat'=>'ok');
+
 	//
 	// Get the list of mailings
 	//
@@ -66,9 +68,40 @@ function ciniki_mail_mailingListByStatus($ciniki) {
 		return $rc;
 	}
 	if( isset($rc['statuses']) ) {
-		return array('stat'=>'ok', 'statuses'=>$rc['statuses']);
+		$rsp['statuses'] = $rc['statuses'];
 	} 
 
-	return array('stat'=>'ok', 'statuses'=>array());
+	//
+	// Get the list of object mailings being sent/sending
+	//
+	$strsql = "SELECT ciniki_mailings.id, ciniki_mailings.status, ciniki_mailings.status AS name, "
+		. "ciniki_mailings.subject "
+		. "FROM ciniki_mailings "
+		. "WHERE ciniki_mailings.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "AND ciniki_mailings.type = 40 "
+		. "AND ciniki_mailings.status > 10 "
+		. "ORDER BY ciniki_mailings.status, date_added DESC ";
+	if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
+		$strsql .= "LIMIT " . ciniki_core_dbQuote($ciniki, $args['limit']) . " ";
+	} else {
+		$strsql .= "LIMIT 25 ";
+	}
+
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
+	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.mail', array(
+		array('container'=>'statuses', 'fname'=>'status', 'name'=>'status',
+			'fields'=>array('id'=>'status', 'name'),
+			'maps'=>array('name'=>array('10'=>'Creation', '20'=>'Approved', '30'=>'Queueing', '40'=>'Sending', '50'=>'Sent', '60'=>'Deleted'))),
+		array('container'=>'mailings', 'fname'=>'id', 'name'=>'mailing',
+			'fields'=>array('id', 'subject')),
+		));
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	if( isset($rc['statuses']) ) {
+		$rsp['object_statuses'] = $rc['statuses'];
+	} 
+
+	return $rsp;
 }
 ?>

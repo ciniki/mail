@@ -39,6 +39,7 @@ function ciniki_mail_cron_checkMail($ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'sendMail');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
 	foreach($businesses as $business_id) {
+		print("CRON: Sending mail for $business_id\n");
 		$rc = ciniki_mail_getSettings($ciniki, $business_id);
 		if( $rc['stat'] != 'ok' ) {
 			error_log("CRON-ERR: Unable to load business mail settings for $business_id (" . serialize($rc) . ")");

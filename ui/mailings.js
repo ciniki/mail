@@ -37,6 +37,12 @@ function ciniki_mail_mailings() {
 			'50':{'label':'Sent', 'visible':'no', 'type':'simplegrid', 'num_cols':1,
 				'cellClasses':[''],
 				},
+			'objects-40':{'label':'Sending', 'visible':'no', 'type':'simplegrid', 'num_cols':1,
+				'cellClasses':[''],
+				},
+			'objects-50':{'label':'Sent', 'visible':'no', 'type':'simplegrid', 'num_cols':1,
+				'cellClasses':[''],
+				},
 			'_buttons':{'label':'', 'buttons':{
 				'download':{'label':'Download Survey Results', 'visible':'no', 'fn':'M.ciniki_mail_mailings.downloadAllResults();'},
 			}},
@@ -85,6 +91,7 @@ function ciniki_mail_mailings() {
 				'test':{'label':'Send Test Message', 'fn':'M.ciniki_mail_mailings.sendTest(\'M.ciniki_mail_mailings.showMailing()\',M.ciniki_mail_mailings.mailing.mailing_id);'},
 				'send':{'label':'Send', 'fn':'M.ciniki_mail_mailings.sendMailing(\'M.ciniki_mail_mailings.showMailing()\',M.ciniki_mail_mailings.mailing.mailing_id);'},
 				'download':{'label':'Download Survey Results', 'fn':'M.ciniki_mail_mailings.downloadSurveyMailingResults(M.ciniki_mail_mailings.mailing.survey_id,M.ciniki_mail_mailings.mailing.mailing_id);'},
+				'delete':{'label':'Delete', 'visible':'yes', 'fn':'M.ciniki_mail_mailings.mailingDelete();'},
 			}},
 		};
 		this.mailing.listLabel = function(s, i, d) {
@@ -306,10 +313,20 @@ function ciniki_mail_mailings() {
 				p.sections[30].visible = 'no';
 				p.sections[40].visible = 'no';
 				p.sections[50].visible = 'no';
+				p.sections['objects-40'].visible = 'no';
+				p.sections['objects-50'].visible = 'no';
 				for(i in rsp.statuses) {
 					if( p.sections[rsp.statuses[i].status.id] != null ) {
 						p.data[rsp.statuses[i].status.id] = rsp.statuses[i].status.mailings;
 						p.sections[rsp.statuses[i].status.id].visible = 'yes';
+					}
+				}
+				if( rsp.object_statuses != null ) {
+					for(i in rsp.object_statuses) {
+						if( p.sections['objects-' + rsp.object_statuses[i].status.id] != null ) {
+							p.data['objects-' + rsp.object_statuses[i].status.id] = rsp.object_statuses[i].status.mailings;
+							p.sections['objects-' + rsp.object_statuses[i].status.id].visible = 'yes';
+						}
 					}
 				}
 				p.refresh();
@@ -468,5 +485,22 @@ function ciniki_mail_mailings() {
 
 	this.downloadAllResults = function() {
 		window.open(M.api.getUploadURL('ciniki.surveys.downloadMailingsXLS', {'business_id':M.curBusinessID}));
+	};
+
+	this.mailingDelete = function() {
+		var msg = "Are you sure you want to remove this mailing?";
+		if( this.mailing.data.status > 10 ) {
+			msg = "Are you sure you want to remove this mailing? \n\n**WARNING** This will remote all sent messages, tracking information and images. Any users opening the email will not see the images or files.";
+		}
+		if( confirm(msg) ) {
+			var rsp = M.api.getJSONCb('ciniki.mail.mailingDelete', 
+				{'business_id':M.curBusinessID, 'mailing_id':M.ciniki_mail_mailings.mailing.mailing_id}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					M.ciniki_mail_mailings.mailing.close();
+				});
+		}
 	};
 }

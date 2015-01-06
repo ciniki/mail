@@ -40,13 +40,24 @@ function ciniki_mail_checkAccess(&$ciniki, $business_id, $method) {
 	//
 	// Users who are an owner or employee of a business can see the business atdo
 	//
-	$strsql = "SELECT business_id, user_id FROM ciniki_business_users "
-		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
-		. "AND user_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
-		. "AND package = 'ciniki' "
-		. "AND status = 10 "
-		. "AND (permission_group = 'owners' OR permission_group = 'employees') "
-		. "";
+	if( $method == 'ciniki.mail.mailingDelete' ) {
+		// Restrict delete to owners
+		$strsql = "SELECT business_id, user_id FROM ciniki_business_users "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "AND user_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
+			. "AND package = 'ciniki' "
+			. "AND status = 10 "
+			. "AND (permission_group = 'owners') " 	// Only owners
+			. "";
+	} else {
+		$strsql = "SELECT business_id, user_id FROM ciniki_business_users "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "AND user_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
+			. "AND package = 'ciniki' "
+			. "AND status = 10 "
+			. "AND (permission_group = 'owners' OR permission_group = 'employees') "
+			. "";
+	}
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
 	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.businesses', 'user');
 	if( $rc['stat'] != 'ok' ) {
