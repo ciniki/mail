@@ -15,15 +15,6 @@
 // -------
 //
 function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing, $object) {
-
-	//
-	// Make sure the object is specified
-	//
-//	if( !isset($mailing['object']) || $mailing['object'] == '' 
-//		|| !isset($mailing['object_id']) || $mailing['object_id'] == '' ) {
-//		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2129', 'msg'=>'Object not specified'));
-//	}
-
 	//
 	// Get the business uuid
 	//
