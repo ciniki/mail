@@ -9,10 +9,10 @@ function ciniki_mail_settings() {
 	this.cb = null;
 	this.toggleOptions = {'off':'Off', 'on':'On'};
 
-	this.themes = {
-		'Black':'Blue Titles on Black',
-		'Default':'Black Titles on White',
-		};
+//	this.themes = {
+//		'Black':'Blue Titles on Black',
+//		'Default':'Black Titles on White',
+//		};
 
 	this.init = function() {
 		//
@@ -36,9 +36,9 @@ function ciniki_mail_settings() {
 			'throttling':{'label':'Sending Limits', 'fields':{
 				'smtp-5min-limit':{'label':'5 Minutes', 'type':'text', 'size':'small'},
 			}},
-			'theme':{'label':'Options', 'fields':{
-				'mail-default-theme':{'label':'Theme', 'type':'select', 'options':this.themes},
-			}},
+//			'theme':{'label':'Options', 'fields':{
+//				'mail-default-theme':{'label':'Theme', 'type':'select', 'options':this.themes},
+//			}},
 			'_disclaimer':{'label':'Disclaimer', 'fields':{
 				'message-disclaimer':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
 			}},
