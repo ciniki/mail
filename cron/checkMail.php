@@ -20,7 +20,7 @@ function ciniki_mail_cron_checkMail($ciniki) {
 	//
 	$strsql = "SELECT DISTINCT business_id "
 		. "FROM ciniki_mail "
-		. "WHERE status = 10 "
+		. "WHERE status > 0 AND status < 20 "
 		. "";
 	$rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.mail', 'businesses', 'business_id');
 	if( $rc['stat'] != 'ok' ) {
@@ -55,8 +55,8 @@ function ciniki_mail_cron_checkMail($ciniki) {
 		$strsql = "SELECT id "
 			. "FROM ciniki_mail "
 			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
-			. "AND status = 10 "
-			. "ORDER BY last_updated "	// Any that we have tried to send will get their last_updated changed and be bumped to back of the line
+			. "AND (status = 10 OR status = 15) "
+			. "ORDER BY status DESC, last_updated "	// Any that we have tried to send will get their last_updated changed and be bumped to back of the line
 			. "LIMIT $limit "
 			. "";
 		$rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.mail', 'mail', 'id');

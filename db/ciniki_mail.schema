@@ -32,6 +32,7 @@
 #
 #					0 - unknown
 #					10 - queued to be sent
+#					15 - queued to be sent
 #					20 - sending
 #					30 - sent
 #					40 - received **future**
