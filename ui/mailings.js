@@ -484,12 +484,12 @@ function ciniki_mail_mailings() {
 	};
 
 	this.downloadSurveyMailingResults = function(survey_id, mailing_id) {
-		window.open(M.api.getUploadURL('ciniki.surveys.downloadXLS',
-			{'business_id':M.curBusinessID, 'survey_id':survey_id, 'mailing_id':mailing_id}));
+		M.api.openFile('ciniki.surveys.downloadXLS',
+			{'business_id':M.curBusinessID, 'survey_id':survey_id, 'mailing_id':mailing_id});
 	};
 
 	this.downloadAllResults = function() {
-		window.open(M.api.getUploadURL('ciniki.surveys.downloadMailingsXLS', {'business_id':M.curBusinessID}));
+		M.api.openFile('ciniki.surveys.downloadMailingsXLS', {'business_id':M.curBusinessID});
 	};
 
 	this.mailingDelete = function() {
