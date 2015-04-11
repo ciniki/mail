@@ -20,14 +20,14 @@ function ciniki_mail_hooks_checkObjectUsed($ciniki, $business_id, $args) {
 
 	if( $args['object'] == 'ciniki.customers.customer' ) {
 		//
-		// Check the invoice customers
+		// Check the mail customers
 		//
 		$strsql = "SELECT 'items', COUNT(*) "
 			. "FROM ciniki_mail "
 			. "WHERE customer_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
 			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 			. "";
-		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'num');
+		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.mail', 'num');
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
 		}
@@ -35,6 +35,26 @@ function ciniki_mail_hooks_checkObjectUsed($ciniki, $business_id, $args) {
 			$used = 'yes';
 			$count = $rc['num']['items'];
 			$msg .= ($msg!=''?' ':'') . "There " . ($count==1?'is':'are') . " $count mail message" . ($count==1?'':'s') . " for this customer.";
+		}
+	}
+
+	//
+	// Check for subscriptions
+	//
+	if( $args['object'] == 'ciniki.subscriptions.subscription' ) {
+		$strsql = "SELECT 'items', COUNT(*) "
+			. "FROM ciniki_mailing_subscriptions "
+			. "WHERE subscription_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
+			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "";
+		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.mail', 'num');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['num']['items']) && $rc['num']['items'] > 0 ) {
+			$used = 'yes';
+			$count = $rc['num']['items'];
+			$msg .= ($msg!=''?' ':'') . "There " . ($count==1?'is':'are') . " $count mail message" . ($count==1?'':'s') . " for this subscription.";
 		}
 	}
 

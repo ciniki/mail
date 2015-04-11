@@ -73,9 +73,35 @@ function ciniki_mail_mailingDelete($ciniki) {
 	}   
 
 	//
+	// Remove the mail subscriptions
+	//
+	$strsql = "SELECT id, uuid "
+		. "FROM ciniki_mailing_subscriptions "
+		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "AND mailing_id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
+		. "";
+	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'item');
+	if( $rc['stat'] != 'ok' ) {
+		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
+		return $rc;
+	}
+	if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
+		$items = $rc['rows'];
+		foreach($items as $iid => $item) {
+			$rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.mail.mailing_subscription', 
+				$item['id'], $item['uuid'], 0x04);
+			if( $rc['stat'] != 'ok' ) {
+				ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
+				return $rc;	
+			}
+		}
+	}
+
+	//
 	// Remove the mail messages
 	//
-	$strsql = "SELECT id, uuid FROM ciniki_mail "
+	$strsql = "SELECT id, uuid "
+		. "FROM ciniki_mail "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "AND mailing_id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
 		. "";
@@ -86,7 +112,6 @@ function ciniki_mail_mailingDelete($ciniki) {
 	}
 	if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
 		$items = $rc['rows'];
-		
 		foreach($items as $iid => $item) {
 			$rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.mail.mail', 
 				$item['id'], $item['uuid'], 0x04);
@@ -111,7 +136,6 @@ function ciniki_mail_mailingDelete($ciniki) {
 	}
 	if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
 		$images = $rc['rows'];
-		
 		foreach($images as $iid => $image) {
 			$rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.mail.mailing_image', 
 				$image['id'], $image['uuid'], 0x04);
