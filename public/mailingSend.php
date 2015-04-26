@@ -160,8 +160,8 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		//
 		// Pull the list of emails from the subscription
 		//
-		ciniki_core_loadMethod($ciniki, 'ciniki', 'subscriptions', 'private', 'emailList');
-		$rc = ciniki_subscriptions_emailList($ciniki, $args['business_id'], explode(',', $mailing['subscription_ids']));
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'subscriptions', 'hooks', 'emailList');
+		$rc = ciniki_subscriptions_hooks_emailList($ciniki, $args['business_id'], array('subscription_ids'=>explode(',', $mailing['subscription_ids'])));
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
 		}
