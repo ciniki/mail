@@ -40,6 +40,28 @@ function ciniki_mail_objects($ciniki) {
 			),
 		'history_table'=>'ciniki_mail_history',
 		);
+	$objects['objref'] = array(
+		'name'=>'Mail Object Reference',
+		'sync'=>'yes',
+		'table'=>'ciniki_mail_objrefs',
+		'fields'=>array(
+			'mail_id'=>array('ref'=>'ciniki.mail.mail'),
+			'object'=>array(),
+			'object_id'=>array(),
+			),
+		'history_table'=>'ciniki_mail_history',
+		);
+	$objects['attachment'] = array(
+		'name'=>'Mail Attachment',
+		'sync'=>'yes',
+		'table'=>'ciniki_mail_attachments',
+		'fields'=>array(
+			'mail_id'=>array('ref'=>'ciniki.mail.mail'),
+			'filename'=>array(),
+			'content'=>array(),
+			),
+		'history_table'=>'ciniki_mail_history',
+		);
 	$objects['mailing'] = array(
 		'name'=>'Mailing',
 		'sync'=>'yes',

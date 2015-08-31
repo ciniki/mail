@@ -12,6 +12,17 @@
 function ciniki_mail_maps($ciniki) {
 
 	$maps = array();
+	$maps['mail'] = array(
+		'status'=>array(
+			'10'=>'Queued',
+			'15'=>'Failed, trying again',
+			'20'=>'Sending',
+			'30'=>'Sent',
+			'40'=>'Received',
+			'50'=>'Failed',
+			'60'=>'Deleted',
+			),
+		);
 	$maps['mailing'] = array(
 		'type'=>array(
 			'10'=>'General',

@@ -32,10 +32,11 @@
 #
 #					0 - unknown
 #					10 - queued to be sent
-#					15 - queued to be sent
+#					15 - queued to be sent, initial failure
 #					20 - sending
 #					30 - sent
 #					40 - received **future**
+#					50 - failed **future**
 #					60 - deleted
 #
 # date_sent:		The UTC date and time the message was sent from Ciniki.
@@ -46,9 +47,9 @@
 #
 # subject:			The subject of the message.
 #
-# to:				Who the message was addressed to.
-# cc:				The cc addresses for the message.
-# from:				Who the message was from.
+# to:				Who the message was addressed to. **for incoming mail only**
+# cc:				The cc addresses for the message. **for incoming mail only**
+# from:				Who the message was from. **for incoming mail only**
 #
 # html_content:		The html content of the message.
 # text_content:		The alt/text content of the message.

@@ -38,6 +38,25 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 	}
 	$email = $rc['mail'];
 
+	//
+	// Check for attachments
+	//
+	$strsql = "SELECT id, filename, content "
+		. "FROM ciniki_mail_attachments "
+		. "WHERE ciniki_mail_attachments.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+		. "AND ciniki_mail_attachments.mail_id = '" . ciniki_core_dbQuote($ciniki, $email['id']) . "' "
+		. "";
+	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'attachment');
+	if( $rc['stat'] != 'ok' ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2468', 'msg'=>'Unable to find email attachments'));
+	}
+	if( isset($rc['rows']) ) {
+		$email['attachments'] = $rc['rows'];
+	}
+
+	//
+	// Set timezone
+	//
 	date_default_timezone_set('UTC');
 
 	//
@@ -106,6 +125,15 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 	$mail->Subject = $email['subject'];
 	$mail->Body = $email['html_content'];
 	$mail->AltBody = $email['text_content'];
+
+	//
+	// Add attachments
+	//
+	if( isset($email['attachments']) ) {
+		foreach($email['attachments'] as $attachment) {
+			$mail->addStringAttachment($attachment['string'], $attachment['filename']);
+		}
+	}
 
 	if( !$mail->Send() ) {
 		error_log("MAIL-ERR: [" . $email['customer_email'] . "] " . $mail->ErrorInfo);
