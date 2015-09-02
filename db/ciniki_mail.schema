@@ -47,9 +47,9 @@
 #
 # subject:			The subject of the message.
 #
-# to:				Who the message was addressed to. **for incoming mail only**
-# cc:				The cc addresses for the message. **for incoming mail only**
-# from:				Who the message was from. **for incoming mail only**
+# mail_to:			Who the message was addressed to. **for incoming mail only**
+# mail_cc:			The cc addresses for the message. **for incoming mail only**
+# mail_from:		Who the message was from. **for incoming mail only**
 #
 # html_content:		The html content of the message.
 # text_content:		The alt/text content of the message.

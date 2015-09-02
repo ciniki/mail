@@ -13,11 +13,9 @@
 #
 # mail_id:			The ID of the mail attached to the object.
 #
-# object:			The object the mail is attached to.  This is a reference
-# 					to the package.module.object.  When combined with the object_id
-#					the refering module can lookup mail messages.
+# filename:			The filename for the attachment.
 #
-# object_id:		The ID of the object the mail is attached to.
+# content:			The content of the attachment.
 #
 # date_added:		The UTC date and time the record was added.
 # last_updated:		The UTC date and time the record was last updated.
