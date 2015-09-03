@@ -131,7 +131,7 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 	//
 	if( isset($email['attachments']) ) {
 		foreach($email['attachments'] as $attachment) {
-			$mail->addStringAttachment($attachment['string'], $attachment['filename']);
+			$mail->addStringAttachment($attachment['content'], $attachment['filename']);
 		}
 	}
 

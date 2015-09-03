@@ -57,6 +57,7 @@ function ciniki_mail_hooks_objectMessages($ciniki, $business_id, $args) {
 			. "AND ciniki_mail_objrefs.object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
 			. "AND ciniki_mail_objrefs.mail_id = ciniki_mail.id "
 			. "AND ciniki_mail.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "ORDER BY ciniki_mail.date_sent DESC "
 			. "";
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.mail', array(
 			array('container'=>'mail', 'fname'=>'id', 'name'=>'message',
