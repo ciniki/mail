@@ -55,6 +55,7 @@ function ciniki_mail_hooks_objectMessages($ciniki, $business_id, $args) {
 			. "WHERE ciniki_mail_objrefs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 			. "AND ciniki_mail_objrefs.object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
 			. "AND ciniki_mail_objrefs.object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
+			. "AND ciniki_mail_objrefs.mail_id = ciniki_mail.id "
 			. "AND ciniki_mail.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 			. "";
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.mail', array(
