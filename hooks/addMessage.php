@@ -109,7 +109,16 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $business_id, $args) {
 		if( $rc['stat'] != 'ok' ) {
 			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2467', 'msg'=>'Unable to add object reference', 'err'=>$rc['err']));
 		}
-
+	}
+	if( isset($args['parent_object']) && $args['parent_object'] != '' && isset($args['parent_object_id']) && $args['parent_object_id'] != '' ) {
+		$rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.mail.objref', array(
+			'mail_id'=>$mail_id,
+			'object'=>$args['parent_object'],
+			'object_id'=>$args['parent_object_id'],
+			), 0x04);
+		if( $rc['stat'] != 'ok' ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2530', 'msg'=>'Unable to add parent object reference', 'err'=>$rc['err']));
+		}
 	}
 
 	return array('stat'=>'ok', 'id'=>$mail_id);
