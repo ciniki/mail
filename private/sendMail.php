@@ -119,12 +119,17 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 //	$mail->Username = $ciniki['config']['ciniki.core']['system.smtp.username'];
 //	$mail->Password = $ciniki['config']['ciniki.core']['system.smtp.password'];
 
-	$mail->AddAddress($email['customer_email'], $email['customer_name']);
-
 	$mail->IsHTML(true);
 	$mail->Subject = $email['subject'];
 	$mail->Body = $email['html_content'];
 	$mail->AltBody = $email['text_content'];
+
+	if( isset($ciniki['config']['ciniki.mail']['force.mailto']) ) {
+		$mail->AddAddress($ciniki['config']['ciniki.mail']['force.mailto'], $email['customer_name']);
+		$mail->Subject .= ' [' . $email['customer_email'] . ']';
+	} else {
+		$mail->AddAddress($email['customer_email'], $email['customer_name']);
+	}
 
 	//
 	// Add attachments
