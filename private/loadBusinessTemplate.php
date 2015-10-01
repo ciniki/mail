@@ -53,6 +53,10 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
 	}
 
 	//
+	// FIXME: Check if themes flag is enabled, and if theme_id is specified, then load that theme
+	//
+
+	//
 	// Load the theme
 	//
 	if( !file_exists($ciniki['config']['ciniki.core']['modules_dir'] . '/mail/private/theme' . $args['theme'] . '.php') ) {
@@ -111,6 +115,14 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
 	if( isset($args['unsubscribe_link']) && $args['unsubscribe_link'] == 'yes' ) {
 		$html_footer .= "<p style='$p_footer'><a style='$a_footer' href='{_unsubscribe_url_}'>Unsubscribe</a></p>\n";
 		$text_footer .= "\nUnsubscribe: {_unsubscribe_url_}";
+		$text_footer .= "\n\n";
+	}
+	elseif( isset($args['unsubscribe_url']) && $args['unsubscribe_url'] != '' ) {
+		if( !isset($args['unsubscribe_text']) || $args['unsubscribe_text'] == '' ) {
+			$args['unsubscribe_text'];
+		}
+		$html_footer .= "<p style='$p_footer'><a style='$a_footer' href='" . $args['unsubscribe_url'] . "'>" . $args['unsubscribe_text'] . "</a></p>\n";
+		$text_footer .= "\n" . $args['unsubscribe_text'] . ": " . $args['unsubscribe_url'];
 		$text_footer .= "\n\n";
 	}
 

@@ -34,6 +34,26 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $business_id, $args) {
 	}
 
 	//
+	// Get the settings for the mail module
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'getSettings');
+    $rc = ciniki_mail_getSettings($ciniki, $business_id); 
+    if( $rc['stat'] != 'ok' ) { 
+        return $rc;
+    }   
+	$settings = $rc['settings'];
+
+	//
+	// Get the web business settings to include in email
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'web', 'details');
+    $rc = ciniki_businesses_web_details($ciniki, $business_id); 
+    if( $rc['stat'] != 'ok' ) { 
+        return $rc;
+    }   
+	$business_details = $rc['details'];
+
+	//
 	// Check for both html and text content
 	//
 	if( !isset($args['text_content']) && !isset($args['html_content']) ) {
@@ -43,6 +63,58 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $business_id, $args) {
 	} elseif( isset($args['html_content']) && !isset($args['text_content']) ) {
 		$args['html_content'] = $args['text_content'];
 	}
+
+	//
+	// FIXME: load business template for formatting
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'loadBusinessTemplate');
+	$rc = ciniki_mail_loadBusinessTemplate($ciniki, $business_id, array(
+		'theme'=>(isset($args['theme'])?$args['theme']:''),
+		'title'=>(isset($args['title'])?$args['title']:$args['subject']),
+		'unsubscribe_url'=>(isset($args['unsubscribe_url'])?$args['unsubscribe_url']:''),
+		'unsubscribe_text'=>(isset($args['unsubscribe_text'])?$args['unsubscribe_text']:''),
+		'business_name'=>$business_details['name'],
+		));
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$template = $rc['template'];
+	$theme = $rc['theme'];
+
+	//
+	// Build the message
+	//
+	$text_content = $template['text_header'];
+	$html_content = $template['html_header'];
+
+	//
+	// Add the text content
+	//
+	$text_content .= $args['text_content'];
+
+	//
+	// Process the html email content to format
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'emailProcessContent');
+	$rc = ciniki_mail_emailProcessContent($ciniki, $business_id, $theme, $args['html_content']);
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$html_content .= "<tr><td style='" . $theme['td_body'] . "'>" . $rc['content'] . "</td></tr>";
+
+	//
+	// Add disclaimer if set
+	//
+	if( isset($settings['message-disclaimer']) && $settings['message-disclaimer'] != '' ) {
+		$html_template .= "<tr><td style='" . $theme['td_body'] . "'><p style='" . $theme['p'] . "'>" . $settings['message-disclaimer'] . "</p></td></tr>";
+		$text_template .= "\n\n" . $settings['message-disclaimer'];
+	}
+
+	//
+	// Add the footer
+	//
+	$text_content .= $template['text_footer'];
+	$html_content .= $template['html_footer'];
 
 	//
 	// Get a UUID for use in permalink
@@ -72,8 +144,10 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $business_id, $args) {
 	$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['flags']) . "', ";
 	$strsql .= "'10', '', '', '', ";
 	$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['subject']) . "', ";
-	$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['html_content']) . "', ";
-	$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['text_content']) . "', ";
+//	$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['html_content']) . "', ";
+//	$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['text_content']) . "', ";
+	$strsql .= "'" . ciniki_core_dbQuote($ciniki, $html_content) . "', ";
+	$strsql .= "'" . ciniki_core_dbQuote($ciniki, $text_content) . "', ";
 	$strsql .= "UTC_TIMESTAMP(), UTC_TIMESTAMP())";
 
 	$rc = ciniki_core_dbInsert($ciniki, $strsql, 'ciniki.mail');

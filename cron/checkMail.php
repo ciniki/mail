@@ -20,7 +20,7 @@ function ciniki_mail_cron_checkMail($ciniki) {
 	//
 	$strsql = "SELECT DISTINCT business_id "
 		. "FROM ciniki_mail "
-		. "WHERE status > 0 AND status < 20 "
+		. "WHERE status = 10 OR status = 15 "
 		. "";
 	$rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.mail', 'businesses', 'business_id');
 	if( $rc['stat'] != 'ok' ) {

@@ -21,13 +21,14 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUpdate');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbAddModuleHistory');
-	$strsql = "SELECT id, "
+	$strsql = "SELECT id, status, "
 		. "mailing_id, survey_invite_id, "
 		. "customer_id, customer_name, customer_email, "
 		. "subject, html_content, text_content "
 		. "FROM ciniki_mail "
 		. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $mail_id) . "' "
 		. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+		. "AND status >= 10 "
 		. "";
 	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'mail');
 	if( $rc['stat'] != 'ok' ) {
@@ -120,9 +121,9 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 //	$mail->Password = $ciniki['config']['ciniki.core']['system.smtp.password'];
 
 	$mail->IsHTML(true);
-	$mail->Subject = $email['subject'];
-	$mail->Body = $email['html_content'];
-	$mail->AltBody = $email['text_content'];
+	$mail->Subject = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['subject']);
+	$mail->Body = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['html_content']);
+	$mail->AltBody = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['text_content']);
 
 	if( isset($ciniki['config']['ciniki.mail']['force.mailto']) ) {
 		$mail->AddAddress($ciniki['config']['ciniki.mail']['force.mailto'], $email['customer_name']);
