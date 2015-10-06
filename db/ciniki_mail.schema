@@ -12,6 +12,8 @@
 # parent_id:		The ID of the head of the mail thread.  The first message
 #					sent or received becomes the head of the thread. **future**
 #
+# account_id:		The ID of the mail account the message was received or sent through. If 0 then sent through the default mail settings.
+#
 # mailing_id:		The ID of the mailing this messages is part of.  If set to 0 then 
 #					it's not part of any mailing.
 #
@@ -27,18 +29,27 @@
 #					designed to send emails as fast as possible.
 #				
 #					0x01 - Alert (fast priority)
+#					0x02 -
+#					0x04 -
+#					0x08 -
+#					0x10 - Read
+#					0x20 - 
+#					0x40 -
+#					0x80 -
 #
 # status:			The current status of this message.
 #
 #					0 - unknown
 #					5 - draft
+#					7 - pending - needs to be approved by business owner
 #					10 - queued to be sent
 #					15 - queued to be sent, initial failure
 #					20 - sending
 #					30 - sent
 #					40 - received **future**
+#					41 - flagged **future**
 #					50 - failed **future**
-#					60 - deleted
+#					60 - trash
 #
 # date_sent:		The UTC date and time the message was sent from Ciniki.
 #					This is only used for sent/outgoing messages.
@@ -68,6 +79,7 @@ create table ciniki_mail (
 	uuid char(36) not null,
 	business_id int not null,
 	parent_id int not null,
+	account_id int not null,
 	mailing_id int not null,
 	unsubscribe_key char(32) not null,
 	survey_invite_id int not null,

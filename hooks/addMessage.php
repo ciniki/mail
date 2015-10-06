@@ -32,6 +32,10 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $business_id, $args) {
 	if( !isset($args['flags']) ) {
 		$args['flags'] = '0';
 	}
+	if( !isset($args['status']) ) {
+		$args['status'] = '10';
+	}
+
 
 	//
 	// Get the settings for the mail module
@@ -142,7 +146,8 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $business_id, $args) {
 	$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['customer_name']) . "', ";
 	$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['customer_email']) . "', ";
 	$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['flags']) . "', ";
-	$strsql .= "'10', '', '', '', ";
+	$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['status']) . "', ";
+	$strsql .= "'', '', '', ";
 	$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['subject']) . "', ";
 //	$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['html_content']) . "', ";
 //	$strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['text_content']) . "', ";

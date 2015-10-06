@@ -12,8 +12,26 @@
 function ciniki_mail_maps($ciniki) {
 
 	$maps = array();
+	//
+	// FIXME: Remove mail once transitition is done to message
+	//
 	$maps['mail'] = array(
 		'status'=>array(
+			'5'=>'Draft',
+			'7'=>'Pending Approval',
+			'10'=>'Queued',
+			'15'=>'Failed, trying again',
+			'20'=>'Sending',
+			'30'=>'Sent',
+			'40'=>'Received',
+			'50'=>'Failed',
+			'60'=>'Deleted',
+			),
+		);
+	$maps['message'] = array(
+		'status'=>array(
+			'5'=>'Draft',
+			'7'=>'Pending Approval',
 			'10'=>'Queued',
 			'15'=>'Failed, trying again',
 			'20'=>'Sending',

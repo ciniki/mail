@@ -1,0 +1,5 @@
+#
+# Add the account_id column to the mail table.
+#
+ALTER TABLE ciniki_mail ADD COLUMN account_id int not null AFTER parent_id;
+ALTER TABLE ciniki_mail COMMENT='v1.02';

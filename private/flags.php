@@ -18,7 +18,7 @@ function ciniki_mail_flags($ciniki, $modules) {
 		array('flag'=>array('bit'=>'3', 'name'=>'Themes')),
 		array('flag'=>array('bit'=>'4', 'name'=>'Accounts')),
 		// 0x10
-//		array('flag'=>array('bit'=>'5', 'name'=>'')),
+		array('flag'=>array('bit'=>'5', 'name'=>'Inbox')),
 //		array('flag'=>array('bit'=>'6', 'name'=>'')),
 //		array('flag'=>array('bit'=>'7', 'name'=>'')),
 //		array('flag'=>array('bit'=>'8', 'name'=>'')),

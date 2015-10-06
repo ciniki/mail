@@ -2,7 +2,6 @@
 //
 // Description
 // -----------
-// Return the list of subscriptions available to another module, and if there is a mailing and subscription for the object.
 //
 // Arguments
 // ---------
@@ -57,8 +56,13 @@ function ciniki_mail_hooks_objectMessages($ciniki, $business_id, $args) {
 			. "AND ciniki_mail_objrefs.object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
 			. "AND ciniki_mail_objrefs.mail_id = ciniki_mail.id "
 			. "AND ciniki_mail.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
-			. "ORDER BY ciniki_mail.date_sent DESC "
 			. "";
+		if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
+			$strsql .= "AND ciniki_mail.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' ";
+		}
+		$strsql .= "ORDER BY ciniki_mail.date_sent DESC "
+			. "";
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.mail', array(
 			array('container'=>'mail', 'fname'=>'id', 'name'=>'message',
 				'fields'=>array('id', 'status', 'status_text', 'date_sent', 'customer_name', 'customer_email', 'subject'),
