@@ -105,4 +105,4 @@ create table ciniki_mail (
 	index (business_id, uuid, last_updated),
 	index (mailing_id, customer_email),
 	index (unsubscribe_key)
-) ENGINE='InnoDB', COMMENT='v1.01';
+) ENGINE='InnoDB', COMMENT='v1.02';
