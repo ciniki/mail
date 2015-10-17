@@ -61,7 +61,6 @@ function ciniki_mail_messageLabels(&$ciniki) {
 			. ") "
 		. "GROUP BY status "
 		. "";
-	error_log($strsql);
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 	$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.mail', array(
 		array('container'=>'status', 'fname'=>'status', 'fields'=>array('status', 'num_messages')),
