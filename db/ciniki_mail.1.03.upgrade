@@ -1,0 +1,6 @@
+#
+# Add the from_name and from_email columns
+#
+ALTER TABLE ciniki_mail ADD COLUMN from_name varchar(250) not null AFTER mail_from;
+ALTER TABLE ciniki_mail ADD COLUMN from_email varchar(250) not null AFTER from_name;
+ALTER TABLE ciniki_mail COMMENT='v1.03';

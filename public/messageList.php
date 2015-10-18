@@ -58,7 +58,7 @@ function ciniki_mail_messageList(&$ciniki) {
 	//
 	// Get the messages for the label
 	//
-	$strsql = "SELECT id, subject, customer_id, customer_name, customer_email, IF(text_content<>'',text_content,html_content) AS snippet, ";
+	$strsql = "SELECT id, status, subject, customer_id, customer_name, customer_email, from_name, from_email, IF(text_content<>'',text_content,html_content) AS snippet, ";
 	switch($args['status']) {
 		case '5': $strsql .= "date_added AS mail_date "; break;
 		case '7': $strsql .= "date_added AS mail_date "; break;
@@ -98,7 +98,7 @@ function ciniki_mail_messageList(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.mail', array(
 		array('container'=>'messages', 'fname'=>'id', 'name'=>'message',
-			'fields'=>array('id', 'subject', 'customer_id', 'customer_name', 'customer_email', 'snippet', 'mail_time'=>'mail_date', 'mail_date'),
+			'fields'=>array('id', 'status', 'subject', 'customer_id', 'customer_name', 'customer_email', 'from_name', 'from_email', 'snippet', 'mail_time'=>'mail_date', 'mail_date'),
 			'utctotz'=>array('mail_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
 				'mail_time'=>array('timezone'=>$intl_timezone, 'format'=>$time_format)),
 			),

@@ -29,7 +29,12 @@ function ciniki_mail_main() {
 				return d.label.name + (d.label.num_messages!=null?' <span class="count">' + d.label.num_messages + '</span>':'');
 			} else if( s == 'messages' ) {
 				switch(j) {
-					case 0: return '<div class="truncate"><span class="maintext">' + d.message.customer_name + '</span><span class="subtext">' + d.message.customer_email + '</span></div>';
+					case 0: 
+						if( d.message.status == 40 ) {
+							return '<div class="truncate"><span class="maintext">' + d.message.from_name + '</span><span class="subtext">' + d.message.from_email + '</span></div>';
+						} else {
+							return '<div class="truncate"><span class="maintext">' + d.message.customer_name + '</span><span class="subtext">' + d.message.customer_email + '</span></div>';
+						}
 					case 1: return '<div class="truncate"><span class="maintext">' + d.message.subject + '</span><span class="subtext">' + d.message.snippet + '</span></truncate>';
 					case 2: return '<div class="truncate"><span class="maintext">' + d.message.mail_date + '</span><span class="subtext">' + d.message.mail_time + '</span></truncate>';
 				}
@@ -181,8 +186,10 @@ function ciniki_mail_main() {
 		this.message.label_id = '';
 		this.message.sections = {
 			'details':{'label':'', 'list':{
-				'customer_name':{'label':'Name'},
-				'customer_email':{'label':'Email'},
+				'from_name':{'label':'Name', 'visible':'no'},
+				'from_email':{'label':'Email', 'visible':'no'},
+				'customer_name':{'label':'Name', 'visible':'yes'},
+				'customer_email':{'label':'Email', 'visible':'yes'},
 				'subject':{'label':'Subject'},
 				}},
 			'html_content':{'label':'Message', 'type':'htmlcontent'},
@@ -212,7 +219,6 @@ function ciniki_mail_main() {
 			return this.data[i];
 		};
 		this.message.addClose('Back');
-
 	}
 
 	//
@@ -350,6 +356,17 @@ function ciniki_mail_main() {
 				p.sections._buttons.buttons.queue.visible = 'yes';
 			} else {
 				p.sections._buttons.buttons.queue.visible = 'no';
+			}
+			if( rsp.message.status == 40 ) {
+				p.sections.details.list.from_name.visible = 'yes';
+				p.sections.details.list.from_email.visible = 'yes';
+				p.sections.details.list.customer_name.visible = 'no';
+				p.sections.details.list.customer_email.visible = 'no';
+			} else {
+				p.sections.details.list.from_name.visible = 'no';
+				p.sections.details.list.from_email.visible = 'no';
+				p.sections.details.list.customer_name.visible = 'yes';
+				p.sections.details.list.customer_email.visible = 'yes';
 			}
 			if( rsp.message.status != 60 ) {
 				p.sections._buttons.buttons.delete.visible = 'yes';

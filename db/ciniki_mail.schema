@@ -93,6 +93,8 @@ create table ciniki_mail (
 	mail_to varchar(250) not null,
 	mail_cc varchar(1000) not null,
 	mail_from varchar(250) not null,
+	from_name varchar(250) not null,
+	from_email varchar(250) not null,
 	subject varchar(250) not null,
 	html_content text not null,
 	text_content text not null,
@@ -105,4 +107,4 @@ create table ciniki_mail (
 	index (business_id, uuid, last_updated),
 	index (mailing_id, customer_email),
 	index (unsubscribe_key)
-) ENGINE='InnoDB', COMMENT='v1.02';
+) ENGINE='InnoDB', COMMENT='v1.03';

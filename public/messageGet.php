@@ -70,6 +70,8 @@ function ciniki_mail_messageGet(&$ciniki) {
 		. "customer_id, "
 		. "customer_name, "
 		. "customer_email, "
+		. "from_name, "
+		. "from_email, "
 		. "flags, "
 		. "status, "
 		. "status AS status_text, "
@@ -92,7 +94,7 @@ function ciniki_mail_messageGet(&$ciniki) {
 		array('container'=>'messages', 'fname'=>'id', 'name'=>'message',
 			'fields'=>array('id', 'customer_id', 'customer_name', 'customer_email', 
 				'flags', 'status', 'status_text', 'date_sent', 'date_received', 
-				'mail_to', 'mail_cc', 'mail_from',
+				'mail_to', 'mail_cc', 'mail_from', 'from_name', 'from_email', 
 				'subject', 'html_content', 'text_content',
 				'raw_headers', 'raw_content'),
 			'maps'=>array('status_text'=>$maps['message']['status']),

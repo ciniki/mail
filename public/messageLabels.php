@@ -37,18 +37,19 @@ function ciniki_mail_messageLabels(&$ciniki) {
         return $rc;
     }
 
-	$rsp = array('stat'=>'ok', 'labels'=>array(
-//		array('label'=>array('name'=>'Inbox', 'status'=>40)),
+	$rsp = array('stat'=>'ok', 'labels'=>array());
+	if( isset($ciniki['business']['modules']['ciniki.mail']['flags']) && ($ciniki['business']['modules']['ciniki.mail']['flags']&0x10) > 0 ) {
+		$rsp['labels'][] = array('label'=>array('name'=>'Inbox', 'status'=>40));
+	}
 //		array('label'=>array('name'=>'Flagged', 'status'=>41)),
 //		array('label'=>array('name'=>'Drafts', 'status'=>5)),
-		array('label'=>array('name'=>'Pending', 'status'=>7)),
-		array('label'=>array('name'=>'Queued', 'status'=>10)),
-		array('label'=>array('name'=>'Queue Failures', 'status'=>15)),
-		array('label'=>array('name'=>'Sending', 'status'=>20)),
-		array('label'=>array('name'=>'Sent', 'status'=>30)),
-		array('label'=>array('name'=>'Failed', 'status'=>50)),
-		array('label'=>array('name'=>'Trash', 'status'=>60)),
-		));
+	$rsp['labels'][] = array('label'=>array('name'=>'Pending', 'status'=>7));
+	$rsp['labels'][] = array('label'=>array('name'=>'Queued', 'status'=>10));
+	$rsp['labels'][] = array('label'=>array('name'=>'Queue Failures', 'status'=>15));
+	$rsp['labels'][] = array('label'=>array('name'=>'Sending', 'status'=>20));
+	$rsp['labels'][] = array('label'=>array('name'=>'Sent', 'status'=>30));
+	$rsp['labels'][] = array('label'=>array('name'=>'Failed', 'status'=>50));
+	$rsp['labels'][] = array('label'=>array('name'=>'Trash', 'status'=>60));
 
 	//
 	// Get the counts
