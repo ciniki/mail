@@ -69,6 +69,13 @@ function ciniki_mail_messageAction(&$ciniki) {
 				return $rc;
 			}
 		}
+	} elseif( $args['action'] == 'tryagain' ) {
+		if( $message['status'] == '20' ) {
+			$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.mail.message', $args['message_id'], array('status'=>'10'), 0x07);
+			if( $rc['stat'] != 'ok' ) {
+				return $rc;
+			}
+		}
 	} elseif( $args['action'] == 'delete' ) {
 		if( $message['status'] != '60' ) {
 			$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.mail.message', $args['message_id'], array('status'=>'60'), 0x07);

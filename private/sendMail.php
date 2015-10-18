@@ -142,8 +142,11 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 	}
 
 	if( !$mail->Send() ) {
-		error_log("MAIL-ERR: [" . $email['customer_email'] . "] " . $mail->ErrorInfo);
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1033', 'msg'=>'Unable to send email', 'pmsg'=>$mail->ErrorInfo));
+		sleep(2);
+		if( !$mail->Send() ) {	
+			error_log("MAIL-ERR [" . $business_id . "]: [" . $email['customer_email'] . "] " . $mail->ErrorInfo);
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1033', 'msg'=>'Unable to send email', 'pmsg'=>$mail->ErrorInfo));
+		}
 	}
 
 	//

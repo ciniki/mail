@@ -194,7 +194,8 @@ function ciniki_mail_main() {
 				}},
 			'html_content':{'label':'Message', 'type':'htmlcontent'},
 			'_buttons':{'label':'', 'buttons':{
-				'queue':{'label':'Send', 'visible':'no', 'fn':'M.ciniki_mail_main.messageQueue(\'M.ciniki_mail_main.message.close();\',M.ciniki_mail_main.message.message_id);'},
+				'queue':{'label':'Send', 'visible':'no', 'fn':'M.ciniki_mail_main.messageAction(\'M.ciniki_mail_main.message.close();\',M.ciniki_mail_main.message.message_id,\'queue\');'},
+				'tryagain':{'label':'Try Again', 'visible':'no', 'fn':'M.ciniki_mail_main.messageAction(\'M.ciniki_mail_main.message.close();\',M.ciniki_mail_main.message.message_id,\'tryagain\');'},
 				'delete':{'label':'Delete', 'visible':'no', 'fn':'M.ciniki_mail_main.messageDelete(\'M.ciniki_mail_main.message.close();\',M.ciniki_mail_main.message.message_id);'},
 				'purge':{'label':'Delete', 'visible':'no', 'fn':'M.ciniki_mail_main.messagePurge(\'M.ciniki_mail_main.message.close();\',M.ciniki_mail_main.message.message_id);'},
 				}},
@@ -368,6 +369,11 @@ function ciniki_mail_main() {
 				p.sections.details.list.customer_name.visible = 'yes';
 				p.sections.details.list.customer_email.visible = 'yes';
 			}
+			if( rsp.message.status == 20 && (M.userPerms&0x01) > 0 ) {
+				p.sections._buttons.buttons.tryagain.visible = 'yes';
+			} else {
+				p.sections._buttons.buttons.tryagain.visible = 'no';
+			}
 			if( rsp.message.status != 60 ) {
 				p.sections._buttons.buttons.delete.visible = 'yes';
 				p.sections._buttons.buttons.purge.visible = 'no';
@@ -377,6 +383,16 @@ function ciniki_mail_main() {
 			}
 			p.refresh();
 			p.show(cb);
+		});
+	};
+
+	this.messageAction = function(cb, mid, action) {
+		M.api.getJSONCb('ciniki.mail.messageAction', {'business_id':M.curBusinessID, 'message_id':mid, 'action':action}, function(rsp) {
+			if( rsp.stat != 'ok' ) {
+				M.api.err(rsp);
+				return false;
+			}
+			eval(cb);
 		});
 	};
 
