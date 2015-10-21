@@ -35,6 +35,7 @@ function ciniki_mail_objects($ciniki) {
 			),
 		'history_table'=>'ciniki_mail_history',
 		);
+	// Mail object will be deprecated
 	$objects['mail'] = array(
 		'name'=>'Mail',
 		'sync'=>'yes',
@@ -64,6 +65,7 @@ function ciniki_mail_objects($ciniki) {
 			),
 		'history_table'=>'ciniki_mail_history',
 		);
+	// Same as mail object above
 	$objects['message'] = array(
 		'name'=>'Mail Message',
 		'sync'=>'yes',
@@ -157,6 +159,21 @@ function ciniki_mail_objects($ciniki) {
 			'description'=>array(),
 			),
 		'history_table'=>'ciniki_mail_history',
+		);
+	$objects['log'] = array(
+		'name'=>'Mail Log',
+		'sync'=>'yes',
+		'table'=>'ciniki_mail_log',
+		'fields'=>array(
+			'mail_id'=>array('default'=>'0', 'ref'=>'ciniki.mail.message'),
+			'severity'=>array('default'=>'10'),
+			'log_date'=>array(),
+			'code'=>array(),
+			'msg'=>array(),
+			'pmsg'=>array('default'=>''),
+			'errors'=>array('default'=>''),
+			'raw_logs'=>array('default'=>''),
+			),
 		);
 
 	
