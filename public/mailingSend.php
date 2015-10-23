@@ -381,9 +381,10 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		// If sending a test message, don't load it into the database, just send and quit
 		//
 		if( isset($args['test']) && $args['test'] == 'yes' ) {
-			ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'emailUser');
-			ciniki_users_emailUser($ciniki, $args['business_id'], $ciniki['session']['user']['id'], 
-				array('subject'=>$mailing['subject'], 'textmsg'=>$text_message, 'htmlmsg'=>$html_message));
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'hooks', 'emailUser');
+			ciniki_users_hooks_emailUser($ciniki, $args['business_id'], array(
+				'user_id'=>$ciniki['session']['user']['id'], 
+				'subject'=>$mailing['subject'], 'textmsg'=>$text_message, 'htmlmsg'=>$html_message));
 			continue;
 		}
 

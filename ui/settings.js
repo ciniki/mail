@@ -42,19 +42,18 @@ function ciniki_mail_settings() {
 			'_disclaimer':{'label':'Disclaimer', 'fields':{
 				'message-disclaimer':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
 			}},
+			'_buttons':{'label':'', 'buttons':{
+				'test':{'label':'Send Test Message', 'fn':'M.ciniki_mail_settings.sendTest();'},
+				'save':{'label':'Save', 'fn':'M.ciniki_mail_settings.saveSettings();'},
+			}},
 		};
 
 		this.main.fieldValue = function(s, i, d) { 
 			return this.data[i];
 		};
-
-		//  
-		// Callback for the field history
-		//  
 		this.main.fieldHistoryArgs = function(s, i) {
 			return {'method':'ciniki.mail.settingsHistory', 'args':{'business_id':M.curBusinessID, 'setting':i}};
 		};
-
 		this.main.addButton('save', 'Save', 'M.ciniki_mail_settings.saveSettings();');
 		this.main.addClose('Cancel');
 	}
@@ -99,13 +98,28 @@ function ciniki_mail_settings() {
 	this.saveSettings = function() {
 		var c = this.main.serializeForm('no');
 		if( c != '' ) {
-			var rsp = M.api.postJSON('ciniki.mail.settingsUpdate', 
-				{'business_id':M.curBusinessID}, c);
-			if( rsp.stat != 'ok' ) {
-				M.api.err(rsp);
-				return false;
-			} 
+			var rsp = M.api.postJSONCb('ciniki.mail.settingsUpdate', 
+				{'business_id':M.curBusinessID}, c, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					} 
+				M.ciniki_mail_settings.main.close();
+				});
+		} else {
+			M.ciniki_mail_settings.main.close();
 		}
-		M.ciniki_mail_settings.main.close();
+	}
+
+	this.sendTest = function() {
+		var c = this.main.serializeForm('no');
+		M.api.postJSONCb('ciniki.mail.settingsUpdate', 
+			{'business_id':M.curBusinessID, 'sendtest':'yes'}, c, function(rsp) {
+				if( rsp.stat != 'ok' ) {
+					M.api.err(rsp);
+					return false;
+				} 
+				alert('Email sent');
+			});
 	}
 }

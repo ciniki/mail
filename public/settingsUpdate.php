@@ -23,6 +23,7 @@ function ciniki_mail_settingsUpdate(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'sendtest'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Send Test'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -100,6 +101,20 @@ function ciniki_mail_settingsUpdate(&$ciniki) {
     $rc = ciniki_core_dbTransactionCommit($ciniki, 'ciniki.mail');
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
+	}
+
+	//
+	// Check if a test message should be sent
+	//
+	if( isset($args['sendtest']) && $args['sendtest'] == 'yes' ) {
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'hooks', 'emailUser');
+		$rc = ciniki_users_hooks_emailUser($ciniki, $args['business_id'], array(
+			'user_id'=>$ciniki['session']['user']['id'],
+			'subject'=>'Test of your mail settings',
+			'textmsg'=>'You mail settings are configured properly.'));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
 	}
 
 	//
