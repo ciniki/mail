@@ -60,8 +60,10 @@ function ciniki_mail_messageGet(&$ciniki) {
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'datetimeFormat');
 	$datetime_format = ciniki_users_datetimeFormat($ciniki, 'php');
-//	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'timeFormat');
-//	$time_format = ciniki_users_timeFormat($ciniki, 'php');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
+	$date_format = ciniki_users_dateFormat($ciniki, 'php');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'timeFormat');
+	$time_format = ciniki_users_timeFormat($ciniki, 'php');
 
 	//
 	// Get the messages for the label
@@ -109,6 +111,33 @@ function ciniki_mail_messageGet(&$ciniki) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2596', 'msg'=>'Unable to find message'));
 	} 
 	$message = $rc['messages'][0]['message'];
+
+	//
+	// Get any logs for this message
+	//
+	$strsql = "SELECT id, severity, severity AS severity_text, "
+		. "log_date, log_date AS log_date_date, log_date AS log_date_time, code, msg, pmsg, errors, raw_logs "
+		. "FROM ciniki_mail_log "
+		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "AND mail_id = '" . ciniki_core_dbQuote($ciniki, $args['message_id']) . "' "
+		. "ORDER BY log_date "
+		. "";
+	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.mail', array(
+		array('container'=>'logs', 'fname'=>'id', 'name'=>'log',
+			'fields'=>array('id', 'severity_text', 'log_date', 'log_date_date', 'log_date_time', 'code', 'msg', 'pmsg', 'errors', 'raw_logs'),
+			'maps'=>array('severity_text'=>$maps['log']['severity']),
+			'utctotz'=>array( 'log_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),
+				'log_date_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
+				'log_date_time'=>array('timezone'=>$intl_timezone, 'format'=>$time_format),
+				),
+			),
+		));
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	if( isset($rc['logs']) ) {
+		$message['logs'] = $rc['logs'];
+	}
 
 	return array('stat'=>'ok', 'message'=>$message);
 }

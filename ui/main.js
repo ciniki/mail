@@ -193,6 +193,9 @@ function ciniki_mail_main() {
 				'subject':{'label':'Subject'},
 				}},
 			'html_content':{'label':'Message', 'type':'htmlcontent'},
+			'logs':{'label':'Logs', 'visible':'no', 'type':'simplegrid', 'num_cols':3,
+				'cellClasses':['multiline','multiline','multiline'],
+				},
 			'_buttons':{'label':'', 'buttons':{
 				'queue':{'label':'Send', 'visible':'no', 'fn':'M.ciniki_mail_main.messageAction(\'M.ciniki_mail_main.message.close();\',M.ciniki_mail_main.message.message_id,\'queue\');'},
 				'tryagain':{'label':'Try Again', 'visible':'no', 'fn':'M.ciniki_mail_main.messageAction(\'M.ciniki_mail_main.message.close();\',M.ciniki_mail_main.message.message_id,\'tryagain\');'},
@@ -200,7 +203,6 @@ function ciniki_mail_main() {
 				'purge':{'label':'Delete', 'visible':'no', 'fn':'M.ciniki_mail_main.messagePurge(\'M.ciniki_mail_main.message.close();\',M.ciniki_mail_main.message.message_id);'},
 				}},
 			};
-		this.message.sectionData = this.menu.sectionData;
 		this.message.sectionData = function(s) {
 			if( s == 'html_content' ) { 
 				if( this.data[s].match(/<body>/) ) {
@@ -209,8 +211,16 @@ function ciniki_mail_main() {
 				return this.data[s]; 
 			}
 			if( s == 'html_content' ) { return this.data[s].replace(/\n/g, '<br/>'); }
-			return this.sections[s].list;
+			if( s == 'details' ) { this.sections[s].list; }
+			return this.data[s];
 		}
+		this.message.cellValue = function(s, i, j, d) {
+			switch(j) {
+				case 0: return '<span class="maintext">' + d.log.log_date_date + '</span><span class="subtext">' + d.log.log_date_time + '</span>';
+				case 1: return '<span class="maintext">' + d.log.severity_text + '</span><span class="subtext">' + (d.log.code>0?"error: d.log.code":'') + '</span>';
+				case 2: return '<span class="maintext">' + d.log.msg + '</span><span class="subtext">' + ((M.userPerms&0x01)>0?d.log.pmsg:'') + '</span>';
+			}
+		};
 		this.message.listLabel = function(s, i, d) {
 			switch (s) {
 				case 'details': return d.label;
@@ -380,6 +390,13 @@ function ciniki_mail_main() {
 			} else {
 				p.sections._buttons.buttons.delete.visible = 'no';
 				p.sections._buttons.buttons.purge.visible = 'yes';
+			}
+			if( rsp.message.logs != null ) {
+				p.sections.logs.visible = 'yes';
+				p.data.logs = rsp.message.logs;
+				console.log(p.data.logs);
+			} else {
+				p.sections.logs.visible = 'no';
 			}
 			p.refresh();
 			p.show(cb);

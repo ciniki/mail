@@ -56,6 +56,15 @@ function ciniki_mail_maps($ciniki) {
 			'50'=>'Sent',
 			),
 		);
+	$maps['log'] = array(
+		'severity'=>array(
+			'10'=>'Information',
+			'20'=>'Confirmation',
+			'30'=>'Warning',
+			'40'=>'Error',
+			'40'=>'Error',
+			),
+		);
 	
 	return array('stat'=>'ok', 'maps'=>$maps);
 }
