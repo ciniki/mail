@@ -211,13 +211,13 @@ function ciniki_mail_main() {
 				return this.data[s]; 
 			}
 			if( s == 'html_content' ) { return this.data[s].replace(/\n/g, '<br/>'); }
-			if( s == 'details' ) { this.sections[s].list; }
+			if( s == 'details' ) { return this.sections[s].list; }
 			return this.data[s];
 		}
 		this.message.cellValue = function(s, i, j, d) {
 			switch(j) {
 				case 0: return '<span class="maintext">' + d.log.log_date_date + '</span><span class="subtext">' + d.log.log_date_time + '</span>';
-				case 1: return '<span class="maintext">' + d.log.severity_text + '</span><span class="subtext">' + (d.log.code>0?"error: d.log.code":'') + '</span>';
+				case 1: return '<span class="maintext">' + d.log.severity_text + '</span><span class="subtext">' + (d.log.code>0?'error: '+d.log.code:'') + '</span>';
 				case 2: return '<span class="maintext">' + d.log.msg + '</span><span class="subtext">' + ((M.userPerms&0x01)>0?d.log.pmsg:'') + '</span>';
 			}
 		};
@@ -394,7 +394,6 @@ function ciniki_mail_main() {
 			if( rsp.message.logs != null ) {
 				p.sections.logs.visible = 'yes';
 				p.data.logs = rsp.message.logs;
-				console.log(p.data.logs);
 			} else {
 				p.sections.logs.visible = 'no';
 			}
