@@ -10,8 +10,9 @@
 // Returns
 // -------
 //
-function ciniki_mail_cron_checkMail($ciniki) {
-	print("CRON: Checking mail to be sent\n");
+function ciniki_mail_cron_jobs($ciniki) {
+	ciniki_cron_logMsg($ciniki, 0, array('code'=>'0', 'msg'=>'Checking for mail jobs', 'severity'=>'5'));
+
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
@@ -24,7 +25,7 @@ function ciniki_mail_cron_checkMail($ciniki) {
 		. "";
 	$rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.mail', 'businesses', 'business_id');
 	if( $rc['stat'] != 'ok' ) {
-		return $rc;
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2630', 'msg'=>'Unable to get list of businesses with mail', 'err'=>$rc['err']));
 	}
 	if( !isset($rc['businesses']) || count($rc['businesses']) == 0 ) {
 		$businesses = array();
@@ -39,10 +40,11 @@ function ciniki_mail_cron_checkMail($ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'sendMail');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
 	foreach($businesses as $business_id) {
-		print("CRON: Sending mail for $business_id\n");
+		ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'0', 'msg'=>'Sending mail', 'severity'=>'10'));
 		$rc = ciniki_mail_getSettings($ciniki, $business_id);
 		if( $rc['stat'] != 'ok' ) {
-			error_log("CRON-ERR: Unable to load business mail settings for $business_id (" . serialize($rc) . ")");
+			ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'2631', 'msg'=>'Unable to mail settings', 
+				'severity'=>50, 'err'=>$rc['err']));
 			continue;
 		}
 		$settings = $rc['settings'];	
@@ -61,14 +63,16 @@ function ciniki_mail_cron_checkMail($ciniki) {
 			. "";
 		$rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.mail', 'mail', 'id');
 		if( $rc['stat'] != 'ok' ) {
-			error_log("CRON-ERR: Unable to load mail list for $business_id (" . serialize($rc) . ")");
+			ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'2631', 'msg'=>'Unable to load the list of mail to send', 
+				'severity'=>50, 'err'=>$rc['err']));
 			continue;
 		}
 		$emails = $rc['mail'];
 		foreach($emails as $mail_id) {
 			$rc = ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id);
 			if( $rc['stat'] != 'ok' ) {
-				error_log("CRON-ERR: Unable to send mail for $business_id (" . serialize($rc) . ")");
+				ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'2632', 'msg'=>'Unable to send message',
+					'severity'=>50, 'err'=>$rc['err']));
 				continue;
 			}
 		}
@@ -94,14 +98,15 @@ function ciniki_mail_cron_checkMail($ciniki) {
 		. "";
 	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'mailing');
 	if( $rc['stat'] != 'ok' ) {
-		return $rc;
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2634', 'msg'=>'Unable to get list of mailings', 'err'=>$rc['err']));
 	}
 	if( isset($rc['rows']) ) {
 		$mailings = $rc['rows'];
 		foreach($mailings as $mailing) {
 			$rc = ciniki_core_objectUpdate($ciniki, $mailing['business_id'], 'ciniki.mail.mailing', $mailing['id'], array('status'=>50));
 			if( $rc['stat'] != 'ok' ) {
-				error_log("CRON-ERR: Unable to update mailing status for $business_id (" . serialize($rc) . ")");
+				ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'2633', 'msg'=>'Unable to update mailing', 'pmsg'=>'Unable to set mailing status=50',
+					'severity'=>40, 'err'=>$rc['err']));
 				continue;
 			}
 		}
