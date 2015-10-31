@@ -141,7 +141,6 @@ function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $business_id, $args) {
 	// Send a notification of new message
 	//
 	if( isset($args['notification']) && $args['notification'] == 'yes' ) {
-		error_log('sending notification');
 		$msg = "New message from " . $args['from_name'] . " (" . $args['from_email'] . ")\n"
 			. "\n"
 			. "Message: \n\n"
