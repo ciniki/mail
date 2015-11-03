@@ -79,7 +79,7 @@ function ciniki_mail_mailings() {
 				'subscription_names':{'label':'Subscriptions'},
 			}},
 //			'text_content':{'label':'Message', 'type':'htmlcontent'},
-			'_image':{'label':'', 'aside':'yes', 'fields':{
+			'_image':{'label':'', 'aside':'yes', 'type':'imageform', 'fields':{
 				'primary_image_id':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'history':'no'},
 			}},
 			'html_content':{'label':'Message', 'type':'htmlcontent'},
@@ -175,7 +175,7 @@ function ciniki_mail_mailings() {
 //				'theme':{'label':'Theme', 'type':'select', 'options':this.themes},
 				'subject':{'label':'Subject', 'type':'text'},
 			}},
-			'_image':{'label':'', 'fields':{
+			'_image':{'label':'', 'type':'imageform', 'fields':{
 				'primary_image_id':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'history':'no', 'controls':'all'},
 			}},
 			'_msg':{'label':'Message', 'fields':{
