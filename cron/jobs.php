@@ -43,7 +43,7 @@ function ciniki_mail_cron_jobs($ciniki) {
 		ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'0', 'msg'=>'Sending mail', 'severity'=>'10'));
 		$rc = ciniki_mail_getSettings($ciniki, $business_id);
 		if( $rc['stat'] != 'ok' ) {
-			ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'2631', 'msg'=>'Unable to mail settings', 
+			ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'2586', 'msg'=>'Unable to mail settings', 
 				'severity'=>50, 'err'=>$rc['err']));
 			continue;
 		}
