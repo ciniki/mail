@@ -35,7 +35,7 @@ function ciniki_mail_messageList(&$ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'checkAccess');
-    $rc = ciniki_mail_checkAccess($ciniki, $args['business_id'], 'ciniki.mail.messageLabels', 0); 
+    $rc = ciniki_mail_checkAccess($ciniki, $args['business_id'], 'ciniki.mail.messageList', 0); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }

@@ -38,7 +38,7 @@ function ciniki_mail_mailingImageUpdate(&$ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'checkAccess');
-    $rc = ciniki_mail_checkAccess($ciniki, $args['business_id'], 'ciniki.mail.imageUpdate'); 
+    $rc = ciniki_mail_checkAccess($ciniki, $args['business_id'], 'ciniki.mail.mailingImageUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
