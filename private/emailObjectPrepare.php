@@ -161,21 +161,27 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing,
 	//
 	if( isset($object['links']) ) {
 		$text_links = '';
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'web', 'private', 'processURL');
 		foreach($object['links'] as $link) {
-			$url = $link['url'];
-			if( $url != '' && !preg_match('/^\s*http/i', $url) ) {
-				$display_url = $url;
-				$url = "http://" . preg_replace('/^\s*/', '', $url);
-			} elseif( $url != '' && !preg_match('/^\s*\//i', $url) ) {	// starts with /
-				$url = $domain_base_url + $url;
-				$display_url = preg_replace('/^\s*http:\/\//i', '', $url);
-				$display_url = preg_replace('/\/$/i', '', $display_url);
-			} else {
-				$display_url = preg_replace('/^\s*http:\/\//i', '', $url);
-				$display_url = preg_replace('/\/$/i', '', $display_url);
+			$rc = ciniki_web_processURL($ciniki, $link['url']);
+			if( $rc['stat'] != 'ok' ) {
+				return $rc;
 			}
-			$text_links .= $display_url . "\n";
-			$html_content .= "<br/><a style='$a_style' href='" . $url . "' title='" . ($link['name']!=''?$link['name']:$display_url) . "'>" . $display_url . "</a>";
+			if( $rc['url'] != '' ) {
+				$html_content .= "<a style='$a_style' href='" . $rc['url'] . "' title='" 
+					. ($link['name']!=''?$link['name']:$rc['display']) . "'>" 
+					. ($link['name']!=''?$link['name']:$rc['display'])
+					. "</a>";
+                $text_links .= ($link['name']!=''?$link['name'] . ': ':'') . $rc['display'] . "\n";
+			} else {
+                $text_links .= $link['name'];
+				$html_content .= $link['name'];
+			}
+			if( isset($link['description']) && $link['description'] != '' ) {
+				$html_content .= "<br/><span class='downloads-description'>" . $link['description'] . "</span><br/>";
+                $text_links .= $link['description'] . "\n\n";
+			}
+			$html_content .= "<br/>";
 		}
 		if( $text_links != '' ) {
 			$text_content .= "\n" . $text_links;

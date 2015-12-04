@@ -48,7 +48,7 @@
 #					30 - sent
 #					40 - received **future**
 #					41 - flagged **future**
-#					50 - failed **future**
+#					50 - failed
 #					60 - trash
 #
 # date_sent:		The UTC date and time the message was sent from Ciniki.
