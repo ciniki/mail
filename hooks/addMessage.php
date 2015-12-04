@@ -2,7 +2,7 @@
 //
 // Description
 // -----------
-// Merge the mail from secondary_customer_id into primary_customer_id
+// Add a new message to the queue.
 //
 // Arguments
 // ---------

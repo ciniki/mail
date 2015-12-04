@@ -159,7 +159,7 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 	}
 
 	if( !$mail->Send() ) {
-		return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'2617', 'msg'=>'Unable to send message, trying again.', 'pmsg'=>$mail->ErrorInfo,
+		ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'2617', 'msg'=>'Unable to send message, trying again.', 'pmsg'=>$mail->ErrorInfo,
 			'mail_id'=>$mail_id, 'severity'=>30,
 			));
 		sleep(2);
@@ -212,6 +212,10 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 				2, 'ciniki_survey_invites', $email['survey_invite_id'], 'date_sent', $utc_datetime);
 		}
 	}
+
+    //
+    // FIXME: Check for hooks to update other modules
+    //
 
 	return array('stat'=>'ok');
 }

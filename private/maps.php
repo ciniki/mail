@@ -62,7 +62,7 @@ function ciniki_mail_maps($ciniki) {
 			'20'=>'Confirmation',
 			'30'=>'Warning',
 			'40'=>'Error',
-			'40'=>'Error',
+			'50'=>'Error',
 			),
 		);
 	
