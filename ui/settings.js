@@ -85,14 +85,16 @@ function ciniki_mail_settings() {
 	// Grab the stats for the business from the database and present the list of orders.
 	//
 	this.showMain = function(cb) {
-		var rsp = M.api.getJSON('ciniki.mail.settingsGet', {'business_id':M.curBusinessID});
-		if( rsp.stat != 'ok' ) {
-			M.api.err(rsp);
-			return false;
-		}
-		this.main.data = rsp.settings;
-		this.main.refresh();
-		this.main.show(cb);
+		M.api.getJSONCb('ciniki.mail.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_mail_settings.main;
+            p.data = rsp.settings;
+            p.refresh();
+            p.show(cb);
+        });
 	}
 
 	this.saveSettings = function() {
