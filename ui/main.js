@@ -379,7 +379,7 @@ function ciniki_mail_main() {
 				p.sections.details.list.customer_name.visible = 'yes';
 				p.sections.details.list.customer_email.visible = 'yes';
 			}
-			if( rsp.message.status == 20 && (M.userPerms&0x01) > 0 ) {
+			if( rsp.message.status == 50 || (rsp.message.status == 20 && (M.userPerms&0x01) > 0) ) {
 				p.sections._buttons.buttons.tryagain.visible = 'yes';
 			} else {
 				p.sections._buttons.buttons.tryagain.visible = 'no';
