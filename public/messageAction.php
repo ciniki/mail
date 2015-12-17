@@ -70,7 +70,7 @@ function ciniki_mail_messageAction(&$ciniki) {
 			}
 		}
 	} elseif( $args['action'] == 'tryagain' ) {
-		if( $message['status'] == '20' ) {
+		if( $message['status'] == '20' || $message['status'] == '50' ) {
 			$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.mail.message', $args['message_id'], array('status'=>'10'), 0x07);
 			if( $rc['stat'] != 'ok' ) {
 				return $rc;
