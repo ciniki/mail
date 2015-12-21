@@ -373,7 +373,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 		// Create the unsubscribe url for the customer
 		//
 		$unsubscribe_key = substr(md5(date('Y-m-d-H-i-s') . rand()), 0, 32);
-		$unsubscribe_url = $business_url . '/account/unsubscribe/?e=' . urlencode($email['email']) . '&s=' . $email['subscription_uuid'] . '&k=' . $unsubscribe_key;
+		$unsubscribe_url = $business_url . '/mail/subscriptions/unsubscribe?e=' . urlencode($email['email']) . '&s=' . $email['subscription_uuid'] . '&k=' . $unsubscribe_key;
 		$text_message = preg_replace('/\{_unsubscribe_url_\}/', $unsubscribe_url, $text_message);
 		$html_message = preg_replace('/\{_unsubscribe_url_\}/', $unsubscribe_url, $html_message);
 
