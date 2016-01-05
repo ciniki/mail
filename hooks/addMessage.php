@@ -62,9 +62,9 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $business_id, $args) {
 	//
 	if( !isset($args['text_content']) && !isset($args['html_content']) ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2466', 'msg'=>'No message specified'));
-	} elseif( isset($args['text_content']) && !isset($args['html_content']) ) {
-		$args['text_content'] = strip_tags($args['html_content']);
 	} elseif( isset($args['html_content']) && !isset($args['text_content']) ) {
+		$args['text_content'] = strip_tags($args['html_content']);
+	} elseif( isset($args['text_content']) && !isset($args['html_content']) ) {
 		$args['html_content'] = $args['text_content'];
 	}
 
