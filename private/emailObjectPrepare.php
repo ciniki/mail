@@ -153,6 +153,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing,
 		}
 		if( $text_files != '' ) {
 			$text_content .= "\n" . $text_files;
+            $html_content .= "<br/>";
 		}
 	}
 
