@@ -45,6 +45,9 @@ function ciniki_mail_themeDefault($ciniki, $business_id) {
 		'image_gallery_thumbnail'=>'margin: 7px; padding: 7px; border: 1px solid #aaa; display: inline-block;',
 		'image_gallery_thumbnail_img'=>'display: block;',
 		'linkback'=>'font-size: 16px; text-decoration: none; color: #439BBD;',
+        'table'=>'border: 1px solid #ddd; border-collapse: collapse; border-spacing: 1px; padding: 10px;',
+        'td'=>'border: 1px solid #ddd;',
+        'th'=>'border: 1px solid #ddd; background: #eee;',
 		));
 }
 ?>

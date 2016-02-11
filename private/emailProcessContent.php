@@ -29,6 +29,9 @@ function ciniki_mail_emailProcessContent($ciniki, $business_id, $theme, $unproce
 	$h4_style = isset($theme['h4'])?$theme['h4']:'';
 	$h5_style = isset($theme['h5'])?$theme['h5']:'';
 	$h6_style = isset($theme['h6'])?$theme['h6']:'';
+	$table_style = isset($theme['table'])?$theme['table']:'';
+	$td_style = isset($theme['td'])?$theme['td']:'';
+	$th_style = isset($theme['th'])?$theme['th']:'';
 
 
 	//
@@ -56,12 +59,18 @@ function ciniki_mail_emailProcessContent($ciniki, $business_id, $theme, $unproce
 	$processed_content = "<p style='$p_style'>" . preg_replace('/\n\s*\n/m', "</p><p style='$p_style'>", $processed_content) . '</p>';
 	// Remove empty paragraphs that are followed by a <h tag
 	$processed_content = preg_replace('/<p class=\'[A-Za-z\- ]*\'>(<h[1-6][^\>]*>[^<]+<\/h[1-6]>)<\/p>/', '$1', $processed_content);
-	$processed_content = preg_replace('/\n/m', "<br/>", $processed_content);
+	$processed_content = preg_replace('/([^>])\n/m', "$1<br/>", $processed_content);
 	$processed_content = preg_replace('/<p>/', "<p style='$p_style'>", $processed_content);
 	$processed_content = preg_replace('/<h1/', "<h1 style='$p_style'", $processed_content);
 	$processed_content = preg_replace('/<h2/', "<h2 style='$p_style'", $processed_content);
 	$processed_content = preg_replace('/<h3/', "<h3 style='$p_style'", $processed_content);
 	$processed_content = preg_replace('/<h4/', "<h4 style='$p_style'", $processed_content);
+	$processed_content = preg_replace('/<table/', "<table style='$table_style'", $processed_content);
+	$processed_content = preg_replace('/<td(>| )/', "<td style='$td_style'$1", $processed_content);
+    // Check for duplicate styles and combine
+	$processed_content = preg_replace('/<td style=\'([^\']+)\'\s+style=\'/', "<td style='$1", $processed_content);
+	$processed_content = preg_replace('/<th(>| )/', "<th style='$th_style'$1", $processed_content);
+	$processed_content = preg_replace('/<th style=\'([^\']+)\'\s+style=\'/', "<th style='$1", $processed_content);
 
 	return array('stat'=>'ok', 'content'=>$processed_content);
 }
