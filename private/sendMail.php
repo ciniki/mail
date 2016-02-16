@@ -88,7 +88,7 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 	}
 	if( $rc['num_affected_rows'] < 1 ) {
 		return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'1035', 'msg'=>'Unable to aquire lock.', 'pmsg'=>'No rows updated',
-			'mail_id'=>$mail_id, 'severity'=>50, 'err'=>$rc['err'],
+			'mail_id'=>$mail_id, 'severity'=>50, 
 			));
 	}
 	ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $business_id, 
