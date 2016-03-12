@@ -58,7 +58,8 @@ function ciniki_mail_messageList(&$ciniki) {
 	//
 	// Get the messages for the label
 	//
-	$strsql = "SELECT id, status, subject, customer_id, customer_name, customer_email, from_name, from_email, IF(text_content<>'',text_content,html_content) AS snippet, ";
+	$strsql = "SELECT id, status, subject, customer_id, customer_name, customer_email, from_name, from_email, "
+        . "IF(text_content<>'',text_content,html_content) AS snippet, ";
 	switch($args['status']) {
 		case '5': $strsql .= "date_added AS mail_date "; break;
 		case '7': $strsql .= "date_added AS mail_date "; break;

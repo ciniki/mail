@@ -252,7 +252,11 @@ function ciniki_mail_main() {
 			return false;
 		} 
 
-		this.menuShow(cb);
+        if( args.message_id != null && args.message_id > 0 ) {
+            this.messageShow(cb, args.message_id);
+        } else {
+            this.menuShow(cb);
+        }
 	};
 
 	this.menuShow = function(cb) {
