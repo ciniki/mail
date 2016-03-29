@@ -51,7 +51,38 @@ function ciniki_mail_cron_jobs($ciniki) {
 
 		$limit = 1; 	// Default to really slow sending, 1 every 5 minutes
 		if( isset($settings['smtp-5min-limit']) && is_numeric($settings['smtp-5min-limit']) && $settings['smtp-5min-limit'] > 0 ) {
-			$limit = intval($settings['smtp-5min-limit']);
+            if( $settings['smtp-5min-limit'] < 1 ) {
+                //
+                // Check to see when last message was sent
+                //
+                $strsql = "SELECT (UNIX_TIMESTAMP(UTC_TIMESTAMP()) - UNIX_TIMESTAMP(MAX(date_sent))) AS last_date_sent "
+                    . "FROM ciniki_mail "
+                    . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                    . "";
+                $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'last_sent');
+                if( $rc['stat'] != 'ok' ) {
+                    ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'3230', 'msg'=>'Unable to check last sent', 'severity'=>50, 'err'=>$rc['err']));
+                    continue;
+                }
+                //
+                // Calculate how many minutes need to be elapse between messages.
+                // If business sends unqueued message, it will delay queue
+                //
+                // 1 = 5min
+                // 0.5 = 10min
+                // 0.25 = 20min  (1/0.25) = 4 * 5 = 20min
+                //
+                $min_minutes = ((1/$settings['smtp-5min-limit'])*5);
+
+                //
+                // Check if the minutes between last message sent and now is less than minumum required.
+                //
+                if( isset($rc['last_sent']['last_date_sent']) && ($rc['last_sent']['last_date_sent']/60) < $min_minutes ) {
+                    continue;
+                }
+            } else {
+                $limit = intval($settings['smtp-5min-limit']);
+            }
 		}
 		
 		$strsql = "SELECT id "
