@@ -66,6 +66,7 @@ function ciniki_mail_emailProcessContent($ciniki, $business_id, $theme, $unproce
 	$processed_content = preg_replace('/<h3/', "<h3 style='$p_style'", $processed_content);
 	$processed_content = preg_replace('/<h4/', "<h4 style='$p_style'", $processed_content);
 	$processed_content = preg_replace('/<table/', "<table style='$table_style'", $processed_content);
+    $processed_content = preg_replace("/<table style='([^>]+)' style=('|\")/", "<table style=$2$1", $processed_content);
 	$processed_content = preg_replace('/<td(>| )/', "<td style='$td_style'$1", $processed_content);
     // Check for duplicate styles and combine
 	$processed_content = preg_replace('/<td style=\'([^\']+)\'\s+style=\'/', "<td style='$1", $processed_content);
