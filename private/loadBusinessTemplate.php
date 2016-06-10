@@ -19,7 +19,7 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
 	//
 	// If there is no theme sent, load them from defaults
 	//
-	if( !isset($args['theme']) || $args['theme'] == '' ) {
+//	if( !isset($args['theme']) || $args['theme'] == '' ) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'getSettings');
 		$rc = ciniki_mail_getSettings($ciniki, $business_id);
 		if( $rc['stat'] != 'ok' ) {
@@ -31,7 +31,7 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
 		} else {
 			$args['theme'] = 'Default';
 		}
-	}
+//	}
 
 	//
 	// If there is no business_name set, load
@@ -69,6 +69,16 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
 		return $rc;
 	}
 	$theme = $rc['theme'];
+
+    //
+    // Check if theme settings
+    //
+    foreach($theme as $name => $style) {
+        if( isset($settings['message-style-' . $name]) && $settings['message-style-' . $name] != '' ) {
+            $theme[$name] = $settings['message-style-' . $name];
+        }
+    }
+
 	$title_style = $theme['title_style'];
 	$subtitle_style = $theme['subtitle_style'];
 	$logo_style = $theme['logo_style'];
@@ -79,6 +89,11 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
 	$td_body = $theme['td_body'];
 	$td_footer = $theme['td_footer'];
 	$a_footer = $theme['a_footer'];
+
+    //
+    // Check for theme settings
+    //
+    
 
 	// 
 	// Prepare the html_header
