@@ -21,6 +21,8 @@
 #
 # message-disclaimer		- Add this disclaimer to all outgoing emails
 #
+# message-style-*           - The styles for the email to override default theme
+#
 # Fields
 # ------
 # business_id:		The id of the business the setting is for.
