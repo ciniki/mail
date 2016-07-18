@@ -23,9 +23,9 @@ function ciniki_mail_settings() {
         'throttling':{'label':'Sending Limits', 'fields':{
             'smtp-5min-limit':{'label':'5 Minutes', 'type':'text', 'size':'small'},
         }},
-//			'theme':{'label':'Options', 'fields':{
-//				'mail-default-theme':{'label':'Theme', 'type':'select', 'options':this.themes},
-//			}},
+//          'theme':{'label':'Options', 'fields':{
+//              'mail-default-theme':{'label':'Theme', 'type':'select', 'options':this.themes},
+//          }},
         '_disclaimer':{'label':'Disclaimer', 'fields':{
             'message-disclaimer':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
         }},
@@ -117,23 +117,23 @@ function ciniki_mail_settings() {
     this.main.addButton('save', 'Save', 'M.ciniki_mail_settings.main.save();');
     this.main.addClose('Cancel');
 
-	//
-	// Arguments:
-	// aG - The arguments to be parsed into args
-	//
-	this.start = function(cb, appPrefix, aG) {
-		args = {};
-		if( aG != null ) { args = eval(aG); }
+    //
+    // Arguments:
+    // aG - The arguments to be parsed into args
+    //
+    this.start = function(cb, appPrefix, aG) {
+        args = {};
+        if( aG != null ) { args = eval(aG); }
 
-		//
-		// Create the app container if it doesn't exist, and clear it out
-		// if it does exist.
-		//
-		var appContainer = M.createContainer(appPrefix, 'ciniki_mail_settings', 'yes');
-		if( appContainer == null ) {
-			alert('App Error');
-			return false;
-		} 
-		this.main.open(cb);
-	}
+        //
+        // Create the app container if it doesn't exist, and clear it out
+        // if it does exist.
+        //
+        var appContainer = M.createContainer(appPrefix, 'ciniki_mail_settings', 'yes');
+        if( appContainer == null ) {
+            alert('App Error');
+            return false;
+        } 
+        this.main.open(cb);
+    }
 }
