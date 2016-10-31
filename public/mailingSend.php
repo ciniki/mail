@@ -89,7 +89,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
 
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.mail', array(
         array('container'=>'mailings', 'fname'=>'id', 'name'=>'mailing',
-            'fields'=>array('id', 'uuid', 'type', 'status', 'theme', 'survey_id', 
+            'fields'=>array('id', 'uuid', 'type', 'status', 'theme', 'survey_id', 'image_id'=>'primary_image_id',
             'object', 'object_id', 
             'subject', 'content', 'text_content', 'subscription_ids'),
             'idlists'=>array('subscription_ids')),
