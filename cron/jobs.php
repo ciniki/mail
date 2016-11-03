@@ -43,7 +43,7 @@ function ciniki_mail_cron_jobs($ciniki) {
         ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'0', 'msg'=>'Sending mail', 'severity'=>'10'));
         $rc = ciniki_mail_getSettings($ciniki, $business_id);
         if( $rc['stat'] != 'ok' ) {
-            ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'2586', 'msg'=>'Unable to mail settings', 
+            ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.61', 'msg'=>'Unable to mail settings', 
                 'severity'=>50, 'err'=>$rc['err']));
             continue;
         }
@@ -61,7 +61,7 @@ function ciniki_mail_cron_jobs($ciniki) {
                     . "";
                 $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'last_sent');
                 if( $rc['stat'] != 'ok' ) {
-                    ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'3230', 'msg'=>'Unable to check last sent', 'severity'=>50, 'err'=>$rc['err']));
+                    ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.62', 'msg'=>'Unable to check last sent', 'severity'=>50, 'err'=>$rc['err']));
                     continue;
                 }
                 //
@@ -94,7 +94,7 @@ function ciniki_mail_cron_jobs($ciniki) {
             . "";
         $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.mail', 'mail', 'id');
         if( $rc['stat'] != 'ok' ) {
-            ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'2631', 'msg'=>'Unable to load the list of mail to send', 
+            ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.63', 'msg'=>'Unable to load the list of mail to send', 
                 'severity'=>50, 'err'=>$rc['err']));
             continue;
         }
@@ -102,7 +102,7 @@ function ciniki_mail_cron_jobs($ciniki) {
         foreach($emails as $mail_id) {
             $rc = ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id);
             if( $rc['stat'] != 'ok' ) {
-                ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'2632', 'msg'=>'Unable to send message',
+                ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.64', 'msg'=>'Unable to send message',
                     'severity'=>50, 'err'=>$rc['err']));
                 continue;
             }
@@ -136,7 +136,7 @@ function ciniki_mail_cron_jobs($ciniki) {
         foreach($mailings as $mailing) {
             $rc = ciniki_core_objectUpdate($ciniki, $mailing['business_id'], 'ciniki.mail.mailing', $mailing['id'], array('status'=>50));
             if( $rc['stat'] != 'ok' ) {
-                ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'2633', 'msg'=>'Unable to update mailing', 'pmsg'=>'Unable to set mailing status=50',
+                ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.65', 'msg'=>'Unable to update mailing', 'pmsg'=>'Unable to set mailing status=50',
                     'severity'=>40, 'err'=>$rc['err']));
                 continue;
             }
