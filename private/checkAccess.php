@@ -27,7 +27,7 @@ function ciniki_mail_checkAccess(&$ciniki, $business_id, $method) {
     $modules = $rc['modules'];
 
     if( !isset($rc['ruleset']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1014', 'msg'=>'No permissions granted'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.20', 'msg'=>'No permissions granted'));
     }
 
     //
@@ -74,6 +74,6 @@ function ciniki_mail_checkAccess(&$ciniki, $business_id, $method) {
     //
     // By default, fail
     //
-    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1025', 'msg'=>'Access denied.'));
+    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.21', 'msg'=>'Access denied.'));
 }
 ?>

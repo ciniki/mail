@@ -44,7 +44,7 @@ function ciniki_mail_mailingImageAdd(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUUID');
     $rc = ciniki_core_dbUUID($ciniki, 'ciniki.mail');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2136', 'msg'=>'Unable to get a new UUID', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.32', 'msg'=>'Unable to get a new UUID', 'err'=>$rc['err']));
     }
     $args['uuid'] = $rc['uuid'];
 
@@ -72,12 +72,12 @@ function ciniki_mail_mailingImageAdd(&$ciniki) {
         return $rc;
     }
     if( $rc['num_rows'] > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2137', 'msg'=>'You already have an image with this name, please choose another name'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.33', 'msg'=>'You already have an image with this name, please choose another name'));
     }
 
 
     if( $args['mailing_id'] <= 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2138', 'msg'=>'No mailing specified'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.34', 'msg'=>'No mailing specified'));
     }
    
     //

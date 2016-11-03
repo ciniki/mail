@@ -33,12 +33,12 @@ function ciniki_mail_hooks_objectUpdateSubscriptions($ciniki, $business_id, $arg
                 return $rc;
             }
             if( isset($rc['num_rows']) && $rc['num_rows'] > 1 ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2130', 'msg'=>'More than one mailing for this object'));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.18', 'msg'=>'More than one mailing for this object'));
             }
             if( isset($rc['mailing']) ) {
                 $mailing = $rc['mailing'];
                 if( $mailing['status'] != '10' ) {
-                    return array('stat'=>'ok', 'err'=>array('pkg'=>'ciniki', 'code'=>'2131', 'msg'=>'Mailing has already been sent and can no longer be changed'));
+                    return array('stat'=>'ok', 'err'=>array('code'=>'ciniki.mail.19', 'msg'=>'Mailing has already been sent and can no longer be changed'));
                 }
             }
         }

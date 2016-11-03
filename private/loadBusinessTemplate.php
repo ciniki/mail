@@ -60,7 +60,7 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
     // Load the theme
     //
     if( !file_exists($ciniki['config']['ciniki.core']['modules_dir'] . '/mail/private/theme' . $args['theme'] . '.php') ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1044', 'msg'=>'Theme does not exist'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.29', 'msg'=>'Theme does not exist'));
     }
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'theme' . $args['theme']);
     $theme_load = 'ciniki_mail_theme' . $args['theme'];

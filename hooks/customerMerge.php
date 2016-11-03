@@ -35,13 +35,13 @@ function ciniki_mail_hooks_customerMerge($ciniki, $business_id, $args) {
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'items');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2448', 'msg'=>'Unable to find mail items', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.9', 'msg'=>'Unable to find mail items', 'err'=>$rc['err']));
     }
     $items = $rc['rows'];
     foreach($items as $i => $row) {
         $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.mail.message', $row['id'], array('customer_id'=>$args['primary_customer_id']), 0x04);
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2449', 'msg'=>'Unable to update mail items.', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.10', 'msg'=>'Unable to update mail items.', 'err'=>$rc['err']));
         }
         $updated++;
     }

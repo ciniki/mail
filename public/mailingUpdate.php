@@ -56,7 +56,7 @@ function ciniki_mail_mailingUpdate(&$ciniki) {
     }
     $mailing = $rc['mailing'];
     if( $mailing['status'] >= 40 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1050', 'msg'=>'Mailing has already been sent'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.45', 'msg'=>'Mailing has already been sent'));
     }
 
     //  
@@ -115,7 +115,7 @@ function ciniki_mail_mailingUpdate(&$ciniki) {
     }
     if( !isset($rc['num_affected_rows']) || $rc['num_affected_rows'] != 1 ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1041', 'msg'=>'Unable to update mailing')); 
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.46', 'msg'=>'Unable to update mailing')); 
     }
     */
 
@@ -170,7 +170,7 @@ function ciniki_mail_mailingUpdate(&$ciniki) {
                 }
                 if( !isset($rc['insert_id']) || $rc['insert_id'] < 1 ) {
                     ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
-                    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1042', 'msg'=>'Unable to update mailing'));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.47', 'msg'=>'Unable to update mailing'));
                 }
                 $ms_id = $rc['insert_id'];
 

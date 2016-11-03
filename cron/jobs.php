@@ -25,7 +25,7 @@ function ciniki_mail_cron_jobs($ciniki) {
         . "";
     $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.mail', 'businesses', 'business_id');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2630', 'msg'=>'Unable to get list of businesses with mail', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.1', 'msg'=>'Unable to get list of businesses with mail', 'err'=>$rc['err']));
     }
     if( !isset($rc['businesses']) || count($rc['businesses']) == 0 ) {
         $businesses = array();
@@ -129,7 +129,7 @@ function ciniki_mail_cron_jobs($ciniki) {
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'mailing');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2634', 'msg'=>'Unable to get list of mailings', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.2', 'msg'=>'Unable to get list of mailings', 'err'=>$rc['err']));
     }
     if( isset($rc['rows']) ) {
         $mailings = $rc['rows'];

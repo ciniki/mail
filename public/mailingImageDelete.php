@@ -46,7 +46,7 @@ function ciniki_mail_mailingImageDelete(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['item']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2141', 'msg'=>'Mailing image does not exist'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.35', 'msg'=>'Mailing image does not exist'));
     }
     $item = $rc['item'];
 

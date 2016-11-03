@@ -55,7 +55,7 @@ function ciniki_mail_messageAction(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['message']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2598', 'msg'=>'Unable to find message'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.48', 'msg'=>'Unable to find message'));
     }
     $message = $rc['message'];
 

@@ -66,7 +66,7 @@ function ciniki_mail_mailingLoad($ciniki, $business_id, $mailing_id) {
         return $rc;
     }
     if( !isset($rc['mailings']) && !isset($rc['mailings'][0]['mailing']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1028', 'msg'=>'Unable to find mailing'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.30', 'msg'=>'Unable to find mailing'));
     }
     $mailing = $rc['mailings'][0]['mailing'];
     

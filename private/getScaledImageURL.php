@@ -31,10 +31,10 @@ function ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $image
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.images', 'image');
     if( $rc['stat'] != 'ok' ) { 
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2132', 'msg'=>'Unable to load image', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.25', 'msg'=>'Unable to load image', 'err'=>$rc['err']));
     }
     if( !isset($rc['image']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2133', 'msg'=>'Unable to load image'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.26', 'msg'=>'Unable to load image'));
     }
     $img = $rc['image'];
 
@@ -86,7 +86,7 @@ function ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $image
     //
     if( !file_exists(dirname($img_filename)) ) {
         if( !mkdir(dirname($img_filename), 0755, true) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2128', 'msg'=>'Unable to create mail cache'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.27', 'msg'=>'Unable to create mail cache'));
         }
     }
 
@@ -103,7 +103,7 @@ function ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $image
         fwrite($h, $image->getImageBlob());
         fclose($h);
     } else {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2125', 'msg'=>'Unable to load image'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.28', 'msg'=>'Unable to load image'));
     }
 
     return array('stat'=>'ok', 'filename'=>$filename);

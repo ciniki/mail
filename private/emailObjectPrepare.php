@@ -27,7 +27,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing,
         return $rc;
     }
     if( !isset($rc['business']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2134', 'msg'=>'Business not found'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.22', 'msg'=>'Business not found'));
     }
     $business = $rc['business'];
 
@@ -134,14 +134,14 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing,
             // Make sure directory is created
             if( !is_dir($cache_dir) ) {
                 if( !mkdir($cache_dir, 0755, true) ) {
-                    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2126', 'msg'=>'Unable to create mail cache'));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.23', 'msg'=>'Unable to create mail cache'));
                 }
             }
             $filename = $file['permalink'] . '.' . $file['extension'];
             // Save file
             $rc = file_put_contents($cache_dir . '/' . $filename, $file['binary_content']);
             if( $rc === false ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2127', 'msg'=>'Unable to create mail file download'));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.24', 'msg'=>'Unable to create mail file download'));
             }
             $url = $cache_url . "/" . $filename;
             $html_content .= "<a style='$a_style' target='_blank' href='" . $url . "' title='" . $file['name'] . "'>" . $file['name'] . "</a>";

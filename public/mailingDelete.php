@@ -55,7 +55,7 @@ function ciniki_mail_mailingDelete($ciniki) {
         return $rc;
     }
     if( !isset($rc['mailing']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2145', 'msg'=>'The mailing does not exist'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.31', 'msg'=>'The mailing does not exist'));
     }
     $mailing_uuid = $rc['mailing']['uuid'];
 

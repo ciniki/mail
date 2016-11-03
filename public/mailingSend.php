@@ -98,16 +98,16 @@ function ciniki_mail_mailingSend(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['mailings']) || !isset($rc['mailings'][0]['mailing']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1030', 'msg'=>'Unable to find mailing'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.39', 'msg'=>'Unable to find mailing'));
     }
     $mailing = $rc['mailings'][0]['mailing'];
     // Check for the subscriptions if this is not a test message
     if( (!isset($args['test']) || $args['test'] != 'yes') && !is_array($mailing['subscription_ids']) && count($mailing['subscription_ids']) == 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1043', 'msg'=>'No subscriptions specified'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.40', 'msg'=>'No subscriptions specified'));
     }
 
     if( $mailing['status'] >= 40 && (!isset($args['test']) || $args['test'] != 'yes') ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1036', 'msg'=>'Mailing has already been sent'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.41', 'msg'=>'Mailing has already been sent'));
     }
 
     //
@@ -151,7 +151,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.users', 'user');
         if( $rc['stat'] != 'ok' || !isset($rc['user']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1038', 'msg'=>'Unable to find email information', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.42', 'msg'=>'Unable to find email information', 'err'=>$rc['err']));
         }
         $emails = array(array('customer_id'=>0, 'customer_name'=>$rc['user']['name'], 'email'=>$rc['user']['email'], 'subscription_uuid'=>'Test'));
     } 
@@ -166,7 +166,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
             return $rc;
         }
         if( !isset($rc['emails']) || count($rc['emails']) == 0 ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1045', 'msg'=>'No emails for the specified subscriptions'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.43', 'msg'=>'No emails for the specified subscriptions'));
         }
         $emails = $rc['emails'];
     }
@@ -184,7 +184,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
     if( $mailing['type'] == 40 ) {
         if( !isset($mailing['object']) || $mailing['object'] == ''
             || !isset($mailing['object_id']) || $mailing['object_id'] == '' ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2129', 'msg'=>'Object not specified'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.44', 'msg'=>'Object not specified'));
         }
         //
         // Load the object content

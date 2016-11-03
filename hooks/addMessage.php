@@ -24,7 +24,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $business_id, $args) {
         $args['customer_id'] = 0;
     }
     if( !isset($args['customer_email']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2465', 'msg'=>'No email specified'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.3', 'msg'=>'No email specified'));
     }
     if( !isset($args['customer_name']) ) {
         $args['customer_name'] = '';
@@ -61,7 +61,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $business_id, $args) {
     // Check for both html and text content
     //
     if( !isset($args['text_content']) && !isset($args['html_content']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2466', 'msg'=>'No message specified'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.4', 'msg'=>'No message specified'));
     } elseif( isset($args['html_content']) && !isset($args['text_content']) ) {
         $args['text_content'] = strip_tags($args['html_content']);
     } elseif( isset($args['text_content']) && !isset($args['html_content']) ) {
@@ -126,7 +126,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $business_id, $args) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUUID');
     $rc = ciniki_core_dbUUID($ciniki, 'ciniki.mail');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2503', 'msg'=>'Unable to get a new UUID', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.5', 'msg'=>'Unable to get a new UUID', 'err'=>$rc['err']));
     }
     $args['uuid'] = $rc['uuid'];
 
@@ -170,7 +170,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $business_id, $args) {
                 $attachment['mail_id'] = $mail_id;
                 $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.mail.attachment', $attachment, 0x04);
                 if( $rc['stat'] != 'ok' ) {
-                    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2469', 'msg'=>'Unable to add attachment', 'err'=>$rc['err']));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.6', 'msg'=>'Unable to add attachment', 'err'=>$rc['err']));
                 }
             }
         }
@@ -186,7 +186,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $business_id, $args) {
             'object_id'=>$args['object_id'],
             ), 0x04);
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2467', 'msg'=>'Unable to add object reference', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.7', 'msg'=>'Unable to add object reference', 'err'=>$rc['err']));
         }
     }
     if( isset($args['parent_object']) && $args['parent_object'] != '' && isset($args['parent_object_id']) && $args['parent_object_id'] != '' ) {
@@ -196,7 +196,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $business_id, $args) {
             'object_id'=>$args['parent_object_id'],
             ), 0x04);
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2530', 'msg'=>'Unable to add parent object reference', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.8', 'msg'=>'Unable to add parent object reference', 'err'=>$rc['err']));
         }
     }
 

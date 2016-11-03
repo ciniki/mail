@@ -43,7 +43,7 @@ function ciniki_mail_hooks_objectSubscriptions($ciniki, $business_id, $args) {
                 return $rc;
             }
             if( isset($rc['num_rows']) && $rc['num_rows'] > 1 ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2135', 'msg'=>'More than one mailing for this object'));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.17', 'msg'=>'More than one mailing for this object'));
             }
             if( isset($rc['mailing']) ) {
                 $mailing = $rc['mailing'];
