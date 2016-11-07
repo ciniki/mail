@@ -217,7 +217,7 @@ function ciniki_mail_main() {
         this.message.cellValue = function(s, i, j, d) {
             switch(j) {
                 case 0: return '<span class="maintext">' + d.log.log_date_date + '</span><span class="subtext">' + d.log.log_date_time + '</span>';
-                case 1: return '<span class="maintext">' + d.log.severity_text + '</span><span class="subtext">' + (d.log.code>0?'error: '+d.log.code:'') + '</span>';
+                case 1: return '<span class="maintext">' + d.log.severity_text + '</span><span class="subtext">' + (d.log.code != '' ?'error: '+d.log.code:'') + '</span>';
                 case 2: return '<span class="maintext">' + d.log.msg + '</span><span class="subtext">' + ((M.userPerms&0x01)>0?d.log.pmsg:'') + '</span>';
             }
         };
