@@ -102,6 +102,20 @@ function ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id) {
 
     $mail = new PHPMailer;
 
+    $mail->SMTPOptions = array(
+        'tls'=>array(
+            'verify_peer'=> false,
+            'verify_peer_name'=> false,
+            'allow_self_signed'=> true,
+        ),
+        'ssl'=>array(
+            'verify_peer'=> false,
+            'verify_peer_name'=> false,
+            'allow_self_signed'=> true,
+        ),
+    );
+
+
     $mail->IsSMTP();
     $use_config = 'yes';
     if( isset($settings['smtp-servers']) && $settings['smtp-servers'] != ''
