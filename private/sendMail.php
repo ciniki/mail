@@ -18,7 +18,7 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUpdate');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbAddModuleHistory');
-error_log('test');
+
     //
     // This function is run after the API has returned status, or from cron,
     // so all errors should be send to mail log
@@ -148,13 +148,12 @@ error_log('test');
         curl_setopt($ch, CURLOPT_URL, 'https://api.mailgun.net/v3/' . $settings['mailgun-domain'] . '/messages');
         curl_setopt($ch, CURLOPT_POSTFIELDS, $msg);
 
-        error_log('sending');
         $rsp = json_decode(curl_exec($ch));
 
         $info = curl_getinfo($ch);
         if( $info['http_code'] != 200 ) {
-            error_log("MAIL-ERR: [" . $user['email'] . "] " . $mail->ErrorInfo);
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.users.68', 'msg'=>'Unable to send email: ' . $mail->ErrorInfo));
+            error_log("MAIL-ERR: [" . $user['email'] . "] " . print_r($rsp, true));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.users.68', 'msg'=>'Unable to send email: ' . (isset($rsp['message']) ? $rsp['message'] : '')));
         }
         curl_close($ch);
     } 
