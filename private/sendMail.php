@@ -18,7 +18,7 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUpdate');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbAddModuleHistory');
-
+error_log('test');
     //
     // This function is run after the API has returned status, or from cron,
     // so all errors should be send to mail log
@@ -106,9 +106,11 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
         $msg = array(
             'from' => $settings['smtp-from-name'] . ' <' . $settings['smtp-from-address'] . '>',
             'subject' => $email['subject'],
-            'subject' => iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['subject']),
-            'html' => iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['html_content']),
-            'text' => iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['text_content']),
+            'html' => $email['html_content'],
+            'text' => $email['text_content'],
+//            'subject' => iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['subject']),
+//            'html' => iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['html_content']),
+//            'text' => iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['text_content']),
             );
         if( isset($ciniki['config']['ciniki.mail']['force.mailto']) ) {
             $msg['to'] = $email['customer_name'] . ' <' . $ciniki['config']['ciniki.mail']['force.mailto'] . '>';
@@ -140,9 +142,13 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
         curl_setopt($ch, CURLOPT_USERPWD, 'api:' . $settings['mailgun-key']);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_ENCODING, 'UTF-8');
         curl_setopt($ch, CURLOPT_URL, 'https://api.mailgun.net/v3/' . $settings['mailgun-domain'] . '/messages');
         curl_setopt($ch, CURLOPT_POSTFIELDS, $msg);
 
+        error_log('sending');
         $rsp = json_decode(curl_exec($ch));
 
         $info = curl_getinfo($ch);
