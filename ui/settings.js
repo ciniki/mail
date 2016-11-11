@@ -9,13 +9,27 @@ function ciniki_mail_settings() {
         'ciniki_mail_settings', 'main',
         'mc', 'medium', 'sectioned', 'ciniki.mail.settings.main');
     this.main.sections = {
-        'smtp':{'label':'SMTP', 'fields':{
-            'smtp-servers':{'label':'Servers', 'type':'text'},
-            'smtp-username':{'label':'Username', 'type':'text'},
-            'smtp-password':{'label':'Password', 'type':'text'},
-            'smtp-secure':{'label':'Security', 'type':'text', 'size':'small', 'hint':'tls or ssl'},
-            'smtp-port':{'label':'Port', 'type':'text', 'size':'small'},
-        }},
+        '_tabs':{'label':'', 'type':'paneltabs', 'selected':'smtp',
+//            'visible':function() { return ((M.userPerms&0x01) == 1 ? 'yes' : 'no'); },
+            'tabs':{
+                'smtp':{'label':'SMTP', 'fn':'M.ciniki_mail_settings.main.switchTab(\'smtp\');'},
+                'mailgun':{'label':'Mailgun', 'fn':'M.ciniki_mail_settings.main.switchTab(\'mailgun\');'},
+            }},
+        'smtp':{'label':'SMTP', 
+            'visible':function() { return (M.ciniki_mail_settings.main.sections._tabs.selected == 'smtp' ? 'yes' : 'hidden'); },
+            'fields':{
+                'smtp-servers':{'label':'Servers', 'type':'text'},
+                'smtp-username':{'label':'Username', 'type':'text'},
+                'smtp-password':{'label':'Password', 'type':'text'},
+                'smtp-secure':{'label':'Security', 'type':'text', 'size':'small', 'hint':'tls or ssl'},
+                'smtp-port':{'label':'Port', 'type':'text', 'size':'small'},
+            }},
+        'mailgun':{'label':'Mailgun', 
+            'visible':function() { return (M.ciniki_mail_settings.main.sections._tabs.selected == 'mailgun' ? 'yes' : 'hidden'); },
+            'fields':{
+                'mailgun-domain':{'label':'Domain', 'type':'text'},
+                'mailgun-key':{'label':'Key', 'type':'text'},
+            }},
         'smtp-from':{'label':'Send Email As', 'fields':{
             'smtp-from-name':{'label':'Name', 'type':'text'},
             'smtp-from-address':{'label':'Address', 'type':'email'},
@@ -70,12 +84,17 @@ function ciniki_mail_settings() {
             'save':{'label':'Save', 'fn':'M.ciniki_mail_settings.main.save();'},
         }},
     };
-
     this.main.fieldValue = function(s, i, d) { 
         return this.data[i];
     };
     this.main.fieldHistoryArgs = function(s, i) {
         return {'method':'ciniki.mail.settingsHistory', 'args':{'business_id':M.curBusinessID, 'setting':i}};
+    };
+    this.main.switchTab = function(tab) {
+        this.sections._tabs.selected = tab;
+        this.refreshSection('_tabs');
+        this.showHideSection('smtp');
+        this.showHideSection('mailgun');
     };
     this.main.open = function(cb) {
         M.api.getJSONCb('ciniki.mail.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
@@ -85,6 +104,11 @@ function ciniki_mail_settings() {
             }
             var p = M.ciniki_mail_settings.main;
             p.data = rsp.settings;
+            if( rsp.settings['mailgun-key'] != null && rsp.settings['mailgun-key'] != '' ) {
+                p.sections._tabs.selected = 'mailgun';
+            } else {
+                p.sections._tabs.selected = 'smtp';
+            }
             p.refresh();
             p.show(cb);
         });
@@ -115,6 +139,7 @@ function ciniki_mail_settings() {
         });
     }
     this.main.addButton('save', 'Save', 'M.ciniki_mail_settings.main.save();');
+    this.main.addButton('test', 'Test', 'M.ciniki_mail_settings.main.sendTest();');
     this.main.addClose('Cancel');
 
     //

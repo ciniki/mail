@@ -58,6 +58,8 @@ function ciniki_mail_settingsUpdate(&$ciniki) {
     // The list of allowed fields for updating
     //
     $changelog_fields = array(
+        'mailgun-domain',
+        'mailgun-key',
         'smtp-servers',
         'smtp-username',
         'smtp-password',
