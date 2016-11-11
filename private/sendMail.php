@@ -152,8 +152,26 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
 
         $info = curl_getinfo($ch);
         if( $info['http_code'] != 200 ) {
-            error_log("MAIL-ERR: [" . $user['email'] . "] " . print_r($rsp, true));
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.users.68', 'msg'=>'Unable to send email: ' . (isset($rsp['message']) ? $rsp['message'] : '')));
+            //
+            // Update the mail status to failed
+            //
+            $strsql = "UPDATE ciniki_mail SET status = 50, last_updated = UTC_TIMESTAMP() "
+                . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $mail_id) . "' "
+                . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "";
+            $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.mail');
+            if( $rc['stat'] != 'ok' ) {
+                curl_close($ch);
+                return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.66', 'msg'=>'Unable to send message and unable to unlock.', 'pmsg'=>'Could not set status=50',
+                    'mail_id'=>$mail_id, 'severity'=>50, 'err'=>$rc['err'],
+                    ));
+            }
+            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $business_id, 
+                2, 'ciniki_mail', $mail_id, 'status', '50');
+            curl_close($ch);
+            return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.67', 'msg'=>'Unable to send message.', 'pmsg'=>$rsp->message,
+                'mail_id'=>$mail_id, 'severity'=>50,
+                ));
         }
         curl_close($ch);
     } 
