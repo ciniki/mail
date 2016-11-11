@@ -116,7 +116,7 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
             $msg['to'] = $email['customer_name'] . ' <' . $ciniki['config']['ciniki.mail']['force.mailto'] . '>';
             $msg['subject'] .= ' [' . $email['customer_email'] . ']';
         } else {
-            $msg['to'] = $email['customer_name'] . ' <' . $email['customer_name'] . '>';
+            $msg['to'] = $email['customer_name'] . ' <' . $email['customer_email'] . '>';
         }
 
         //
