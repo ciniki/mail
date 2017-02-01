@@ -129,7 +129,7 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
                 file_put_contents($tmpname, $attachment['content']);
                 $cfile = curl_file_create($tmpname);
                 $cfile->setPostFilename($attachment['filename']);
-                $msg['file_' . $file_index] = $cfile;
+                $msg['attachment[' . $file_index .']'] = $cfile;
                 $file_index++;
             }
         }
