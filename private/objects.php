@@ -147,6 +147,17 @@ function ciniki_mail_objects($ciniki) {
             ),
         'history_table'=>'ciniki_mail_history',
         );
+    $objects['mailing_attachment'] = array(
+        'name'=>'Mailing Attachment',
+        'sync'=>'yes',
+        'table'=>'ciniki_mailing_attachments',
+        'fields'=>array(
+            'mail_id'=>array('ref'=>'ciniki.mail.mailing'),
+            'filename'=>array(),
+            'content'=>array(),
+            ),
+        'history_table'=>'ciniki_mail_history',
+        );
     $objects['mailing_image'] = array(
         'name'=>'Mailing Image',
         'sync'=>'yes',
