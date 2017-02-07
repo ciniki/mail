@@ -1,0 +1,5 @@
+#
+# Add the account_id column to the mail table.
+#
+ALTER TABLE ciniki_mail_attachments MODIFY COLUMN content mediumtext not null;
+ALTER TABLE ciniki_mail_attachments COMMENT='v1.02';
