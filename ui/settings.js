@@ -44,12 +44,12 @@ function ciniki_mail_settings() {
             'message-disclaimer':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
         }},
         'header_styles':{'label':'Mail Header Style', 
-            'visible':function() { return ((M.userPerms&0x01) == 1 ? 'yes' : 'no'); },
+            'active':function() { return ((M.userPerms&0x01) == 1 ? 'yes' : 'no'); },
             'fields':{
                 'message-style-header_style':{'label':'Header', 'hidelabel':'yes', 'type':'textarea'},
             }},
         'content_styles':{'label':'Mail Styles', 
-            'visible':function() { return ((M.userPerms&0x01) == 1 ? 'yes' : 'no'); },
+            'active':function() { return ((M.userPerms&0x01) == 1 ? 'yes' : 'no'); },
             'fields':{
                 'message-style-wrapper_style':{'label':'Wrapper', 'type':'text'},
                 'message-style-title_style':{'label':'Title', 'type':'text'},
