@@ -151,7 +151,7 @@ function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $business_id, $args) {
             foreach($send_to_emails as $email) {
                 $ciniki['emailqueue'][] = array('to'=>trim($email),
                     'replyto_email'=>$args['from_name'],
-                    'replyto-name'=>$args['from_email'],
+                    'replyto_name'=>$args['from_email'],
                     'subject'=>$args['subject'],
                     'textmsg'=>$msg,
                     );
