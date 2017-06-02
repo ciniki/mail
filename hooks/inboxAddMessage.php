@@ -150,8 +150,9 @@ function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $business_id, $args) {
             $send_to_emails = explode(',', $args['notification_emails']);
             foreach($send_to_emails as $email) {
                 $ciniki['emailqueue'][] = array('to'=>trim($email),
-                    'replyto_email'=>$args['from_name'],
-                    'replyto_name'=>$args['from_email'],
+                    'business_id'=>$business_id,
+                    'replyto_email'=>$args['from_email'],
+                    'replyto_name'=>$args['from_name'],
                     'subject'=>$args['subject'],
                     'textmsg'=>$msg,
                     );
@@ -165,6 +166,7 @@ function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $business_id, $args) {
             $owners = $rc['users'];
             foreach($owners as $user_id => $owner) {
                 $ciniki['emailqueue'][] = array('user_id'=>$user_id,
+                    'business_id'=>$business_id,
                     'replyto_email'=>$args['from_email'],
                     'replyto_name'=>$args['from_name'],
                     'subject'=>$args['subject'],
