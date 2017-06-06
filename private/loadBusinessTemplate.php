@@ -114,10 +114,23 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
         $html_header .= "<tr><td style='$td_header'><p style='$title_style'>" . $args['title'] . "</p></td></tr>";
     }
 
+    $links = '';
+    for($i = 1; $i < 6; $i++) {
+        if( isset($settings['footer-link-' . $i . '-name']) && $settings['footer-link-' . $i . '-name'] != '' 
+            && isset($settings['footer-link-' . $i . '-url']) && $settings['footer-link-' . $i . '-url'] != '' 
+            ) {
+            $links .= ($links != '' ? ' - ' : '') . "<a href='" . $settings['footer-link-' . $i . '-url'] . "'>" . $settings['footer-link-' . $i . '-name'] . "</a>";
+        }
+    }
+
     //
     // Add powered by and unsubscribe
     //
-    $html_footer = "<tr><td style='$td_footer'>"
+    $html_footer = '';
+    if( $links != '' ) {
+        $html_footer .= "<tr><td style='$td_body;align=center;'><center>$links</center></td></tr>";
+    }
+    $html_footer .= "<tr><td style='$td_footer'>"
         . "<p style='$p_footer'>All content &copy; Copyright " . date('Y') . " by " . $args['business_name'] . "</p>\n"
         . "";
     $text_footer = "\n\nAll content Copyright " . date('Y') . " by " . $args['business_name'];

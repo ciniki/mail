@@ -14,6 +14,9 @@ function ciniki_mail_settings() {
             'tabs':{
                 'smtp':{'label':'SMTP', 'fn':'M.ciniki_mail_settings.main.switchTab(\'smtp\');'},
                 'mailgun':{'label':'Mailgun', 'fn':'M.ciniki_mail_settings.main.switchTab(\'mailgun\');'},
+                'styles':{'label':'Styles', 
+                    'visible':function() { return ((M.userPerms&0x01) == 1 ? 'yes' : 'no'); },
+                    'fn':'M.ciniki_mail_settings.main.switchTab(\'styles\');'},
             }},
         'smtp':{'label':'SMTP', 
             'visible':function() { return (M.ciniki_mail_settings.main.sections._tabs.selected == 'smtp' ? 'yes' : 'hidden'); },
@@ -30,26 +33,32 @@ function ciniki_mail_settings() {
                 'mailgun-domain':{'label':'Domain', 'type':'text'},
                 'mailgun-key':{'label':'Key', 'type':'text'},
             }},
-        'smtp-from':{'label':'Send Email As', 'fields':{
-            'smtp-from-name':{'label':'Name', 'type':'text'},
-            'smtp-from-address':{'label':'Address', 'type':'email'},
-        }},
-        'throttling':{'label':'Sending Limits', 'fields':{
-            'smtp-5min-limit':{'label':'5 Minutes', 'type':'text', 'size':'small'},
-        }},
+        'smtp-from':{'label':'Send Email As', 
+            'visible':function() { var s=M.ciniki_mail_settings.main.sections._tabs.selected; return (s == 'smtp' || s == 'mailgun' ? 'yes' : 'hidden'); },
+            'fields':{
+                'smtp-from-name':{'label':'Name', 'type':'text'},
+                'smtp-from-address':{'label':'Address', 'type':'email'},
+            }},
+        'throttling':{'label':'Sending Limits', 
+            'visible':function() { var s=M.ciniki_mail_settings.main.sections._tabs.selected; return (s == 'smtp' || s == 'mailgun' ? 'yes' : 'hidden'); },
+            'fields':{
+                'smtp-5min-limit':{'label':'5 Minutes', 'type':'text', 'size':'small'},
+            }},
 //          'theme':{'label':'Options', 'fields':{
 //              'mail-default-theme':{'label':'Theme', 'type':'select', 'options':this.themes},
 //          }},
-        '_disclaimer':{'label':'Disclaimer', 'fields':{
-            'message-disclaimer':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
-        }},
+        '_disclaimer':{'label':'Disclaimer', 
+            'visible':function() { var s=M.ciniki_mail_settings.main.sections._tabs.selected; return (s == 'smtp' || s == 'mailgun' ? 'yes' : 'hidden'); },
+            'fields':{
+                'message-disclaimer':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
+            }},
         'header_styles':{'label':'Mail Header Style', 
-            'active':function() { return ((M.userPerms&0x01) == 1 ? 'yes' : 'no'); },
+            'visible':function() { return (M.ciniki_mail_settings.main.sections._tabs.selected == 'styles' ? 'yes' : 'hidden'); },
             'fields':{
                 'message-style-header_style':{'label':'Header', 'hidelabel':'yes', 'type':'textarea'},
             }},
         'content_styles':{'label':'Mail Styles', 
-            'active':function() { return ((M.userPerms&0x01) == 1 ? 'yes' : 'no'); },
+            'visible':function() { return (M.ciniki_mail_settings.main.sections._tabs.selected == 'styles' ? 'yes' : 'hidden'); },
             'fields':{
                 'message-style-wrapper_style':{'label':'Wrapper', 'type':'text'},
                 'message-style-title_style':{'label':'Title', 'type':'text'},
@@ -79,6 +88,20 @@ function ciniki_mail_settings() {
                 'message-style-td':{'label':'TD', 'type':'text'},
                 'message-style-th':{'label':'TH', 'type':'text'},
             }},
+        'footer_links':{'label':'Footer Links', 
+            'visible':function() { return (M.ciniki_mail_settings.main.sections._tabs.selected == 'styles' ? 'yes' : 'hidden'); },
+            'fields':{
+                'footer-link-1-name':{'label':'Name 1', 'type':'text'},
+                'footer-link-1-url':{'label':'URL 1', 'type':'text'},
+                'footer-link-2-name':{'label':'Name 2', 'type':'text'},
+                'footer-link-2-url':{'label':'URL 2', 'type':'text'},
+                'footer-link-3-name':{'label':'Name 3', 'type':'text'},
+                'footer-link-3-url':{'label':'URL 3', 'type':'text'},
+                'footer-link-4-name':{'label':'Name 4', 'type':'text'},
+                'footer-link-4-url':{'label':'URL 4', 'type':'text'},
+                'footer-link-5-name':{'label':'Name 5', 'type':'text'},
+                'footer-link-5-url':{'label':'URL 5', 'type':'text'},
+            }},
         '_buttons':{'label':'', 'buttons':{
             'test':{'label':'Send Test Message', 'fn':'M.ciniki_mail_settings.main.sendTest();'},
             'save':{'label':'Save', 'fn':'M.ciniki_mail_settings.main.save();'},
@@ -95,6 +118,12 @@ function ciniki_mail_settings() {
         this.refreshSection('_tabs');
         this.showHideSection('smtp');
         this.showHideSection('mailgun');
+        this.showHideSection('smtp-from');
+        this.showHideSection('throttling');
+        this.showHideSection('_disclaimer');
+        this.showHideSection('header_styles');
+        this.showHideSection('content_styles');
+        this.showHideSection('footer_links');
     };
     this.main.open = function(cb) {
         M.api.getJSONCb('ciniki.mail.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
@@ -116,14 +145,13 @@ function ciniki_mail_settings() {
     this.main.save = function() {
         var c = this.serializeForm('no');
         if( c != '' ) {
-            var rsp = M.api.postJSONCb('ciniki.mail.settingsUpdate', 
-                {'business_id':M.curBusinessID}, c, function(rsp) {
-                    if( rsp.stat != 'ok' ) {
-                        M.api.err(rsp);
-                        return false;
-                    } 
+            M.api.postJSONCb('ciniki.mail.settingsUpdate', {'business_id':M.curBusinessID}, c, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                } 
                 M.ciniki_mail_settings.main.close();
-                });
+            });
         } else {
             M.ciniki_mail_settings.main.close();
         }

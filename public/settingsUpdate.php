@@ -98,6 +98,16 @@ function ciniki_mail_settingsUpdate(&$ciniki) {
         'message-style-table',
         'message-style-td',
         'message-style-th',
+        'footer-link-1-name',
+        'footer-link-1-url',
+        'footer-link-2-name',
+        'footer-link-2-url',
+        'footer-link-3-name',
+        'footer-link-3-url',
+        'footer-link-4-name',
+        'footer-link-4-url',
+        'footer-link-5-name',
+        'footer-link-5-url',
         );
     //
     // Check each valid setting and see if a new value was passed in the arguments for it.
