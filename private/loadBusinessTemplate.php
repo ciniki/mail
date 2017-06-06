@@ -119,7 +119,7 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
         if( isset($settings['footer-link-' . $i . '-name']) && $settings['footer-link-' . $i . '-name'] != '' 
             && isset($settings['footer-link-' . $i . '-url']) && $settings['footer-link-' . $i . '-url'] != '' 
             ) {
-            $links .= ($links != '' ? ' - ' : '') . "<a href='" . $settings['footer-link-' . $i . '-url'] . "'>" . $settings['footer-link-' . $i . '-name'] . "</a>";
+            $links .= ($links != '' ? ' - ' : '') . "<a style='$a_style' href='" . $settings['footer-link-' . $i . '-url'] . "'>" . $settings['footer-link-' . $i . '-name'] . "</a>";
         }
     }
 
