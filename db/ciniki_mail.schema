@@ -17,11 +17,16 @@
 # mailing_id:       The ID of the mailing this messages is part of.  If set to 0 then 
 #                   it's not part of any mailing.
 #
+# unsubscribe_key:  The key to unsubscribe if this message is from a subscription list.
+#
 # survey_invite_id:     The ID of the survey invite, if a survey was included in the message.
 #
 # customer_id:      The ID of the customer the message was sent to.  The customer may have
 #                   multiple emails for one mailing, if they're provided more than one primary
 #                   email address.
+#
+# customer_name:    The name of the customer when the email was sent. This is useful if a customer name gets changed.
+# customer_email:   The customers email address the email was sent to.
 #
 # flags:            The flags/settings for this mail message.  By default messages,
 #                   will be send normal speed, but if smtp-highspeed is enabled, then
@@ -62,6 +67,9 @@
 # mail_to:          Who the message was addressed to. **for incoming mail only**
 # mail_cc:          The cc addresses for the message. **for incoming mail only**
 # mail_from:        Who the message was from. **for incoming mail only**
+#
+# from_name:        The name the email was received from.
+# from_email:       The email address the email was received from.
 #
 # html_content:     The html content of the message.
 # text_content:     The alt/text content of the message.
