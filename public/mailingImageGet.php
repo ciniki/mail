@@ -47,7 +47,6 @@ function ciniki_mail_mailingImageGet($ciniki) {
     $strsql = "SELECT ciniki_mailing_images.id, "
         . "ciniki_mailing_images.name, "
         . "ciniki_mailing_images.permalink, "
-        . "ciniki_mailing_images.webflags, "
         . "ciniki_mailing_images.image_id, "
         . "ciniki_mailing_images.description, "
         . "ciniki_mailing_images.url "
@@ -58,7 +57,7 @@ function ciniki_mail_mailingImageGet($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.mail', array(
         array('container'=>'images', 'fname'=>'id', 'name'=>'image',
-            'fields'=>array('id', 'name', 'permalink', 'webflags', 'image_id', 'description', 'url',)),
+            'fields'=>array('id', 'name', 'permalink', 'image_id', 'description', 'url',)),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
