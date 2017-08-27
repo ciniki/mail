@@ -12,7 +12,10 @@
 function ciniki_mail_objects($ciniki) {
     
     $objects = array();
-    $objects['account'] = array(
+    //
+    // Mail accounts are not yet implemented
+    //
+/*    $objects['account'] = array(
         'name'=>'Mail Account',
         'sync'=>'yes',
         'table'=>'ciniki_mail_accounts',
@@ -34,7 +37,7 @@ function ciniki_mail_objects($ciniki) {
             'date_read'=>array(),
             ),
         'history_table'=>'ciniki_mail_history',
-        );
+        ); */
     // Mail object will be deprecated
     $objects['mail'] = array(
         'name'=>'Mail',
