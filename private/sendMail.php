@@ -169,7 +169,7 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
             ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $business_id, 
                 2, 'ciniki_mail', $mail_id, 'status', '50');
             curl_close($ch);
-            return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.67', 'msg'=>'Unable to send message.', 'pmsg'=>$rsp->message,
+            return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.67', 'msg'=>'Unable to send message to ' . $msg['to'], 'pmsg'=>$rsp->message,
                 'mail_id'=>$mail_id, 'severity'=>50,
                 ));
         }
