@@ -6,7 +6,7 @@
 # -------
 # id:               The id of the art catalog item.
 # uuid:             The Universal Unique ID.
-# business_id:      The business the item is attached to.
+# tnid:      The tenant the item is attached to.
 #
 # date_added:       The UTC date and time the mailing was added.
 # last_updated:     The UTC date and time the mailing was last updated.
@@ -14,14 +14,14 @@
 create table ciniki_mailings (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     subject varchar(250) not null,
     html_content text not null,
     text_content text not null,
     date_added datetime not null,
     last_updated datetime not null,
     primary key(id),
-    index (business_id, uuid, last_updated)
+    index (tnid, uuid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';
 
 #
@@ -35,7 +35,7 @@ create table ciniki_mailings (
 create table ciniki_mail_attachments (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     name varchar(150) not null,
     filename varchar(150) not null,
     atype tinyint not null,
@@ -43,7 +43,7 @@ create table ciniki_mail_attachments (
     date_added datetime not null,
     last_updated datetime not null,
     primary key(id),
-    index (business_id, uuid, last_updated)
+    index (tnid, uuid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';
 
 #
@@ -56,13 +56,13 @@ create table ciniki_mail_attachments (
 create table ciniki_mail_message_attachments (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     mail_id int not null,
     attachment_id int not null,
     date_added datetime not null,
     last_updated datetime not null,
     primary key(id),
-    index (business_id, uuid, last_updated)
+    index (tnid, uuid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';
 
 
