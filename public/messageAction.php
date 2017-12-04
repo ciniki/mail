@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business to add the mail mailing to.
+// tnid:         The ID of the tenant to add the mail mailing to.
 //
 // Returns
 // -------
@@ -20,7 +20,7 @@ function ciniki_mail_messageAction(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'message_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Message'), 
         'action'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Action'),
         )); 
@@ -31,10 +31,10 @@ function ciniki_mail_messageAction(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'checkAccess');
-    $rc = ciniki_mail_checkAccess($ciniki, $args['business_id'], 'ciniki.mail.messageAction'); 
+    $rc = ciniki_mail_checkAccess($ciniki, $args['tnid'], 'ciniki.mail.messageAction'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -48,7 +48,7 @@ function ciniki_mail_messageAction(&$ciniki) {
     $strsql = "SELECT id, flags, status "
         . "FROM ciniki_mail "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['message_id']) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'message');
     if( $rc['stat'] != 'ok' ) {
@@ -64,21 +64,21 @@ function ciniki_mail_messageAction(&$ciniki) {
     //
     if( $args['action'] == 'queue' ) {
         if( $message['status'] == '7' ) {
-            $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.mail.message', $args['message_id'], array('status'=>'10'), 0x07);
+            $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.mail.message', $args['message_id'], array('status'=>'10'), 0x07);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
         }
     } elseif( $args['action'] == 'tryagain' ) {
         if( $message['status'] == '20' || $message['status'] == '50' ) {
-            $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.mail.message', $args['message_id'], array('status'=>'10'), 0x07);
+            $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.mail.message', $args['message_id'], array('status'=>'10'), 0x07);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
         }
     } elseif( $args['action'] == 'delete' ) {
         if( $message['status'] != '60' ) {
-            $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.mail.message', $args['message_id'], array('status'=>'60'), 0x07);
+            $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.mail.message', $args['message_id'], array('status'=>'60'), 0x07);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }

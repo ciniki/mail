@@ -8,20 +8,20 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business to mail mailing belongs to.
+// tnid:         The ID of the tenant to mail mailing belongs to.
 // mailing_id:          The ID of the mailing to get.
 //
 // Returns
 // -------
 //
-function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
+function ciniki_mail_loadTenantTemplate($ciniki, $tnid, $args) {
 
     //
     // If there is no theme sent, load them from defaults
     //
 //  if( !isset($args['theme']) || $args['theme'] == '' ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'getSettings');
-        $rc = ciniki_mail_getSettings($ciniki, $business_id);
+        $rc = ciniki_mail_getSettings($ciniki, $tnid);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -34,22 +34,22 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
 //  }
 
     //
-    // If there is no business_name set, load
+    // If there is no tenant_name set, load
     //
-    if( !isset($args['business_name']) ) {
+    if( !isset($args['tenant_name']) ) {
         //
-        // Get the business settings for the mail module
+        // Get the tenant settings for the mail module
         //
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'web', 'details');
-        $rc = ciniki_businesses_web_details($ciniki, $business_id);
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'web', 'details');
+        $rc = ciniki_tenants_web_details($ciniki, $tnid);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
-        $business_details = $rc['details'];
-        $args['business_name'] = $business_details['name'];
+        $tenant_details = $rc['details'];
+        $args['tenant_name'] = $tenant_details['name'];
     }
     if( !isset($args['title']) ) {
-        $args['title'] = $args['business_name'];
+        $args['title'] = $args['tenant_name'];
     }
 
     //
@@ -64,7 +64,7 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
     }
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'theme' . $args['theme']);
     $theme_load = 'ciniki_mail_theme' . $args['theme'];
-    $rc = $theme_load($ciniki, $business_id);
+    $rc = $theme_load($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -131,12 +131,12 @@ function ciniki_mail_loadBusinessTemplate($ciniki, $business_id, $args) {
         $html_footer .= "<tr><td style='$td_body;align=center;'><center>$links</center></td></tr>";
     }
     $html_footer .= "<tr><td style='$td_footer'>"
-        . "<p style='$p_footer'>All content &copy; Copyright " . date('Y') . " by " . $args['business_name'] . "</p>\n"
+        . "<p style='$p_footer'>All content &copy; Copyright " . date('Y') . " by " . $args['tenant_name'] . "</p>\n"
         . "";
-    $text_footer = "\n\nAll content Copyright " . date('Y') . " by " . $args['business_name'];
+    $text_footer = "\n\nAll content Copyright " . date('Y') . " by " . $args['tenant_name'];
     if( isset($ciniki['config']['ciniki.mail']['poweredby.url']) 
         && $ciniki['config']['ciniki.mail']['poweredby.url'] != '' 
-        && $ciniki['config']['ciniki.core']['master_business_id'] != $business_id ) {
+        && $ciniki['config']['ciniki.core']['master_tnid'] != $tnid ) {
         $html_footer .= "<p style='$p_footer'>Powered by <a style='$a_footer' href='" . $ciniki['config']['ciniki.mail']['poweredby.url'] . "'>" . $ciniki['config']['ciniki.mail']['poweredby.name'] . "</a></p>\n";
         $text_footer .= "\nPowered by Ciniki: " . $ciniki['config']['ciniki.mail']['poweredby.url'];
     }

@@ -45,7 +45,7 @@ function ciniki_mail_main() {
         };
         this.menu.liveSearchCb = function(s, i, v) {
             if( v != '' ) {
-                M.api.getJSONBgCb('ciniki.mail.messageSearch', {'business_id':M.curBusinessID, 'start_needle':v, 'limit':'15'},
+                M.api.getJSONBgCb('ciniki.mail.messageSearch', {'tnid':M.curTenantID, 'start_needle':v, 'limit':'15'},
                     function(rsp) {
                         M.ciniki_mail_main.menu.liveSearchShow(s, null, M.gE(M.ciniki_mail_main.menu.panelUID + '_' + s), rsp.messages);
                     });
@@ -104,7 +104,7 @@ function ciniki_mail_main() {
         };
         this.messages.liveSearchCb = function(s, i, v) {
             if( v != '' ) {
-                M.api.getJSONBgCb('ciniki.mail.messageSearch', {'business_id':M.curBusinessID, 'start_needle':v, 'limit':'15'},
+                M.api.getJSONBgCb('ciniki.mail.messageSearch', {'tnid':M.curTenantID, 'start_needle':v, 'limit':'15'},
                     function(rsp) {
                         M.ciniki_mail_main.messages.liveSearchShow(s, null, M.gE(M.ciniki_mail_main.messages.panelUID + '_' + s), rsp.messages);
                     });
@@ -240,7 +240,7 @@ function ciniki_mail_main() {
         args = {};
         if( aG != null ) { args = eval(aG); }
 
-        this.menu.sections._mailings.active = ((M.curBusiness.modules['ciniki.mail'].flags&0x01)==1?'yes':'no');
+        this.menu.sections._mailings.active = ((M.curTenant.modules['ciniki.mail'].flags&0x01)==1?'yes':'no');
 
         //
         // Create the app container if it doesn't exist, and clear it out
@@ -260,7 +260,7 @@ function ciniki_mail_main() {
     };
 
     this.menuShow = function(cb) {
-        M.api.getJSONCb('ciniki.mail.messageLabels', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.mail.messageLabels', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -275,7 +275,7 @@ function ciniki_mail_main() {
     this.messagesShow = function(cb, offset, status) {
         if( status != null ) { this.messages.status = status; }
         if( offset != null ) { this.messages.offset = offset; }
-        M.api.getJSONCb('ciniki.mail.messageList', {'business_id':M.curBusinessID, 'status':this.messages.status, 
+        M.api.getJSONCb('ciniki.mail.messageList', {'tnid':M.curTenantID, 'status':this.messages.status, 
             'offset':this.messages.offset, 'limit':(M.ciniki_mail_main.page_size+1)}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -329,7 +329,7 @@ function ciniki_mail_main() {
         if( search_str != null ) { this.search.search_str = search_str; }
         if( status != null ) { this.search.status = status; }
         if( offset != null ) { this.search.offset = offset; }
-        M.api.getJSONCb('ciniki.mail.messageSearch', {'business_id':M.curBusinessID, 'start_needle':this.search.search_str, 
+        M.api.getJSONCb('ciniki.mail.messageSearch', {'tnid':M.curTenantID, 'start_needle':this.search.search_str, 
             'offset':this.search.offset, 'limit':(M.ciniki_mail_main.page_size+1)}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -360,7 +360,7 @@ function ciniki_mail_main() {
 
     this.messageShow = function(cb, mid) {
         if( mid != null ) { this.message.message_id = mid; }
-        M.api.getJSONCb('ciniki.mail.messageGet', {'business_id':M.curBusinessID, 'message_id':this.message.message_id}, function(rsp) {
+        M.api.getJSONCb('ciniki.mail.messageGet', {'tnid':M.curTenantID, 'message_id':this.message.message_id}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -407,7 +407,7 @@ function ciniki_mail_main() {
     };
 
     this.messageAction = function(cb, mid, action) {
-        M.api.getJSONCb('ciniki.mail.messageAction', {'business_id':M.curBusinessID, 'message_id':mid, 'action':action}, function(rsp) {
+        M.api.getJSONCb('ciniki.mail.messageAction', {'tnid':M.curTenantID, 'message_id':mid, 'action':action}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -417,7 +417,7 @@ function ciniki_mail_main() {
     };
 
     this.messageQueue = function(cb, mid) {
-        M.api.getJSONCb('ciniki.mail.messageAction', {'business_id':M.curBusinessID, 'message_id':mid, 'action':'queue'}, function(rsp) {
+        M.api.getJSONCb('ciniki.mail.messageAction', {'tnid':M.curTenantID, 'message_id':mid, 'action':'queue'}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -429,7 +429,7 @@ function ciniki_mail_main() {
     this.messageDelete = function(cb, mid) {
         var msg = "Are you sure you want to move this message to trash?";
         if( confirm(msg) ) {
-            M.api.getJSONCb('ciniki.mail.messageAction', {'business_id':M.curBusinessID, 'message_id':mid, 'action':'delete'}, function(rsp) {
+            M.api.getJSONCb('ciniki.mail.messageAction', {'tnid':M.curTenantID, 'message_id':mid, 'action':'delete'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -442,7 +442,7 @@ function ciniki_mail_main() {
     this.messagePurge = function(cb, mid) {
         var msg = "Are you sure you want to remove this message?";
         if( confirm(msg) ) {
-            M.api.getJSONCb('ciniki.mail.messagePurge', {'business_id':M.curBusinessID, 'message_id':mid}, function(rsp) {
+            M.api.getJSONCb('ciniki.mail.messagePurge', {'tnid':M.curTenantID, 'message_id':mid}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;

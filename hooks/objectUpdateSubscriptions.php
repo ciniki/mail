@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_mail_hooks_objectUpdateSubscriptions($ciniki, $business_id, $args) {
+function ciniki_mail_hooks_objectUpdateSubscriptions($ciniki, $tnid, $args) {
 
     if( isset($args['object']) && $args['object'] != '' 
         && isset($args['object_id']) && $args['object_id'] != ''
@@ -23,7 +23,7 @@ function ciniki_mail_hooks_objectUpdateSubscriptions($ciniki, $business_id, $arg
             $strsql = "SELECT ciniki_mailings.id, "
                 . "ciniki_mailings.status "
                 . "FROM ciniki_mailings "
-                . "WHERE ciniki_mailings.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "WHERE ciniki_mailings.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "AND ciniki_mailings.type = 40 "
                 . "AND ciniki_mailings.object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
                 . "AND ciniki_mailings.object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
@@ -52,7 +52,7 @@ function ciniki_mail_hooks_objectUpdateSubscriptions($ciniki, $business_id, $arg
                 . "'0' AS mailing_subscription_id, "
                 . "'no' AS status "
                 . "FROM ciniki_subscriptions "
-                . "WHERE ciniki_subscriptions.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "WHERE ciniki_subscriptions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "AND ciniki_subscriptions.status = 10 "
                 . "";
         } else {
@@ -65,9 +65,9 @@ function ciniki_mail_hooks_objectUpdateSubscriptions($ciniki, $business_id, $arg
                 . "LEFT JOIN ciniki_mailing_subscriptions ON ("
                     . "ciniki_subscriptions.id = ciniki_mailing_subscriptions.subscription_id "
                     . "AND ciniki_mailing_subscriptions.mailing_id = '" . ciniki_core_dbQuote($ciniki, $mailing['id']) . "' "
-                    . "AND ciniki_mailing_subscriptions.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                    . "AND ciniki_mailing_subscriptions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
-                . "WHERE ciniki_subscriptions.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "WHERE ciniki_subscriptions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "AND ciniki_subscriptions.status = 10 "
                 . "";
         }
@@ -93,7 +93,7 @@ function ciniki_mail_hooks_objectUpdateSubscriptions($ciniki, $business_id, $arg
                     if( isset($ciniki['request']['args']['subscription-' . $subscription_id]) 
                         && $ciniki['request']['args']['subscription-' . $subscription_id] == 'yes' 
                         ) {
-                        $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.mail.mailing', array(
+                        $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.mail.mailing', array(
                             'type'=>'40',
                             'status'=>'10',
                             'theme'=>'',
@@ -126,7 +126,7 @@ function ciniki_mail_hooks_objectUpdateSubscriptions($ciniki, $business_id, $arg
                         && $subscription['mailing_subscription_id'] == 0
                         && $mailing['status'] <= 10
                         ) {
-                        $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.mail.mailing_subscription', array(
+                        $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.mail.mailing_subscription', array(
                             'mailing_id'=>$mailing['id'],
                             'subscription_id'=>$subscription_id,
                             'status'=>'10'), 0x04);
@@ -143,7 +143,7 @@ function ciniki_mail_hooks_objectUpdateSubscriptions($ciniki, $business_id, $arg
                         && $subscription['mailing_subscription_id'] > 0
                         && $mailing['status'] <= 10
                         ) {
-                        $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.mail.mailing_subscription', 
+                        $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.mail.mailing_subscription', 
                             $subscription['mailing_subscription_id'], array('status'=>'10'), 0x04);
                         if( $rc['stat'] != 'ok' ) {
                             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
@@ -158,7 +158,7 @@ function ciniki_mail_hooks_objectUpdateSubscriptions($ciniki, $business_id, $arg
                         && $subscription['mailing_subscription_id'] > 0
                         && $mailing['status'] <= 10
                         ) {
-                        $rc = ciniki_core_objectDelete($ciniki, $business_id, 'ciniki.mail.mailing_subscription', 
+                        $rc = ciniki_core_objectDelete($ciniki, $tnid, 'ciniki.mail.mailing_subscription', 
                             $subscription['mailing_subscription_id'], NULL, 0x04);
                         if( $rc['stat'] != 'ok' ) {
                             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');

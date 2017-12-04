@@ -7,7 +7,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business to mail mailing belongs to.
+// tnid:         The ID of the tenant to mail mailing belongs to.
 // mailing_id:          The ID of the mailing to get.
 //
 // Returns
@@ -19,7 +19,7 @@ function ciniki_mail_mailingGet($ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'mailing_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Mailing'),
         'images'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Images'),
         )); 
@@ -30,10 +30,10 @@ function ciniki_mail_mailingGet($ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'checkAccess');
-    $rc = ciniki_mail_checkAccess($ciniki, $args['business_id'], 'ciniki.mail.mailingGet', 0); 
+    $rc = ciniki_mail_checkAccess($ciniki, $args['tnid'], 'ciniki.mail.mailingGet', 0); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -47,7 +47,7 @@ function ciniki_mail_mailingGet($ciniki) {
     // Load and return the mailing
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'mailingLoad');
-    $rc = ciniki_mail_mailingLoad($ciniki, $args['business_id'], $args['mailing_id']);
+    $rc = ciniki_mail_mailingLoad($ciniki, $args['tnid'], $args['mailing_id']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -60,7 +60,7 @@ function ciniki_mail_mailingGet($ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadCacheThumbnail');
         foreach($mailing['images'] as $img_id => $img) {
             if( isset($img['image']['image_id']) && $img['image']['image_id'] > 0 ) {
-                $rc = ciniki_images_loadCacheThumbnail($ciniki, $args['business_id'], $img['image']['image_id'], 75);
+                $rc = ciniki_images_loadCacheThumbnail($ciniki, $args['tnid'], $img['image']['image_id'], 75);
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }

@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_mail_hooks_customerMerge($ciniki, $business_id, $args) {
+function ciniki_mail_hooks_customerMerge($ciniki, $tnid, $args) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
@@ -30,7 +30,7 @@ function ciniki_mail_hooks_customerMerge($ciniki, $business_id, $args) {
     //
     $strsql = "SELECT id "
         . "FROM ciniki_mail "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND customer_id = '" . ciniki_core_dbQuote($ciniki, $args['secondary_customer_id']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'items');
@@ -39,7 +39,7 @@ function ciniki_mail_hooks_customerMerge($ciniki, $business_id, $args) {
     }
     $items = $rc['rows'];
     foreach($items as $i => $row) {
-        $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.mail.message', $row['id'], array('customer_id'=>$args['primary_customer_id']), 0x04);
+        $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.mail.message', $row['id'], array('customer_id'=>$args['primary_customer_id']), 0x04);
         if( $rc['stat'] != 'ok' ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.10', 'msg'=>'Unable to update mail items.', 'err'=>$rc['err']));
         }
@@ -48,11 +48,11 @@ function ciniki_mail_hooks_customerMerge($ciniki, $business_id, $args) {
 
     if( $updated > 0 ) {
         //
-        // Update the last_change date in the business modules
+        // Update the last_change date in the tenant modules
         // Ignore the result, as we don't want to stop user updates if this fails.
         //
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-        ciniki_businesses_updateModuleChangeDate($ciniki, $business_id, 'ciniki', 'mail');
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+        ciniki_tenants_updateModuleChangeDate($ciniki, $tnid, 'ciniki', 'mail');
     }
 
     return array('stat'=>'ok', 'updated'=>$updated);

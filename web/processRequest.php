@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_mail_web_processRequest($ciniki, $settings, $business_id, $args) {
+function ciniki_mail_web_processRequest($ciniki, $settings, $tnid, $args) {
     
     $page = array(
         'title'=>'Mailing Lists',
@@ -36,14 +36,14 @@ function ciniki_mail_web_processRequest($ciniki, $settings, $business_id, $args)
             . "ciniki_subscriptions.name "
             . "FROM ciniki_mail, ciniki_subscription_customers, ciniki_subscriptions, ciniki_customer_emails "
             . "WHERE ciniki_mail.unsubscribe_key = '" . ciniki_core_dbQuote($ciniki, $_GET['k']) . "' "
-            . "AND ciniki_mail.business_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['request']['business_id']) . "' "
+            . "AND ciniki_mail.tnid = '" . ciniki_core_dbQuote($ciniki, $ciniki['request']['tnid']) . "' "
             . "AND ciniki_mail.customer_id = ciniki_subscription_customers.customer_id "
             . "AND (UNIX_TIMESTAMP(UTC_TIMESTAMP())-UNIX_TIMESTAMP(ciniki_mail.date_sent)) < 2592000 " // Mail was sent within 30 days
-            . "AND ciniki_subscription_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['request']['business_id']) . "' "
+            . "AND ciniki_subscription_customers.tnid = '" . ciniki_core_dbQuote($ciniki, $ciniki['request']['tnid']) . "' "
             . "AND ciniki_subscription_customers.subscription_id = ciniki_subscriptions.id "
-            . "AND ciniki_subscriptions.business_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['request']['business_id']) . "' "
+            . "AND ciniki_subscriptions.tnid = '" . ciniki_core_dbQuote($ciniki, $ciniki['request']['tnid']) . "' "
             . "AND ciniki_subscriptions.uuid = '" . ciniki_core_dbQuote($ciniki, $_GET['s']) . "' "
-            . "AND ciniki_customer_emails.business_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['request']['business_id']) . "' "
+            . "AND ciniki_customer_emails.tnid = '" . ciniki_core_dbQuote($ciniki, $ciniki['request']['tnid']) . "' "
             . "AND ciniki_subscription_customers.customer_id = ciniki_customer_emails.customer_id "
             . "AND ciniki_customer_emails.email = '" . ciniki_core_dbQuote($ciniki, $_GET['e']) . "' "
             . "";
@@ -55,7 +55,7 @@ function ciniki_mail_web_processRequest($ciniki, $settings, $business_id, $args)
             }
             $subscription_name = $rc['subscription']['name'];
             ciniki_core_loadMethod($ciniki, 'ciniki', 'subscriptions', 'web', 'unsubscribe');
-            ciniki_subscriptions_web_unsubscribe($ciniki, $settings, $ciniki['request']['business_id'], 
+            ciniki_subscriptions_web_unsubscribe($ciniki, $settings, $ciniki['request']['tnid'], 
                 $rc['subscription']['id'], $rc['subscription']['customer_id']);
             $page['blocks'][] = array('type'=>'message', 'content'=>"You have been unsubscribed from the Mailing List.");
         } else {

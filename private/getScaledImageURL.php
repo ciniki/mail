@@ -19,7 +19,7 @@
 // Returns
 // -------
 //
-function ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $image_id, $version, $maxwidth, $maxheight, $quality='60') {
+function ciniki_mail_getScaledImageURL($ciniki, $tnid, $cache_dir, $image_id, $version, $maxwidth, $maxheight, $quality='60') {
 
     //
     // Load last_updated date to check against the cache
@@ -27,7 +27,7 @@ function ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $image
     $strsql = "SELECT id, uuid, type, UNIX_TIMESTAMP(ciniki_images.last_updated) AS last_updated "
         . "FROM ciniki_images "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $image_id) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.images', 'image');
     if( $rc['stat'] != 'ok' ) { 
@@ -47,13 +47,13 @@ function ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $image
         $extension = 'jpg';
     }
     if( $maxwidth == 0 ) {
-//      $filename = '/' . sprintf('%02d', ($ciniki['request']['business_id']%100)) . '/'
-//          . sprintf('%07d', $ciniki['request']['business_id'])
+//      $filename = '/' . sprintf('%02d', ($ciniki['request']['tnid']%100)) . '/'
+//          . sprintf('%07d', $ciniki['request']['tnid'])
 //          . '/h' . $maxheight . '/' . sprintf('%010d', $img['id']) . '.' . $extension;
         $filename = $img['uuid'] . '-h' . $maxheight . '.' . $extension;
     } else {
-//      $filename = '/' . sprintf('%02d', ($ciniki['request']['business_id']%100)) . '/'
-//          . sprintf('%07d', $ciniki['request']['business_id'])
+//      $filename = '/' . sprintf('%02d', ($ciniki['request']['tnid']%100)) . '/'
+//          . sprintf('%07d', $ciniki['request']['tnid'])
 //          . '/w' . $maxwidth . '/' . sprintf('%010d', $img['id']) . '.' . $extension;
         $filename = $img['uuid'] . '-w' . $maxwidth . '.' . $extension;
     }
@@ -65,7 +65,7 @@ function ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $image
     // Load the image from the database
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadImage');
-    $rc = ciniki_images_loadImage($ciniki, $business_id, $img['id'], $version);
+    $rc = ciniki_images_loadImage($ciniki, $tnid, $img['id'], $version);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }

@@ -111,7 +111,7 @@ function ciniki_mail_settings() {
         return this.data[i];
     };
     this.main.fieldHistoryArgs = function(s, i) {
-        return {'method':'ciniki.mail.settingsHistory', 'args':{'business_id':M.curBusinessID, 'setting':i}};
+        return {'method':'ciniki.mail.settingsHistory', 'args':{'tnid':M.curTenantID, 'setting':i}};
     };
     this.main.switchTab = function(tab) {
         this.sections._tabs.selected = tab;
@@ -126,7 +126,7 @@ function ciniki_mail_settings() {
         this.showHideSection('footer_links');
     };
     this.main.open = function(cb) {
-        M.api.getJSONCb('ciniki.mail.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.mail.settingsGet', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -145,7 +145,7 @@ function ciniki_mail_settings() {
     this.main.save = function() {
         var c = this.serializeForm('no');
         if( c != '' ) {
-            M.api.postJSONCb('ciniki.mail.settingsUpdate', {'business_id':M.curBusinessID}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.mail.settingsUpdate', {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -158,7 +158,7 @@ function ciniki_mail_settings() {
     }
     this.main.sendTest = function() {
         var c = this.serializeForm('no');
-        M.api.postJSONCb('ciniki.mail.settingsUpdate', {'business_id':M.curBusinessID, 'sendtest':'yes'}, c, function(rsp) {
+        M.api.postJSONCb('ciniki.mail.settingsUpdate', {'tnid':M.curTenantID, 'sendtest':'yes'}, c, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;

@@ -8,40 +8,40 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business to mail mailing belongs to.
+// tnid:         The ID of the tenant to mail mailing belongs to.
 // mailing_id:          The ID of the mailing to get.
 //
 // Returns
 // -------
 //
-function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing, $object) {
+function ciniki_mail_emailObjectPrepare($ciniki, $tnid, $theme, $mailing, $object) {
     //
-    // Get the business uuid
+    // Get the tenant uuid
     //
     $strsql = "SELECT uuid, sitename "
-        . "FROM ciniki_businesses "
-        . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "FROM ciniki_tenants "
+        . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
-    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.businesses', 'business');
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tenants', 'tenant');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( !isset($rc['business']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.22', 'msg'=>'Business not found'));
+    if( !isset($rc['tenant']) ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.22', 'msg'=>'Tenant not found'));
     }
-    $business = $rc['business'];
+    $tenant = $rc['tenant'];
 
     //
-    // Get the primary domain for the business
+    // Get the primary domain for the tenant
     //
     $strsql = "SELECT domain "
-        . "FROM ciniki_business_domains "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "FROM ciniki_tenant_domains "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND status = 1 "
         . "ORDER BY flags DESC "
         . "LIMIT 1 "
         . "";
-    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.businesses', 'domain');
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tenants', 'domain');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -53,7 +53,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing,
         // No domain, lookup as subdomain
         //
         $master_domain = $ciniki['config']['ciniki.web']['master.domain'];
-        $domain_base_url = 'http://' . $master_domain . '/' . $business['sitename'];
+        $domain_base_url = 'http://' . $master_domain . '/' . $tenant['sitename'];
         $cache_url = 'http://' . $master_domain;
     }
 
@@ -62,10 +62,10 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing,
     // they will be accesible through the website
     //
     $cache_url .= '/ciniki-mail-cache'
-        . '/' . $business['uuid'][0] . '/' . $business['uuid']
+        . '/' . $tenant['uuid'][0] . '/' . $tenant['uuid']
         . '/' . $mailing['uuid'][0] . '/' . $mailing['uuid'];
     $cache_dir = $ciniki['config']['ciniki.core']['modules_dir'] . '/mail/cache' 
-        . '/' . $business['uuid'][0] . '/' . $business['uuid']
+        . '/' . $tenant['uuid'][0] . '/' . $tenant['uuid']
         . '/' . $mailing['uuid'][0] . '/' . $mailing['uuid'];
 
     //
@@ -95,7 +95,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing,
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'getScaledImageURL');
     if( isset($object['image_id']) && $object['image_id'] > 0 ) {
-        $rc = ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $object['image_id'], 'original', '400', '0');
+        $rc = ciniki_mail_getScaledImageURL($ciniki, $tnid, $cache_dir, $object['image_id'], 'original', '400', '0');
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -118,7 +118,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing,
         $text_content .= "\n";
         $text_content = preg_replace("/\n{3,}$/", "\n\n", $text_content);   // Remove extra blank lines at end
         ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'emailProcessContent');
-        $rc = ciniki_mail_emailProcessContent($ciniki, $business_id, $theme, $object['content']);
+        $rc = ciniki_mail_emailProcessContent($ciniki, $tnid, $theme, $object['content']);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -201,7 +201,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $business_id, $theme, $mailing,
             if( $img['image_id'] == 0 ) {
                 $img_url = $domain_base_url . '/ciniki-web-layouts/default/img/noimage_240.png';
             } else {
-                $rc = ciniki_mail_getScaledImageURL($ciniki, $business_id, $cache_dir, $img['image_id'], 'thumbnail', '100', 0);
+                $rc = ciniki_mail_getScaledImageURL($ciniki, $tnid, $cache_dir, $img['image_id'], 'thumbnail', '100', 0);
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }

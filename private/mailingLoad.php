@@ -8,13 +8,13 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business to mail mailing belongs to.
+// tnid:         The ID of the tenant to mail mailing belongs to.
 // mailing_id:          The ID of the mailing to get.
 //
 // Returns
 // -------
 //
-function ciniki_mail_mailingLoad($ciniki, $business_id, $mailing_id) {
+function ciniki_mail_mailingLoad($ciniki, $tnid, $mailing_id) {
     //
     // Get the main information
     //
@@ -34,14 +34,14 @@ function ciniki_mail_mailingLoad($ciniki, $business_id, $mailing_id) {
     }
     $strsql .= "FROM ciniki_mailings "
         . "LEFT JOIN ciniki_mailing_subscriptions ON (ciniki_mailings.id = ciniki_mailing_subscriptions.mailing_id "
-            . "AND ciniki_mailing_subscriptions.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "') "
+            . "AND ciniki_mailing_subscriptions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "') "
         . "LEFT JOIN ciniki_subscriptions ON (ciniki_mailing_subscriptions.subscription_id = ciniki_subscriptions.id "
-            . "AND ciniki_subscriptions.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "') ";
+            . "AND ciniki_subscriptions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "') ";
     if( isset($modules['ciniki.surveys']) ) {
         $strsql .= "LEFT JOIN ciniki_surveys ON (ciniki_mailings.survey_id = ciniki_surveys.id "
-            . "AND ciniki_surveys.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "') ";
+            . "AND ciniki_surveys.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "') ";
     }
-    $strsql .= "WHERE ciniki_mailings.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+    $strsql .= "WHERE ciniki_mailings.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_mailings.id = '" . ciniki_core_dbQuote($ciniki, $mailing_id) . "' "
         . "ORDER BY ciniki_mailings.id ASC ";
 
@@ -80,7 +80,7 @@ function ciniki_mail_mailingLoad($ciniki, $business_id, $mailing_id) {
         . "ciniki_mailing_images.description, "
         . "'' as url "
         . "FROM ciniki_mailing_images "
-        . "WHERE ciniki_mailing_images.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_mailing_images.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_mailing_images.mailing_id = '" . ciniki_core_dbQuote($ciniki, $mailing_id) . "' "
         . "";
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.mail', array(

@@ -2,13 +2,13 @@
 //
 // Description
 // -----------
-// This method returns the list of mail mailings for a business.
+// This method returns the list of mail mailings for a tenant.
 //
 // Arguments
 // ---------
 // api_key:
 // auth_token:
-// business_id:     The ID of the business to get mail mailings for.
+// tnid:     The ID of the tenant to get mail mailings for.
 //
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_mail_mailingListByStatus($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'25', 'name'=>'Limit'),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -28,10 +28,10 @@ function ciniki_mail_mailingListByStatus($ciniki) {
     $args = $rc['args'];
     
     //  
-    // Check access to business_id as owner, or sys admin. 
+    // Check access to tnid as owner, or sys admin. 
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'checkAccess');
-    $ac = ciniki_mail_checkAccess($ciniki, $args['business_id'], 'ciniki.mail.mailingListByStatus');
+    $ac = ciniki_mail_checkAccess($ciniki, $args['tnid'], 'ciniki.mail.mailingListByStatus');
     if( $ac['stat'] != 'ok' ) { 
         return $ac;
     }   
@@ -47,7 +47,7 @@ function ciniki_mail_mailingListByStatus($ciniki) {
     $strsql = "SELECT ciniki_mailings.id, ciniki_mailings.status, ciniki_mailings.status AS name, "
         . "ciniki_mailings.subject, ciniki_mailings.type, ciniki_mailings.object, ciniki_mailings.object_id "
         . "FROM ciniki_mailings "
-        . "WHERE ciniki_mailings.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_mailings.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND (ciniki_mailings.type < 40 OR (ciniki_mailings.type = 40 AND ciniki_mailings.status > 10)) "
         . "ORDER BY ciniki_mailings.status, date_added DESC ";
     if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
@@ -77,7 +77,7 @@ function ciniki_mail_mailingListByStatus($ciniki) {
 /*  $strsql = "SELECT ciniki_mailings.id, ciniki_mailings.status, ciniki_mailings.status AS name, "
         . "ciniki_mailings.subject "
         . "FROM ciniki_mailings "
-        . "WHERE ciniki_mailings.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_mailings.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ciniki_mailings.type = 40 "
         . "AND ciniki_mailings.status > 10 "
         . "ORDER BY ciniki_mailings.status, date_added DESC ";

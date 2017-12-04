@@ -37,7 +37,7 @@ function ciniki_mail_mailingimages() {
             return ''; 
         };
         this.edit.fieldHistoryArgs = function(s, i) {
-            return {'method':'ciniki.mail.mailingImageHistory', 'args':{'business_id':M.curBusinessID, 
+            return {'method':'ciniki.mail.mailingImageHistory', 'args':{'tnid':M.curTenantID, 
                 'mailing_image_id':this.mailing_image_id, 'field':i}};
         };
         this.edit.addDropImage = function(iid) {
@@ -78,7 +78,7 @@ function ciniki_mail_mailingimages() {
         }
         if( this.edit.mailing_image_id > 0 ) {
             var rsp = M.api.getJSONCb('ciniki.mail.mailingImageGet', 
-                {'business_id':M.curBusinessID, 'mailing_image_id':this.edit.mailing_image_id}, function(rsp) {
+                {'tnid':M.curTenantID, 'mailing_image_id':this.edit.mailing_image_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -101,7 +101,7 @@ function ciniki_mail_mailingimages() {
             var c = this.edit.serializeFormData('no');
             if( c != '' ) {
                 var rsp = M.api.postJSONFormData('ciniki.mail.mailingImageUpdate', 
-                    {'business_id':M.curBusinessID, 
+                    {'tnid':M.curTenantID, 
                     'mailing_image_id':this.edit.mailing_image_id}, c,
                         function(rsp) {
                             if( rsp.stat != 'ok' ) {
@@ -117,7 +117,7 @@ function ciniki_mail_mailingimages() {
         } else {
             var c = this.edit.serializeFormData('yes');
             var rsp = M.api.postJSONFormData('ciniki.mail.mailingImageAdd', 
-                {'business_id':M.curBusinessID, 'mailing_id':this.edit.mailing_id}, c,
+                {'tnid':M.curTenantID, 'mailing_id':this.edit.mailing_id}, c,
                     function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -131,7 +131,7 @@ function ciniki_mail_mailingimages() {
 
     this.deleteImage = function() {
         if( confirm('Are you sure you want to delete this image?') ) {
-            var rsp = M.api.getJSONCb('ciniki.mail.mailingImageDelete', {'business_id':M.curBusinessID, 
+            var rsp = M.api.getJSONCb('ciniki.mail.mailingImageDelete', {'tnid':M.curTenantID, 
                 'mailing_image_id':this.edit.mailing_image_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);

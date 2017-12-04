@@ -6,13 +6,13 @@
 // Arguments
 // =========
 // ciniki:
-// business_id:         The ID of the business the theme is for.
+// tnid:         The ID of the tenant the theme is for.
 // 
 // Returns
 // =======
 // <rsp stat="ok" />
 //
-function ciniki_mail_themeSimple($ciniki, $business_id) {
+function ciniki_mail_themeSimple($ciniki, $tnid) {
     return array('stat'=>'ok', 'theme'=>array(
         'name'=>'Simple',
         'header_style'=>"body {margin: 0px; font-family: Helvetica, sans-serif; font-size: 14px;}\n"

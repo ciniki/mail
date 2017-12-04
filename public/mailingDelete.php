@@ -7,7 +7,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business to mail mailing belongs to.
+// tnid:         The ID of the tenant to mail mailing belongs to.
 // mailing_id:          The ID of the mailing to get.
 //
 // Returns
@@ -19,7 +19,7 @@ function ciniki_mail_mailingDelete($ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'mailing_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Mailing'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -29,10 +29,10 @@ function ciniki_mail_mailingDelete($ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'checkAccess');
-    $rc = ciniki_mail_checkAccess($ciniki, $args['business_id'], 'ciniki.mail.mailingDelete', 0); 
+    $rc = ciniki_mail_checkAccess($ciniki, $args['tnid'], 'ciniki.mail.mailingDelete', 0); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -46,7 +46,7 @@ function ciniki_mail_mailingDelete($ciniki) {
     // Get the uuid of the mailing to be deleted
     //
     $strsql = "SELECT uuid FROM ciniki_mailings "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
@@ -77,7 +77,7 @@ function ciniki_mail_mailingDelete($ciniki) {
     //
     $strsql = "SELECT id, uuid "
         . "FROM ciniki_mailing_subscriptions "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND mailing_id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'item');
@@ -88,7 +88,7 @@ function ciniki_mail_mailingDelete($ciniki) {
     if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
         $items = $rc['rows'];
         foreach($items as $iid => $item) {
-            $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.mail.mailing_subscription', 
+            $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.mail.mailing_subscription', 
                 $item['id'], $item['uuid'], 0x04);
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
@@ -102,7 +102,7 @@ function ciniki_mail_mailingDelete($ciniki) {
     //
     $strsql = "SELECT id, uuid "
         . "FROM ciniki_mail "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND mailing_id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'image');
@@ -113,7 +113,7 @@ function ciniki_mail_mailingDelete($ciniki) {
     if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
         $items = $rc['rows'];
         foreach($items as $iid => $item) {
-            $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.mail.message', 
+            $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.mail.message', 
                 $item['id'], $item['uuid'], 0x04);
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
@@ -126,7 +126,7 @@ function ciniki_mail_mailingDelete($ciniki) {
     // Remove the images
     //
     $strsql = "SELECT id, uuid, image_id FROM ciniki_mailing_images "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND mailing_id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'image');
@@ -137,7 +137,7 @@ function ciniki_mail_mailingDelete($ciniki) {
     if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
         $images = $rc['rows'];
         foreach($images as $iid => $image) {
-            $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.mail.mailing_image', 
+            $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.mail.mailing_image', 
                 $image['id'], $image['uuid'], 0x04);
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
@@ -151,7 +151,7 @@ function ciniki_mail_mailingDelete($ciniki) {
     //
 /*  $strsql = "SELECT id, uuid "
         . "FROM ciniki_mailing_files "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND mailing_id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'file');
@@ -162,7 +162,7 @@ function ciniki_mail_mailingDelete($ciniki) {
     if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
         $files = $rc['rows'];
         foreach($files as $fid => $file) {
-            $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.mail.mailing_file', 
+            $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.mail.mailing_file', 
                 $file['id'], $file['uuid'], 0x04);
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
@@ -174,7 +174,7 @@ function ciniki_mail_mailingDelete($ciniki) {
     //
     // Delete the mailing
     //
-    $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.mail.mailing', $args['mailing_id'], $mailing_uuid, 0x04);
+    $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.mail.mailing', $args['mailing_id'], $mailing_uuid, 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
         return $rc;
@@ -189,11 +189,11 @@ function ciniki_mail_mailingDelete($ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'mail');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'mail');
 
     return array('stat'=>'ok');
 }

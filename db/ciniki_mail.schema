@@ -7,7 +7,7 @@
 # -------
 # id:               The id of the art catalog item.
 # uuid:             The Universal Unique ID.
-# business_id:      The business the item is attached to.
+# tnid:             The tenant the item is attached to.
 #
 # parent_id:        The ID of the head of the mail thread.  The first message
 #                   sent or received becomes the head of the thread. **future**
@@ -46,7 +46,7 @@
 #
 #                   0 - unknown
 #                   5 - draft
-#                   7 - pending - needs to be approved by business owner
+#                   7 - pending - needs to be approved by tenant owner
 #                   10 - queued to be sent
 #                   15 - queued to be sent, initial failure
 #                   20 - sending
@@ -85,7 +85,7 @@
 create table ciniki_mail (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     parent_id int not null,
     account_id int not null,
     mailing_id int not null,
@@ -112,7 +112,7 @@ create table ciniki_mail (
     date_added datetime not null,
     last_updated datetime not null,
     primary key(id),
-    index (business_id, uuid, last_updated),
+    index (tnid, uuid, last_updated),
     index (mailing_id, customer_email),
     index (unsubscribe_key)
 ) ENGINE='InnoDB', COMMENT='v1.03';

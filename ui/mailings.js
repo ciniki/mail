@@ -131,7 +131,7 @@ function ciniki_mail_mailings() {
         };
         this.mailing.addDropImage = function(iid) {
             var rsp = M.api.getJSON('ciniki.mail.mailingImageAdd',
-                {'business_id':M.curBusinessID, 'image_id':iid, 'mailing_id':M.ciniki_mail_mailings.mailing.mailing_id});
+                {'tnid':M.curTenantID, 'image_id':iid, 'mailing_id':M.ciniki_mail_mailings.mailing.mailing_id});
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -140,7 +140,7 @@ function ciniki_mail_mailings() {
         };
         this.mailing.addDropImageRefresh = function() {
             if( M.ciniki_mail_mailings.mailing.mailing_id > 0 ) {
-                var rsp = M.api.getJSONCb('ciniki.mail.mailingGet', {'business_id':M.curBusinessID, 
+                var rsp = M.api.getJSONCb('ciniki.mail.mailingGet', {'tnid':M.curTenantID, 
                     'mailing_id':M.ciniki_mail_mailings.mailing.mailing_id, 'images':'yes'}, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -196,7 +196,7 @@ function ciniki_mail_mailings() {
             return this.data[i];
         };
         this.edit.fieldHistoryArgs = function(s, i) {
-            return {'method':'ciniki.mail.mailingHistory', 'args':{'business_id':M.curBusinessID, 
+            return {'method':'ciniki.mail.mailingHistory', 'args':{'tnid':M.curTenantID, 
                 'mailing_id':this.mailing_id, 'field':i}};
         };
         this.edit.addDropImage = function(iid) {
@@ -234,7 +234,7 @@ function ciniki_mail_mailings() {
         //
         // Check if alerts is enabled 
         //
-        if( M.curBusiness.modules['ciniki.mail'].flags != null && (M.curBusiness.modules['ciniki.mail'].flags&0x02) == 0x02 ) {
+        if( M.curTenant.modules['ciniki.mail'].flags != null && (M.curTenant.modules['ciniki.mail'].flags&0x02) == 0x02 ) {
             this.edit.sections.details.fields.type.options = {
                 '10':'General',
                 '20':'Newsletter',
@@ -248,7 +248,7 @@ function ciniki_mail_mailings() {
         //
         // Check if surveys active
         //
-        if( M.curBusiness.modules['ciniki.surveys'] != null ) {
+        if( M.curTenant.modules['ciniki.surveys'] != null ) {
             this.menu.sections._buttons.buttons.download.visible = 'yes';
             this.mailing.sections.survey.visible = 'yes';
             this.edit.sections.survey.active = 'yes';
@@ -264,7 +264,7 @@ function ciniki_mail_mailings() {
         // Load the subscriptions available
         //
         M.api.getJSONCb('ciniki.subscriptions.subscriptionList', 
-            {'business_id':M.curBusinessID}, function(rsp) {
+            {'tnid':M.curTenantID}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -289,7 +289,7 @@ function ciniki_mail_mailings() {
     //
     this.createFromObject = function(cb, obj, oid) {
         M.api.getJSONCb('ciniki.mail.mailingAddFromObject', 
-            {'business_id':M.curBusinessID, 'object':obj, 'object_id':oid}, function(rsp) {
+            {'tnid':M.curTenantID, 'object':obj, 'object_id':oid}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -300,11 +300,11 @@ function ciniki_mail_mailings() {
     };
 
     //
-    // Grab the stats for the business from the database and present the list of orders.
+    // Grab the stats for the tenant from the database and present the list of orders.
     //
     this.showMenu = function(cb) {
         var rsp = M.api.getJSONCb('ciniki.mail.mailingListByStatus', 
-            {'business_id':M.curBusinessID}, function(rsp) {
+            {'tnid':M.curTenantID}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -340,7 +340,7 @@ function ciniki_mail_mailings() {
     this.showMailing = function(cb, mid) {
         if( mid != null ) { this.mailing.mailing_id = mid; }
         M.api.getJSONCb('ciniki.mail.mailingGet', 
-            {'business_id':M.curBusinessID, 'mailing_id':this.mailing.mailing_id, 'images':'yes'}, function(rsp) {
+            {'tnid':M.curTenantID, 'mailing_id':this.mailing.mailing_id, 'images':'yes'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -363,7 +363,7 @@ function ciniki_mail_mailings() {
         } else {
             p.sections._buttons.buttons.send.visible = 'no';
         }
-        if( mailing.status > 20 && M.curBusiness.modules['ciniki.surveys'] != null ) {
+        if( mailing.status > 20 && M.curTenant.modules['ciniki.surveys'] != null ) {
             p.sections._buttons.buttons.download.visible = 'yes';
         } else {
             p.sections._buttons.buttons.download.visible = 'no';
@@ -378,7 +378,7 @@ function ciniki_mail_mailings() {
         }
         if( this.edit.mailing_id > 0 ) {
             var rsp = M.api.getJSONCb('ciniki.mail.mailingGet', 
-                {'business_id':M.curBusinessID, 'mailing_id':this.edit.mailing_id}, function(rsp) {
+                {'tnid':M.curTenantID, 'mailing_id':this.edit.mailing_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -394,16 +394,16 @@ function ciniki_mail_mailings() {
 
     this.showEditFinish = function(cb) {
         if( (this.edit.data.theme == null || this.edit.data.theme == '') 
-            && M.curBusiness.mail != null && M.curBusiness.mail.settings != null && M.curBusiness.mail.settings['mail-default-theme'] != null ) {
-            this.edit.data.theme = M.curBusiness.mail.settings['mail-default-theme'];
+            && M.curTenant.mail != null && M.curTenant.mail.settings != null && M.curTenant.mail.settings['mail-default-theme'] != null ) {
+            this.edit.data.theme = M.curTenant.mail.settings['mail-default-theme'];
         }
-        if( M.curBusiness.modules['ciniki.surveys'] != null ) {
+        if( M.curTenant.modules['ciniki.surveys'] != null ) {
             this.edit.sections.survey.visible = 'yes';
             this.edit.sections.survey.fields.survey_id.active = 'yes';
             this.edit.sections.survey.fields.survey_id.options = {'0':'None'};
             // Load surveys which are in status open
             var rsp = M.api.getJSONCb('ciniki.surveys.surveyActiveList', 
-                {'business_id':M.curBusinessID, 'survey_id':this.edit.data.survey_id}, function(rsp) {
+                {'tnid':M.curTenantID, 'survey_id':this.edit.data.survey_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -434,7 +434,7 @@ function ciniki_mail_mailings() {
             var c = this.edit.serializeForm('no');
             if( c != '' ) {
                 var rsp = M.api.postJSONCb('ciniki.mail.mailingUpdate', 
-                    {'business_id':M.curBusinessID, 'mailing_id':this.edit.mailing_id}, c, function(rsp) {
+                    {'tnid':M.curTenantID, 'mailing_id':this.edit.mailing_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
                             return false;
@@ -447,7 +447,7 @@ function ciniki_mail_mailings() {
         } else {
             var c = this.edit.serializeForm('yes');
             var rsp = M.api.postJSONCb('ciniki.mail.mailingAdd', 
-                {'business_id':M.curBusinessID}, c, function(rsp) {
+                {'tnid':M.curTenantID}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -460,7 +460,7 @@ function ciniki_mail_mailings() {
     this.sendMailing = function() {
         if( confirm('Are you sure the message is correct and ready to send?') ) {
             var rsp = M.api.getJSONCb('ciniki.mail.mailingSend', 
-                {'business_id':M.curBusinessID, 'mailing_id':M.ciniki_mail_mailings.mailing.mailing_id}, function(rsp) {
+                {'tnid':M.curTenantID, 'mailing_id':M.ciniki_mail_mailings.mailing.mailing_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -474,7 +474,7 @@ function ciniki_mail_mailings() {
 
     this.sendTest = function() {
         M.api.getJSONCb('ciniki.mail.mailingSend', 
-            {'business_id':M.curBusinessID, 'mailing_id':M.ciniki_mail_mailings.mailing.mailing_id, 'test':'yes'}, function(rsp) {
+            {'tnid':M.curTenantID, 'mailing_id':M.ciniki_mail_mailings.mailing.mailing_id, 'test':'yes'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -485,11 +485,11 @@ function ciniki_mail_mailings() {
 
     this.downloadSurveyMailingResults = function(survey_id, mailing_id) {
         M.api.openFile('ciniki.surveys.downloadXLS',
-            {'business_id':M.curBusinessID, 'survey_id':survey_id, 'mailing_id':mailing_id});
+            {'tnid':M.curTenantID, 'survey_id':survey_id, 'mailing_id':mailing_id});
     };
 
     this.downloadAllResults = function() {
-        M.api.openFile('ciniki.surveys.downloadMailingsXLS', {'business_id':M.curBusinessID});
+        M.api.openFile('ciniki.surveys.downloadMailingsXLS', {'tnid':M.curTenantID});
     };
 
     this.mailingDelete = function() {
@@ -499,7 +499,7 @@ function ciniki_mail_mailings() {
         }
         if( confirm(msg) ) {
             var rsp = M.api.getJSONCb('ciniki.mail.mailingDelete', 
-                {'business_id':M.curBusinessID, 'mailing_id':M.ciniki_mail_mailings.mailing.mailing_id}, function(rsp) {
+                {'tnid':M.curTenantID, 'mailing_id':M.ciniki_mail_mailings.mailing.mailing_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;

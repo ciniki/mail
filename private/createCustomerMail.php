@@ -6,13 +6,13 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:     The ID of the business to the mail belongs to.
+// tnid:     The ID of the tenant to the mail belongs to.
 // mail_id:         The ID of the mail message to send.
 // 
 // Returns
 // -------
 //
-function ciniki_mail_createCustomerMail($ciniki, $business_id, $settings, $email, $subject, $html_message, $text_message, $args) {
+function ciniki_mail_createCustomerMail($ciniki, $tnid, $settings, $email, $subject, $html_message, $text_message, $args) {
     
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbInsert');
 
@@ -29,14 +29,14 @@ function ciniki_mail_createCustomerMail($ciniki, $business_id, $settings, $email
     //
     // Prepare the insert
     //
-    $strsql = "INSERT INTO ciniki_mail (uuid, business_id, mailing_id, unsubscribe_key, "
+    $strsql = "INSERT INTO ciniki_mail (uuid, tnid, mailing_id, unsubscribe_key, "
         . "survey_invite_id, "
         . "customer_id, customer_name, customer_email, flags, status, "
         . "mail_to, mail_cc, mail_from, "
         . "subject, html_content, text_content, "
         . "date_added, last_updated) VALUES ("
         . "'" . ciniki_core_dbQuote($ciniki, $uuid) . "', "
-        . "'" . ciniki_core_dbQuote($ciniki, $business_id) . "', ";
+        . "'" . ciniki_core_dbQuote($ciniki, $tnid) . "', ";
     if( isset($args['mailing_id']) ) {
         $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "', ";
     } else {

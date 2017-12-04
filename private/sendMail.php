@@ -6,13 +6,13 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:     The ID of the business to the mail belongs to.
+// tnid:     The ID of the tenant to the mail belongs to.
 // mail_id:         The ID of the mail message to send.
 // 
 // Returns
 // -------
 //
-function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
+function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
@@ -34,17 +34,17 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
         . "subject, html_content, text_content "
         . "FROM ciniki_mail "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $mail_id) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND status >= 10 "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'mail');
     if( $rc['stat'] != 'ok' ) {
-        return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.51', 'msg'=>'Unable to find message',
+        return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.51', 'msg'=>'Unable to find message',
             'mail_id'=>$mail_id, 'severity'=>50, 'err'=>$rc['err'],
             ));
     }
     if( !isset($rc['mail']) ) {
-        return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.52', 'msg'=>'Message does not exist.',
+        return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.52', 'msg'=>'Message does not exist.',
             'mail_id'=>$mail_id, 'severity'=>50, 
             ));
     }
@@ -55,12 +55,12 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
     //
     $strsql = "SELECT id, filename, content "
         . "FROM ciniki_mail_attachments "
-        . "WHERE ciniki_mail_attachments.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_mail_attachments.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_mail_attachments.mail_id = '" . ciniki_core_dbQuote($ciniki, $email['id']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'attachment');
     if( $rc['stat'] != 'ok' ) {
-        return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.53', 'msg'=>'Unable to find attachments for the message',
+        return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.53', 'msg'=>'Unable to find attachments for the message',
             'mail_id'=>$mail_id, 'severity'=>50, 'err'=>$rc['err'],
             ));
     }
@@ -78,20 +78,20 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
     //
     $strsql = "UPDATE ciniki_mail SET status = 20, last_updated = UTC_TIMESTAMP() "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $mail_id) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.mail');
     if( $rc['stat'] != 'ok' ) {
-        return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.54', 'msg'=>'Unable to aquire lock.', 'pmsg'=>'Failed to update status=20',
+        return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.54', 'msg'=>'Unable to aquire lock.', 'pmsg'=>'Failed to update status=20',
             'mail_id'=>$mail_id, 'severity'=>50, 'err'=>$rc['err'],
             ));
     }
     if( $rc['num_affected_rows'] < 1 ) {
-        return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.55', 'msg'=>'Unable to aquire lock.', 'pmsg'=>'No rows updated',
+        return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.55', 'msg'=>'Unable to aquire lock.', 'pmsg'=>'No rows updated',
             'mail_id'=>$mail_id, 'severity'=>50, 
             ));
     }
-    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $business_id, 
+    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $tnid, 
         2, 'ciniki_mail', $mail_id, 'status', '20');
 
     //
@@ -157,19 +157,19 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
             //
             $strsql = "UPDATE ciniki_mail SET status = 50, last_updated = UTC_TIMESTAMP() "
                 . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $mail_id) . "' "
-                . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "";
             $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.mail');
             if( $rc['stat'] != 'ok' ) {
                 curl_close($ch);
-                return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.66', 'msg'=>'Unable to send message and unable to unlock.', 'pmsg'=>'Could not set status=50',
+                return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.66', 'msg'=>'Unable to send message and unable to unlock.', 'pmsg'=>'Could not set status=50',
                     'mail_id'=>$mail_id, 'severity'=>50, 'err'=>$rc['err'],
                     ));
             }
-            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $business_id, 
+            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $tnid, 
                 2, 'ciniki_mail', $mail_id, 'status', '50');
             curl_close($ch);
-            return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.67', 'msg'=>'Unable to send message to ' . $msg['to'], 'pmsg'=>$rsp->message,
+            return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.67', 'msg'=>'Unable to send message to ' . $msg['to'], 'pmsg'=>$rsp->message,
                 'mail_id'=>$mail_id, 'severity'=>50,
                 ));
         }
@@ -258,7 +258,7 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
         }
 
         if( !$mail->Send() ) {
-            ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.57', 'msg'=>'Unable to send message, trying again.', 'pmsg'=>$mail->ErrorInfo,
+            ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.57', 'msg'=>'Unable to send message, trying again.', 'pmsg'=>$mail->ErrorInfo,
                 'mail_id'=>$mail_id, 'severity'=>30,
                 ));
             sleep(3);
@@ -268,22 +268,22 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
                 //
                 $strsql = "UPDATE ciniki_mail SET status = 50, last_updated = UTC_TIMESTAMP() "
                     . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $mail_id) . "' "
-                    . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                    . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                     . "";
                 $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.mail');
                 if( $rc['stat'] != 'ok' ) {
-                    return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.58', 'msg'=>'Unable to send message and unable to unlock.', 'pmsg'=>'Could not set status=50',
+                    return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.58', 'msg'=>'Unable to send message and unable to unlock.', 'pmsg'=>'Could not set status=50',
                         'mail_id'=>$mail_id, 'severity'=>50, 'err'=>$rc['err'],
                         ));
                 }
-                ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $business_id, 
+                ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $tnid, 
                     2, 'ciniki_mail', $mail_id, 'status', '50');
-                return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.59', 'msg'=>'Unable to send message.', 'pmsg'=>$mail->ErrorInfo,
+                return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.59', 'msg'=>'Unable to send message.', 'pmsg'=>$mail->ErrorInfo,
                     'mail_id'=>$mail_id, 'severity'=>50,
                     ));
             }
         }
-        ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'0', 'msg'=>'Message sent.', 'mail_id'=>$mail_id, 'severity'=>10,));
+        ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'0', 'msg'=>'Message sent.', 'mail_id'=>$mail_id, 'severity'=>10,));
     }
 
     //
@@ -292,17 +292,17 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
     $utc_datetime = strftime("%Y-%m-%d %H:%M:%S");
     $strsql = "UPDATE ciniki_mail SET status = 30, date_sent = '" . ciniki_core_dbQuote($ciniki, $utc_datetime) . "', last_updated = UTC_TIMESTAMP() "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $mail_id) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.mail');
     if( $rc['stat'] != 'ok' ) {
-        return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.60', 'msg'=>'Message send, unable to unlock.', 'pmsg'=>'Could not set status=30',
+        return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.60', 'msg'=>'Message send, unable to unlock.', 'pmsg'=>'Could not set status=30',
             'mail_id'=>$mail_id, 'severity'=>40, 'err'=>$rc['err'],
             ));
     }
-    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $business_id, 
+    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $tnid, 
         2, 'ciniki_mail', $mail_id, 'status', '30');
-    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $business_id, 
+    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $tnid, 
         2, 'ciniki_mail', $mail_id, 'date_sent', $utc_datetime);
 
     //
@@ -311,19 +311,19 @@ function ciniki_mail_sendMail($ciniki, $business_id, &$settings, $mail_id) {
     if( $email['survey_invite_id'] > 0 ) {
         $strsql = "UPDATE ciniki_survey_invites SET status = 10, date_sent = '" . ciniki_core_dbQuote($ciniki, $utc_datetime) . "', last_updated = UTC_TIMESTAMP() "
             . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $email['survey_invite_id']) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND status = 5 "
             . "";
         $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.surveys');
         if( $rc['stat'] != 'ok' ) {
-            return ciniki_mail_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.56', 'msg'=>'Unable to update survey.', 'pmsg'=>'Could not set survey status=10',
+            return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.56', 'msg'=>'Unable to update survey.', 'pmsg'=>'Could not set survey status=10',
                 'mail_id'=>$mail_id, 'severity'=>40, 'err'=>$rc['err'],
                 ));
         }
         if( $rc['num_affected_rows'] > 0 ) {
-            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id, 
+            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid, 
                 2, 'ciniki_survey_invites', $email['survey_invite_id'], 'status', '10');
-            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id, 
+            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid, 
                 2, 'ciniki_survey_invites', $email['survey_invite_id'], 'date_sent', $utc_datetime);
         }
     }

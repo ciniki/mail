@@ -8,13 +8,13 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business to mail mailing belongs to.
+// tnid:         The ID of the tenant to mail mailing belongs to.
 // mailing_id:          The ID of the mailing to get.
 //
 // Returns
 // -------
 //
-function ciniki_mail_emailProcessContent($ciniki, $business_id, $theme, $unprocessed_content) {
+function ciniki_mail_emailProcessContent($ciniki, $tnid, $theme, $unprocessed_content) {
 
     if( $unprocessed_content == '' ) { 
         return array('stat'=>'ok', 'content'=>'');

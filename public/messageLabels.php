@@ -2,13 +2,13 @@
 //
 // Description
 // -----------
-// This method returns the list of labels available for a business and the messages counts were applicable.
+// This method returns the list of labels available for a tenant and the messages counts were applicable.
 //
 // Arguments
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business to add the mail mailing to.
+// tnid:         The ID of the tenant to add the mail mailing to.
 //
 // Returns
 // -------
@@ -20,7 +20,7 @@ function ciniki_mail_messageLabels(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -29,16 +29,16 @@ function ciniki_mail_messageLabels(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'checkAccess');
-    $rc = ciniki_mail_checkAccess($ciniki, $args['business_id'], 'ciniki.mail.messageLabels', 0); 
+    $rc = ciniki_mail_checkAccess($ciniki, $args['tnid'], 'ciniki.mail.messageLabels', 0); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
 
     $rsp = array('stat'=>'ok', 'labels'=>array());
-    if( isset($ciniki['business']['modules']['ciniki.mail']['flags']) && ($ciniki['business']['modules']['ciniki.mail']['flags']&0x10) > 0 ) {
+    if( isset($ciniki['tenant']['modules']['ciniki.mail']['flags']) && ($ciniki['tenant']['modules']['ciniki.mail']['flags']&0x10) > 0 ) {
         $rsp['labels'][] = array('label'=>array('name'=>'Inbox', 'status'=>40));
     }
 //      array('label'=>array('name'=>'Flagged', 'status'=>41)),
@@ -56,7 +56,7 @@ function ciniki_mail_messageLabels(&$ciniki) {
     //
     $strsql = "SELECT status, COUNT(id) AS num_messages "
         . "FROM ciniki_mail "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND (status <> 30 " // Don't count sent messages
             . "OR (status = 40 AND (flags&0x10)=0) " // Only count unread in inbox
             . ") "

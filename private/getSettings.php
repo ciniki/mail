@@ -2,17 +2,17 @@
 //
 // Description
 // -----------
-// This function will return the ciniki.mail settings for a business.
+// This function will return the ciniki.mail settings for a tenant.
 //
 // Arguments
 // ---------
 // ciniki:
-// business_id:     The ID of the business to get the settings for.
+// tnid:     The ID of the tenant to get the settings for.
 // 
 // Returns
 // -------
 //
-function ciniki_mail_getSettings($ciniki, $business_id) {
+function ciniki_mail_getSettings($ciniki, $tnid) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
-    return ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_mail_settings', 'business_id', $business_id, 'ciniki.mail', 'settings', '');
+    return ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_mail_settings', 'tnid', $tnid, 'ciniki.mail', 'settings', '');
 }

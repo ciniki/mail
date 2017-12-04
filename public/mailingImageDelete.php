@@ -16,7 +16,7 @@ function ciniki_mail_mailingImageDelete(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'mailing_image_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Image'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -26,10 +26,10 @@ function ciniki_mail_mailingImageDelete(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'checkAccess');
-    $rc = ciniki_mail_checkAccess($ciniki, $args['business_id'], 'ciniki.mail.mailingImageDelete'); 
+    $rc = ciniki_mail_checkAccess($ciniki, $args['tnid'], 'ciniki.mail.mailingImageDelete'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -38,7 +38,7 @@ function ciniki_mail_mailingImageDelete(&$ciniki) {
     // Get the existing image information
     //
     $strsql = "SELECT id, uuid FROM ciniki_mailing_images "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_image_id']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'item');
@@ -54,6 +54,6 @@ function ciniki_mail_mailingImageDelete(&$ciniki) {
     // Delete the object
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectDelete');
-    return ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.mail.mailing_image', $args['mailing_image_id'], $item['uuid'], 0x07);
+    return ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.mail.mailing_image', $args['mailing_image_id'], $item['uuid'], 0x07);
 }
 ?>

@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_mail_hooks_objectSubscriptions($ciniki, $business_id, $args) {
+function ciniki_mail_hooks_objectSubscriptions($ciniki, $tnid, $args) {
 
     //
     // Load the status maps for the text description of each status
@@ -33,7 +33,7 @@ function ciniki_mail_hooks_objectSubscriptions($ciniki, $business_id, $args) {
         if( $args['object_id'] > 0 ) {
             $strsql = "SELECT ciniki_mailings.id, status "
                 . "FROM ciniki_mailings "
-                . "WHERE ciniki_mailings.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "WHERE ciniki_mailings.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "AND ciniki_mailings.type = 40 "
                 . "AND ciniki_mailings.object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
                 . "AND ciniki_mailings.object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
@@ -65,7 +65,7 @@ function ciniki_mail_hooks_objectSubscriptions($ciniki, $business_id, $args) {
                 . "0 AS mailing_status, "
                 . "'Unsent' AS mailing_status_text "
                 . "FROM ciniki_subscriptions "
-                . "WHERE ciniki_subscriptions.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "WHERE ciniki_subscriptions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "AND ciniki_subscriptions.status = 10 "
                 . "";
         } else {
@@ -79,9 +79,9 @@ function ciniki_mail_hooks_objectSubscriptions($ciniki, $business_id, $args) {
                 . "LEFT JOIN ciniki_mailing_subscriptions ON ("
                     . "ciniki_subscriptions.id = ciniki_mailing_subscriptions.subscription_id "
                     . "AND ciniki_mailing_subscriptions.mailing_id = '" . ciniki_core_dbQuote($ciniki, $mailing['id']) . "' "
-                    . "AND ciniki_mailing_subscriptions.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                    . "AND ciniki_mailing_subscriptions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
-                . "WHERE ciniki_subscriptions.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "WHERE ciniki_subscriptions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "AND ciniki_subscriptions.status = 10 "
                 . "";
         }

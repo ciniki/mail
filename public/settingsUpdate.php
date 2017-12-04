@@ -22,7 +22,7 @@ function ciniki_mail_settingsUpdate(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'sendtest'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Send Test'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -32,10 +32,10 @@ function ciniki_mail_settingsUpdate(&$ciniki) {
     
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'checkAccess');
-    $rc = ciniki_mail_checkAccess($ciniki, $args['business_id'], 'ciniki.mail.settingsUpdate'); 
+    $rc = ciniki_mail_checkAccess($ciniki, $args['tnid'], 'ciniki.mail.settingsUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -115,8 +115,8 @@ function ciniki_mail_settingsUpdate(&$ciniki) {
     //
     foreach($changelog_fields as $field) {
         if( isset($ciniki['request']['args'][$field]) ) {
-            $strsql = "INSERT INTO ciniki_mail_settings (business_id, detail_key, detail_value, date_added, last_updated) "
-                . "VALUES ('" . ciniki_core_dbQuote($ciniki, $ciniki['request']['args']['business_id']) . "'"
+            $strsql = "INSERT INTO ciniki_mail_settings (tnid, detail_key, detail_value, date_added, last_updated) "
+                . "VALUES ('" . ciniki_core_dbQuote($ciniki, $ciniki['request']['args']['tnid']) . "'"
                 . ", '" . ciniki_core_dbQuote($ciniki, $field) . "'"
                 . ", '" . ciniki_core_dbQuote($ciniki, $ciniki['request']['args'][$field]) . "'"
                 . ", UTC_TIMESTAMP(), UTC_TIMESTAMP()) "
@@ -128,7 +128,7 @@ function ciniki_mail_settingsUpdate(&$ciniki) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
                 return $rc;
             }
-            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['business_id'], 
+            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['tnid'], 
                 2, 'ciniki_mail_settings', $field, 'detail_value', $ciniki['request']['args'][$field]);
             $ciniki['syncqueue'][] = array('push'=>'ciniki.mail.setting', 
                 'args'=>array('id'=>$field));
@@ -148,7 +148,7 @@ function ciniki_mail_settingsUpdate(&$ciniki) {
     //
     if( isset($args['sendtest']) && $args['sendtest'] == 'yes' ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'hooks', 'emailUser');
-        $rc = ciniki_users_hooks_emailUser($ciniki, $args['business_id'], array(
+        $rc = ciniki_users_hooks_emailUser($ciniki, $args['tnid'], array(
             'user_id'=>$ciniki['session']['user']['id'],
             'subject'=>'Test of your mail settings',
             'textmsg'=>'You mail settings are configured properly.'));
@@ -158,11 +158,11 @@ function ciniki_mail_settingsUpdate(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'mail');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'mail');
 
     return array('stat'=>'ok');
 }

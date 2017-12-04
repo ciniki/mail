@@ -1,8 +1,8 @@
-Ciniki - Small Business Management Platform
+Ciniki - Multitenant Cloud Platform
 ===========================================
 
 The mail module takes care of customer emails and mailing lists.  Any email communication
-from a business to their customers is done via this module.
+from a tenant to their customers is done via this module.
 
 License
 -------

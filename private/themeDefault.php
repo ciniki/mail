@@ -6,13 +6,13 @@
 // Arguments
 // =========
 // ciniki:
-// business_id:         The ID of the business the theme is for.
+// tnid:         The ID of the tenant the theme is for.
 // 
 // Returns
 // =======
 // <rsp stat="ok" />
 //
-function ciniki_mail_themeDefault($ciniki, $business_id) {
+function ciniki_mail_themeDefault($ciniki, $tnid) {
     return array('stat'=>'ok', 'theme'=>array(
         'name'=>'Blue Titles on Black',
         'header_style'=>"body {font-family: Helvetica, sans-serif; font-size: 14px;}\n"

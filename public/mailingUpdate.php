@@ -7,7 +7,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business to update the mail mailing for.
+// tnid:         The ID of the tenant to update the mail mailing for.
 //
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_mail_mailingUpdate(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'type'=>array('required'=>'no', 'trimblanks'=>'yes', 'blank'=>'no', 'validlist'=>array('10','20','30'), 'name'=>'Type'),
         'mailing_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Mailing'),
         'subject'=>array('required'=>'no', 'trimblanks'=>'yes', 'blank'=>'no', 'name'=>'Subject'),
@@ -37,17 +37,17 @@ function ciniki_mail_mailingUpdate(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'checkAccess');
-    $rc = ciniki_mail_checkAccess($ciniki, $args['business_id'], 'ciniki.mail.mailingUpdate', 0); 
+    $rc = ciniki_mail_checkAccess($ciniki, $args['tnid'], 'ciniki.mail.mailingUpdate', 0); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
 
     $strsql = "SELECT id, uuid, status "
         . "FROM ciniki_mailings "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'mailing');
@@ -81,7 +81,7 @@ function ciniki_mail_mailingUpdate(&$ciniki) {
     //
     // Add all the fields to the change log
     //
-    $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.mail.mailing', $args['mailing_id'], $args, 0x04);
+    $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.mail.mailing', $args['mailing_id'], $args, 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
         return $rc;
@@ -101,11 +101,11 @@ function ciniki_mail_mailingUpdate(&$ciniki) {
         if( isset($args[$field]) ) {
             $strsql .= ", $field = '" . ciniki_core_dbQuote($ciniki, $args[$field]) . "' ";
             $rc = ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 
-                'ciniki_mail_history', $args['business_id'], 
+                'ciniki_mail_history', $args['tnid'], 
                 2, 'ciniki_mailings', $args['mailing_id'], $field, $args[$field]);
         }
     }
-    $strsql .= "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+    $strsql .= "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
         . "";
     $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.mail');
@@ -125,7 +125,7 @@ function ciniki_mail_mailingUpdate(&$ciniki) {
     if( isset($args['subscription_ids']) ) {
         $strsql = "SELECT id, uuid, subscription_id "
             . "FROM ciniki_mailing_subscriptions "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND mailing_id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
             . "";
         $rc = ciniki_core_dbHashIDQuery($ciniki, $strsql, 'ciniki.mail', 'subscriptions', 'subscription_id');
@@ -139,7 +139,7 @@ function ciniki_mail_mailingUpdate(&$ciniki) {
         //
         foreach($args['subscription_ids'] as $sid) {
             if( $sid > 0 && !isset($subscription_ids[$sid]) ) {
-                $rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.mail.mailing_subscription', 
+                $rc = ciniki_core_objectAdd($ciniki, $args['tnid'], 'ciniki.mail.mailing_subscription', 
                     array('mailing_id'=>$args['mailing_id'], 'subscription_id'=>$sid), 0x04);
 //                  $subscription['id'], NULL, 0x04);
                 if( $rc['stat'] != 'ok' ) { 
@@ -156,10 +156,10 @@ function ciniki_mail_mailingUpdate(&$ciniki) {
                 }
                 $uuid = $rc['uuid'];
 
-                $strsql = "INSERT INTO ciniki_mailing_subscriptions (uuid, business_id, mailing_id, subscription_id, "
+                $strsql = "INSERT INTO ciniki_mailing_subscriptions (uuid, tnid, mailing_id, subscription_id, "
                     . "date_added, last_updated) VALUES ("
                     . "'" . ciniki_core_dbQuote($ciniki, $uuid) . "', "
-                    . "'" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "', "
+                    . "'" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "', "
                     . "'" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "', "
                     . "'" . ciniki_core_dbQuote($ciniki, $sid) . "', "
                     . "UTC_TIMESTAMP(), UTC_TIMESTAMP())";
@@ -174,11 +174,11 @@ function ciniki_mail_mailingUpdate(&$ciniki) {
                 }
                 $ms_id = $rc['insert_id'];
 
-                ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['business_id'], 
+                ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['tnid'], 
                     1, 'ciniki_mailing_subscriptions', $ms_id, 'uuid', $uuid);
-                ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['business_id'], 
+                ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['tnid'], 
                     1, 'ciniki_mailing_subscriptions', $ms_id, 'mailing_id', $args['mailing_id']);
-                ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['business_id'], 
+                ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['tnid'], 
                     1, 'ciniki_mailing_subscriptions', $ms_id, 'subscription_id', $sid);
                 $ciniki['syncqueue'][] = array('push'=>'ciniki.mail.mailingsubscription', 
                     'args'=>array('id'=>$ms_id)); */
@@ -190,7 +190,7 @@ function ciniki_mail_mailingUpdate(&$ciniki) {
         //
         foreach($subscription_ids as $sid => $subscription) {
             if( $sid > 0 && !in_array($sid, $args['subscription_ids']) ) {
-                $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.mail.mailing_subscription', 
+                $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.mail.mailing_subscription', 
                     $subscription['id'], $subscription['uuid'], 0x04);
                 if( $rc['stat'] != 'ok' ) { 
                     ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
@@ -198,14 +198,14 @@ function ciniki_mail_mailingUpdate(&$ciniki) {
                 }
 
 /*              $strsql = "DELETE FROM ciniki_mailing_subscriptions "
-                    . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                    . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                     . "AND id = '" . ciniki_core_dbQuote($ciniki, $subscription['id']) . "' ";
                 $rc = ciniki_core_dbDelete($ciniki, $strsql, 'ciniki.mail');
                 if( $rc['stat'] != 'ok' ) { 
                     ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
                     return $rc;
                 }
-                ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['business_id'], 
+                ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['tnid'], 
                     3, 'ciniki_mailing_subscriptions', $subscription['id'], '*', '');
                 $ciniki['syncqueue'][] = array('push'=>'ciniki.mail.mailingsubscription', 
                     'args'=>array('delete_id'=>$subscription['id'], 'delete_uuid'=>$subscription['uuid'])); 
@@ -223,11 +223,11 @@ function ciniki_mail_mailingUpdate(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'mail');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'mail');
 
 //  $ciniki['syncqueue'][] = array('push'=>'ciniki.mail.mailing', 
 //      'args'=>array('id'=>$args['mailing_id']));

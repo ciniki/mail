@@ -6,13 +6,13 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:     The ID of the business to the mail belongs to.
+// tnid:     The ID of the tenant to the mail belongs to.
 // mail_id:         The ID of the mail message to send.
 // 
 // Returns
 // -------
 //
-function ciniki_mail_logMsg($ciniki, $business_id, $args) {
+function ciniki_mail_logMsg($ciniki, $tnid, $args) {
 
     //
     // Log date on the server
@@ -40,9 +40,9 @@ function ciniki_mail_logMsg($ciniki, $business_id, $args) {
     }
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-    $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.mail.log', $args, 0x07);
+    $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.mail.log', $args, 0x07);
     if( $rc['stat'] != 'ok' ) {
-        error_log("MAIL-ERR[$business_id]: Unable to add log message (" . print_r($args, true) . ")");
+        error_log("MAIL-ERR[$tnid]: Unable to add log message (" . print_r($args, true) . ")");
     }
 
     return $rsp;

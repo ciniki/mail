@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $business_id, $args) {
+function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $tnid, $args) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
@@ -69,14 +69,14 @@ function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $business_id, $args) {
     //
     // Add the message to the inbox
     //
-    $strsql = "INSERT INTO ciniki_mail (uuid, business_id, mailing_id, unsubscribe_key, "
+    $strsql = "INSERT INTO ciniki_mail (uuid, tnid, mailing_id, unsubscribe_key, "
         . "survey_invite_id, "
         . "customer_id, customer_name, customer_email, flags, status, "
         . "mail_to, mail_cc, mail_from, from_name, from_email, "
         . "subject, html_content, text_content, "
         . "date_added, last_updated) VALUES ("
         . "'" . ciniki_core_dbQuote($ciniki, $args['uuid']) . "', "
-        . "'" . ciniki_core_dbQuote($ciniki, $business_id) . "', "
+        . "'" . ciniki_core_dbQuote($ciniki, $tnid) . "', "
         . "0, '', 0, ";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "', ";
     $strsql .= "'', ";
@@ -105,7 +105,7 @@ function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $business_id, $args) {
         foreach($args['attachments'] as $attachment) {
             if( isset($attachment['filename']) && isset($attachment['content']) ) {
                 $attachment['mail_id'] = $mail_id;
-                $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.mail.attachment', $attachment, 0x04);
+                $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.mail.attachment', $attachment, 0x04);
                 if( $rc['stat'] != 'ok' ) {
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.13', 'msg'=>'Unable to add attachment', 'err'=>$rc['err']));
                 }
@@ -117,7 +117,7 @@ function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $business_id, $args) {
     // Add the object references
     //
     if( isset($args['object']) && $args['object'] != '' && isset($args['object_id']) && $args['object_id'] != '' ) {
-        $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.mail.objref', array(
+        $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.mail.objref', array(
             'mail_id'=>$mail_id,
             'object'=>$args['object'],
             'object_id'=>$args['object_id'],
@@ -127,7 +127,7 @@ function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $business_id, $args) {
         }
     }
     if( isset($args['parent_object']) && $args['parent_object'] != '' && isset($args['parent_object_id']) && $args['parent_object_id'] != '' ) {
-        $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.mail.objref', array(
+        $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.mail.objref', array(
             'mail_id'=>$mail_id,
             'object'=>$args['parent_object'],
             'object_id'=>$args['parent_object_id'],
@@ -150,7 +150,7 @@ function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $business_id, $args) {
             $send_to_emails = explode(',', $args['notification_emails']);
             foreach($send_to_emails as $email) {
                 $ciniki['emailqueue'][] = array('to'=>trim($email),
-                    'business_id'=>$business_id,
+                    'tnid'=>$tnid,
                     'replyto_email'=>$args['from_email'],
                     'replyto_name'=>$args['from_name'],
                     'subject'=>$args['subject'],
@@ -158,15 +158,15 @@ function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $business_id, $args) {
                     );
             }
         } else {
-            ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'hooks', 'businessOwners');
-            $rc = ciniki_businesses_hooks_businessOwners($ciniki, $business_id, array());
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'hooks', 'tenantOwners');
+            $rc = ciniki_tenants_hooks_tenantOwners($ciniki, $tnid, array());
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.16', 'msg'=>'Unable to get business owners', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.16', 'msg'=>'Unable to get tenant owners', 'err'=>$rc['err']));
             }
             $owners = $rc['users'];
             foreach($owners as $user_id => $owner) {
                 $ciniki['emailqueue'][] = array('user_id'=>$user_id,
-                    'business_id'=>$business_id,
+                    'tnid'=>$tnid,
                     'replyto_email'=>$args['from_email'],
                     'replyto_name'=>$args['from_name'],
                     'subject'=>$args['subject'],

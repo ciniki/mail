@@ -9,7 +9,7 @@
 // Returns
 // -------
 //
-function ciniki_mail_hooks_objectMessages($ciniki, $business_id, $args) {
+function ciniki_mail_hooks_objectMessages($ciniki, $tnid, $args) {
 
     //
     // Load the status maps for the text description of each status
@@ -24,8 +24,8 @@ function ciniki_mail_hooks_objectMessages($ciniki, $business_id, $args) {
     //
     // Load intl date settings
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $business_id);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -55,11 +55,11 @@ function ciniki_mail_hooks_objectMessages($ciniki, $business_id, $args) {
             . "ciniki_mail.customer_email, "
             . "ciniki_mail.subject "
             . "FROM ciniki_mail_objrefs, ciniki_mail "
-            . "WHERE ciniki_mail_objrefs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE ciniki_mail_objrefs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_mail_objrefs.object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
             . "AND ciniki_mail_objrefs.object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
             . "AND ciniki_mail_objrefs.mail_id = ciniki_mail.id "
-            . "AND ciniki_mail.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_mail.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
             $strsql .= "AND ciniki_mail.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' ";
@@ -99,11 +99,11 @@ function ciniki_mail_hooks_objectMessages($ciniki, $business_id, $args) {
             . "ciniki_mail.subject, "
             . "SUBSTR(IF(text_content<>'',text_content,html_content), 1, 150) AS snippet "
             . "FROM ciniki_mail_objrefs, ciniki_mail "
-            . "WHERE ciniki_mail_objrefs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE ciniki_mail_objrefs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_mail_objrefs.object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
             . "AND ciniki_mail_objrefs.mail_id = ciniki_mail.id "
             . "AND ciniki_mail.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' "
-            . "AND ciniki_mail.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_mail.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "ORDER BY ciniki_mail.date_sent DESC "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');

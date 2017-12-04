@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business to mail mailing belongs to.
+// tnid:         The ID of the tenant to mail mailing belongs to.
 // mailing_id:          The ID of the mailing to get.
 //
 // Returns
@@ -20,7 +20,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'mailing_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Mailing'),
         'test'=>array('required'=>'no', 'default'=>'no', 'name'=>'Test'),
         )); 
@@ -31,10 +31,10 @@ function ciniki_mail_mailingSend(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'checkAccess');
-    $rc = ciniki_mail_checkAccess($ciniki, $args['business_id'], 'ciniki.mail.mailingSend', 0); 
+    $rc = ciniki_mail_checkAccess($ciniki, $args['tnid'], 'ciniki.mail.mailingSend', 0); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -44,21 +44,21 @@ function ciniki_mail_mailingSend(&$ciniki) {
     // Get the settings for the mail module
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'getSettings');
-    $rc = ciniki_mail_getSettings($ciniki, $args['business_id']); 
+    $rc = ciniki_mail_getSettings($ciniki, $args['tnid']); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
     $settings = $rc['settings'];
 
     //
-    // Get the business settings for the mail module
+    // Get the tenant settings for the mail module
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'web', 'details');
-    $rc = ciniki_businesses_web_details($ciniki, $args['business_id']); 
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'web', 'details');
+    $rc = ciniki_tenants_web_details($ciniki, $args['tnid']); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
-    $business_details = $rc['details'];
+    $tenant_details = $rc['details'];
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbAddModuleHistory');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
@@ -86,9 +86,9 @@ function ciniki_mail_mailingSend(&$ciniki) {
         . "FROM ciniki_mailings "
         . "LEFT JOIN ciniki_mailing_subscriptions ON ("
             . "ciniki_mailings.id = ciniki_mailing_subscriptions.mailing_id "
-            . "AND ciniki_mailing_subscriptions.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_mailing_subscriptions.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
-        . "WHERE ciniki_mailings.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_mailings.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ciniki_mailings.id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
         . "ORDER BY ciniki_mailings.id ASC ";
 
@@ -125,7 +125,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
         . "ciniki_mailing_images.description, "
         . "'' as url "
         . "FROM ciniki_mailing_images "
-        . "WHERE ciniki_mailing_images.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_mailing_images.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ciniki_mailing_images.mailing_id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.mail', array(
@@ -166,7 +166,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
         // Pull the list of emails from the subscription
         //
         ciniki_core_loadMethod($ciniki, 'ciniki', 'subscriptions', 'hooks', 'emailList');
-        $rc = ciniki_subscriptions_hooks_emailList($ciniki, $args['business_id'], array('subscription_ids'=>explode(',', $mailing['subscription_ids'])));
+        $rc = ciniki_subscriptions_hooks_emailList($ciniki, $args['tnid'], array('subscription_ids'=>explode(',', $mailing['subscription_ids'])));
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -197,30 +197,30 @@ function ciniki_mail_mailingSend(&$ciniki) {
         list($pkg, $mod, $obj) = explode('.', $mailing['object']);
         $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'hooks', 'mailingContent');
         $fn = $rc['function_call'];
-        $rc = $fn($ciniki, $args['business_id'], array('object'=>$mailing['object'], 'object_id'=>$mailing['object_id']));
+        $rc = $fn($ciniki, $args['tnid'], array('object'=>$mailing['object'], 'object_id'=>$mailing['object_id']));
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
         $object = $rc['object'];
         $header_title = $object['title'];
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-        $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.mail.mailing', $mailing['id'], array('subject'=>$object['subject']), 0x07);
+        $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.mail.mailing', $mailing['id'], array('subject'=>$object['subject']), 0x07);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
     } else {
-        $header_title = $business_details['name'];
+        $header_title = $tenant_details['name'];
     }
 
     //
-    // Load the business mail template
+    // Load the tenant mail template
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'loadBusinessTemplate');
-    $rc = ciniki_mail_loadBusinessTemplate($ciniki, $args['business_id'], array(
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'loadTenantTemplate');
+    $rc = ciniki_mail_loadTenantTemplate($ciniki, $args['tnid'], array(
         'theme'=>$mailing['theme'],
         'unsubscribe_link'=>'yes',
         'title'=>$header_title,
-        'business_name'=>$business_details['name'],
+        'tenant_name'=>$tenant_details['name'],
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -239,7 +239,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
     //
     if( $mailing['type'] == 40 ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'emailObjectPrepare');
-        $rc = ciniki_mail_emailObjectPrepare($ciniki, $args['business_id'], $theme, $mailing, $object);
+        $rc = ciniki_mail_emailObjectPrepare($ciniki, $args['tnid'], $theme, $mailing, $object);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -253,7 +253,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
     //
     else {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'emailObjectPrepare');
-        $rc = ciniki_mail_emailObjectPrepare($ciniki, $args['business_id'], $theme, $mailing, $mailing);
+        $rc = ciniki_mail_emailObjectPrepare($ciniki, $args['tnid'], $theme, $mailing, $mailing);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -267,7 +267,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
         //
         if( $mailing['html_content'] == '' ) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'emailProcessContent');
-            $rc = ciniki_mail_emailProcessContent($ciniki, $args['business_id'], $theme, $mailing['text_content']);
+            $rc = ciniki_mail_emailProcessContent($ciniki, $args['tnid'], $theme, $mailing['text_content']);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
@@ -317,7 +317,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
     if( !isset($args['test']) || $args['test'] != 'yes' ) {
         $strsql = "SELECT customer_email "
             . "FROM ciniki_mail "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND mailing_id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
@@ -338,14 +338,14 @@ function ciniki_mail_mailingSend(&$ciniki) {
     }
 
     //
-    // Get the business site url
+    // Get the tenant site url
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'web', 'private', 'lookupBusinessURL');
-    $rc = ciniki_web_lookupBusinessURL($ciniki, $args['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'web', 'private', 'lookupTenantURL');
+    $rc = ciniki_web_lookupTenantURL($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
-    $business_url = $rc['url'];
+    $tenant_url = $rc['url'];
 
     //
     // Create all the customer emails, and load into ciniki_mail table.
@@ -378,7 +378,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
         // Create the unsubscribe url for the customer
         //
         $unsubscribe_key = substr(md5(date('Y-m-d-H-i-s') . rand()), 0, 32);
-        $unsubscribe_url = $business_url . '/mail/subscriptions/unsubscribe?e=' . urlencode($email['email']) . '&s=' . $email['subscription_uuid'] . '&k=' . $unsubscribe_key;
+        $unsubscribe_url = $tenant_url . '/mail/subscriptions/unsubscribe?e=' . urlencode($email['email']) . '&s=' . $email['subscription_uuid'] . '&k=' . $unsubscribe_key;
         $text_message = preg_replace('/\{_unsubscribe_url_\}/', $unsubscribe_url, $text_message);
         $html_message = preg_replace('/\{_unsubscribe_url_\}/', $unsubscribe_url, $html_message);
 
@@ -387,7 +387,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
         //
         if( isset($args['test']) && $args['test'] == 'yes' ) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'hooks', 'emailUser');
-            ciniki_users_hooks_emailUser($ciniki, $args['business_id'], array(
+            ciniki_users_hooks_emailUser($ciniki, $args['tnid'], array(
                 'user_id'=>$ciniki['session']['user']['id'], 
                 'subject'=>$mailing['subject'], 'textmsg'=>$text_message, 'htmlmsg'=>$html_message));
             continue;
@@ -400,12 +400,12 @@ function ciniki_mail_mailingSend(&$ciniki) {
             //
             // Get the survey link to insert
             //
-            $rc = ciniki_surveys_createCustomerInvite($ciniki, $args['business_id'], $mailing['survey_id'], $mailing['id'], $email['customer_id'], array());
+            $rc = ciniki_surveys_createCustomerInvite($ciniki, $args['tnid'], $mailing['survey_id'], $mailing['id'], $email['customer_id'], array());
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
             $invite_id = $rc['id'];
-            $invite_url = $business_url . $rc['url'];
+            $invite_url = $tenant_url . $rc['url'];
             
             $text_message = preg_replace('/\{_survey_url_\}/', $invite_url, $text_message);
             $html_message = preg_replace('/\{_survey_url_\}/', $invite_url, $html_message);
@@ -416,7 +416,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
         //
         // Setup the customer email in the database
         //
-        $rc = ciniki_mail_createCustomerMail($ciniki, $args['business_id'], $settings, $email, 
+        $rc = ciniki_mail_createCustomerMail($ciniki, $args['tnid'], $settings, $email, 
             $mailing['subject'], $html_message, $text_message, array(
             'mailing_id'=>$mailing['id'],
             'flags'=>$flags,
@@ -432,7 +432,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
         // Add to the email queue, if the emails are an alert and need to get send immediately
         //
         if( $email_alert == 'yes' ) {
-            $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'business_id'=>$args['business_id']);
+            $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'tnid'=>$args['tnid']);
         }
     }
 
@@ -442,16 +442,16 @@ function ciniki_mail_mailingSend(&$ciniki) {
     if( !isset($args['test']) || $args['test'] != 'yes' ) {
         $utc_datetime = strftime("%Y-%m-%d %H:%M:%S");
         $strsql = "UPDATE ciniki_mailings SET status = 40, last_updated = '" . ciniki_core_dbQuote($ciniki, $utc_datetime) . "' "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['mailing_id']) . "' "
             . "";
         $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.mail');
         if( $rc['stat'] != 'ok' ) {
             return $rc; 
         }
-        ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['business_id'],
+        ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['tnid'],
             2, 'ciniki_mailings', $args['mailing_id'], 'status', '40');
-        ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['business_id'],
+        ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $args['tnid'],
             2, 'ciniki_mailings', $args['mailing_id'], 'date_sent', $utc_datetime);
     }
 

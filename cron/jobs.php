@@ -17,33 +17,33 @@ function ciniki_mail_cron_jobs($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
     //
-    // Get the list of businesses which have mail waiting to be sent
+    // Get the list of tenants which have mail waiting to be sent
     //
-    $strsql = "SELECT DISTINCT business_id "
+    $strsql = "SELECT DISTINCT tnid "
         . "FROM ciniki_mail "
         . "WHERE status = 10 OR status = 15 "
         . "";
-    $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.mail', 'businesses', 'business_id');
+    $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.mail', 'tenants', 'tnid');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.1', 'msg'=>'Unable to get list of businesses with mail', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.1', 'msg'=>'Unable to get list of tenants with mail', 'err'=>$rc['err']));
     }
-    if( !isset($rc['businesses']) || count($rc['businesses']) == 0 ) {
-        $businesses = array();
+    if( !isset($rc['tenants']) || count($rc['tenants']) == 0 ) {
+        $tenants = array();
     } else {
-        $businesses = $rc['businesses'];
+        $tenants = $rc['tenants'];
     }
 
     //
-    // For each business, load their mail settings
+    // For each tenant, load their mail settings
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'getSettings');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'sendMail');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-    foreach($businesses as $business_id) {
-        ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'0', 'msg'=>'Sending mail', 'severity'=>'10'));
-        $rc = ciniki_mail_getSettings($ciniki, $business_id);
+    foreach($tenants as $tnid) {
+        ciniki_cron_logMsg($ciniki, $tnid, array('code'=>'0', 'msg'=>'Sending mail', 'severity'=>'10'));
+        $rc = ciniki_mail_getSettings($ciniki, $tnid);
         if( $rc['stat'] != 'ok' ) {
-            ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.61', 'msg'=>'Unable to mail settings', 
+            ciniki_cron_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.61', 'msg'=>'Unable to mail settings', 
                 'severity'=>50, 'err'=>$rc['err']));
             continue;
         }
@@ -57,16 +57,16 @@ function ciniki_mail_cron_jobs($ciniki) {
                 //
                 $strsql = "SELECT (UNIX_TIMESTAMP(UTC_TIMESTAMP()) - UNIX_TIMESTAMP(MAX(date_sent))) AS last_date_sent "
                     . "FROM ciniki_mail "
-                    . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                    . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                     . "";
                 $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'last_sent');
                 if( $rc['stat'] != 'ok' ) {
-                    ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.62', 'msg'=>'Unable to check last sent', 'severity'=>50, 'err'=>$rc['err']));
+                    ciniki_cron_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.62', 'msg'=>'Unable to check last sent', 'severity'=>50, 'err'=>$rc['err']));
                     continue;
                 }
                 //
                 // Calculate how many minutes need to be elapse between messages.
-                // If business sends unqueued message, it will delay queue
+                // If tenant sends unqueued message, it will delay queue
                 //
                 // 1 = 5min
                 // 0.5 = 10min
@@ -87,22 +87,22 @@ function ciniki_mail_cron_jobs($ciniki) {
         
         $strsql = "SELECT id "
             . "FROM ciniki_mail "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND (status = 10 OR status = 15) "
             . "ORDER BY status DESC, last_updated " // Any that we have tried to send will get their last_updated changed and be bumped to back of the line
             . "LIMIT $limit "
             . "";
         $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.mail', 'mail', 'id');
         if( $rc['stat'] != 'ok' ) {
-            ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.63', 'msg'=>'Unable to load the list of mail to send', 
+            ciniki_cron_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.63', 'msg'=>'Unable to load the list of mail to send', 
                 'severity'=>50, 'err'=>$rc['err']));
             continue;
         }
         $emails = $rc['mail'];
         foreach($emails as $mail_id) {
-            $rc = ciniki_mail_sendMail($ciniki, $business_id, $settings, $mail_id);
+            $rc = ciniki_mail_sendMail($ciniki, $tnid, $settings, $mail_id);
             if( $rc['stat'] != 'ok' ) {
-                ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.64', 'msg'=>'Unable to send message',
+                ciniki_cron_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.64', 'msg'=>'Unable to send message',
                     'severity'=>50, 'err'=>$rc['err']));
                 continue;
             }
@@ -113,19 +113,19 @@ function ciniki_mail_cron_jobs($ciniki) {
     // Check for mailings which are completed
     //
     $strsql = "SELECT ciniki_mailings.id, "
-        . "ciniki_mailings.business_id, "
+        . "ciniki_mailings.tnid, "
         . "COUNT(ciniki_mail.mailing_id) AS num_msgs "
         . "FROM ciniki_mailings "
         . "LEFT JOIN ciniki_mail ON ("
             . "ciniki_mailings.id = ciniki_mail.mailing_id "
             . "AND ciniki_mail.status < 30 "
-            . "AND ciniki_mailings.business_id = ciniki_mail.business_id "
+            . "AND ciniki_mailings.tnid = ciniki_mail.tnid "
             . ") "
         . "WHERE ciniki_mailings.status > 10 "
         . "AND ciniki_mailings.status < 50 "
-        . "GROUP BY ciniki_mailings.business_id, ciniki_mailings.id "
+        . "GROUP BY ciniki_mailings.tnid, ciniki_mailings.id "
         . "HAVING num_msgs = 0 "
-        . "ORDER BY ciniki_mailings.business_id "
+        . "ORDER BY ciniki_mailings.tnid "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'mailing');
     if( $rc['stat'] != 'ok' ) {
@@ -134,9 +134,9 @@ function ciniki_mail_cron_jobs($ciniki) {
     if( isset($rc['rows']) ) {
         $mailings = $rc['rows'];
         foreach($mailings as $mailing) {
-            $rc = ciniki_core_objectUpdate($ciniki, $mailing['business_id'], 'ciniki.mail.mailing', $mailing['id'], array('status'=>50));
+            $rc = ciniki_core_objectUpdate($ciniki, $mailing['tnid'], 'ciniki.mail.mailing', $mailing['id'], array('status'=>50));
             if( $rc['stat'] != 'ok' ) {
-                ciniki_cron_logMsg($ciniki, $business_id, array('code'=>'ciniki.mail.65', 'msg'=>'Unable to update mailing', 'pmsg'=>'Unable to set mailing status=50',
+                ciniki_cron_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.65', 'msg'=>'Unable to update mailing', 'pmsg'=>'Unable to set mailing status=50',
                     'severity'=>40, 'err'=>$rc['err']));
                 continue;
             }
