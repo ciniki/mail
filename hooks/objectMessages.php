@@ -42,7 +42,50 @@ function ciniki_mail_hooks_objectMessages($ciniki, $tnid, $args) {
     //
     if( isset($args['object']) && $args['object'] != '' 
         && isset($args['object_id']) && $args['object_id'] != ''
+        && isset($args['xml']) && $args['xml'] == 'no'
         ) {
+        //
+        // Check if there is any mail for this object
+        //
+        $strsql = "SELECT ciniki_mail.id, "
+            . "ciniki_mail.status, "
+            . "ciniki_mail.status AS status_text, "
+            . "ciniki_mail.date_sent, "
+            . "ciniki_mail.customer_id, "
+            . "ciniki_mail.customer_name, "
+            . "ciniki_mail.customer_email, "
+            . "ciniki_mail.subject "
+            . "FROM ciniki_mail_objrefs, ciniki_mail "
+            . "WHERE ciniki_mail_objrefs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "AND ciniki_mail_objrefs.object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
+            . "AND ciniki_mail_objrefs.object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
+            . "AND ciniki_mail_objrefs.mail_id = ciniki_mail.id "
+            . "AND ciniki_mail.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "";
+        if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
+            $strsql .= "AND ciniki_mail.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' ";
+        }
+        $strsql .= "ORDER BY ciniki_mail.date_sent DESC "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.mail', array(
+            array('container'=>'messages', 'fname'=>'id', 
+                'fields'=>array('id', 'status', 'status_text', 'date_sent', 'customer_name', 'customer_email', 'subject'),
+                'maps'=>array('status_text'=>$maps['mail']['status']),
+                'utctotz'=>array('date_sent'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format)),
+                ),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( isset($rc['messages']) ) {
+            return array('stat'=>'ok', 'messages'=>$rc['messages']);
+        }
+    }
+    elseif( isset($args['object']) && $args['object'] != '' 
+        && isset($args['object_id']) && $args['object_id'] != ''
+        ) {
+        // FIXME: Change all references to this hook to accept simple ArrayTree output instead of xml ready Tree output.
         //
         // Check if there is any mail for this object
         //
