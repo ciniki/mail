@@ -120,6 +120,17 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
         }
 
         //
+        // Check for replyto_email
+        //
+        if( isset($email['replyto_email']) && $email['replyto_email'] != '' ) { 
+            if( isset($email['replyto_name']) && $email['replyto_name'] != '' ) {
+                $msg['h:Reply-To'] = $email['replyto_name'] . ' <' . $email['replyto_email'] . '> ';
+            } else {
+                $msg['h:Reply-To'] = $email['replyto_email'];
+            }
+        }
+
+        //
         // Add attachments
         //
         $file_index = 1;
