@@ -44,6 +44,10 @@ function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $tnid, $args) {
     }
     $args['status'] = '40';
 
+    if( !isset($args['date_received']) || $args['date_received'] == '' ) {
+        $dt = new DateTime('now', new DateTimezone('UTC'));
+        $args['date_received'] = $dt->format('Y-m-d H:i:s');
+    }
 
     //
     // If no customer was specified, then search for email 
@@ -70,7 +74,7 @@ function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $tnid, $args) {
     // Add the message to the inbox
     //
     $strsql = "INSERT INTO ciniki_mail (uuid, tnid, mailing_id, unsubscribe_key, "
-        . "survey_invite_id, "
+        . "survey_invite_id, date_received, "
         . "customer_id, customer_name, customer_email, flags, status, "
         . "mail_to, mail_cc, mail_from, from_name, from_email, "
         . "subject, html_content, text_content, "
@@ -78,6 +82,7 @@ function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $tnid, $args) {
         . "'" . ciniki_core_dbQuote($ciniki, $args['uuid']) . "', "
         . "'" . ciniki_core_dbQuote($ciniki, $tnid) . "', "
         . "0, '', 0, ";
+    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['date_received']) . "', ";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "', ";
     $strsql .= "'', ";
     $strsql .= "'', ";
