@@ -19,7 +19,7 @@ function ciniki_mail_hooks_checkObjectUsed($ciniki, $tnid, $args) {
     $msg = '';
 
     if( $args['object'] == 'ciniki.customers.customer' ) {
-        //
+/*        //
         // Check the mail customers
         //
         $strsql = "SELECT 'items', COUNT(*) "
@@ -35,7 +35,7 @@ function ciniki_mail_hooks_checkObjectUsed($ciniki, $tnid, $args) {
             $used = 'yes';
             $count = $rc['num']['items'];
             $msg .= ($msg!=''?' ':'') . "There " . ($count==1?'is':'are') . " $count mail message" . ($count==1?'':'s') . " for this customer.";
-        }
+        } */
     }
 
     //
