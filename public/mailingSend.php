@@ -107,7 +107,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
     }
     $mailing = $rc['mailings'][0]['mailing'];
     // Check for the subscriptions if this is not a test message
-    if( (!isset($args['test']) || $args['test'] != 'yes') && (!is_array($mailing['subscription_ids']) || count($mailing['subscription_ids']) == 0) ) {
+    if( (!isset($args['test']) || $args['test'] != 'yes') && (!isset($mailing['subscription_ids']) || $mailing['subscription_ids'] == '') ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.40', 'msg'=>'No subscriptions specified'));
     }
 
