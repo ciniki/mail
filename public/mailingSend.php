@@ -422,6 +422,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
             'flags'=>$flags,
             'survey_invite_id'=>$invite_id,
             'unsubscribe_key'=>$unsubscribe_key,
+            'flags'=>0x08,          // Set for low priority, subscriptions
             ));
         if( $rc['stat'] != 'ok' ) {
             return $rc;

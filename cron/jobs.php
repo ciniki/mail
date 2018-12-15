@@ -89,7 +89,7 @@ function ciniki_mail_cron_jobs($ciniki) {
             . "FROM ciniki_mail "
             . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND (status = 10 OR status = 15) "
-            . "ORDER BY status DESC, last_updated " // Any that we have tried to send will get their last_updated changed and be bumped to back of the line
+            . "ORDER BY (flags&0x08) ASC, status DESC, last_updated " // Any that we have tried to send will get their last_updated changed and be bumped to back of the line
             . "LIMIT $limit "
             . "";
         $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.mail', 'mail', 'id');
