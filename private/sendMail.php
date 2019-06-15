@@ -232,11 +232,17 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
             $mail->FromName = $settings['smtp-from-name'];
         } else {
             $mail->Host = $ciniki['config']['ciniki.core']['system.smtp.servers'];
-            $mail->SMTPAuth = true;
-            $mail->Username = $ciniki['config']['ciniki.core']['system.smtp.username'];
-            $mail->Password = $ciniki['config']['ciniki.core']['system.smtp.password'];
-            $mail->SMTPSecure = $ciniki['config']['ciniki.core']['system.smtp.secure'];
-            $mail->Port = $ciniki['config']['ciniki.core']['system.smtp.port'];
+            if( isset($ciniki['config']['ciniki.core']['system.smtp.username']) ) {
+                $mail->SMTPAuth = true;
+                $mail->Username = $ciniki['config']['ciniki.core']['system.smtp.username'];
+                $mail->Password = $ciniki['config']['ciniki.core']['system.smtp.password'];
+            }
+            if( isset($ciniki['config']['ciniki.core']['system.smtp.secure']) ) {
+                $mail->SMTPSecure = $ciniki['config']['ciniki.core']['system.smtp.secure'];
+            }
+            if( isset($ciniki['config']['ciniki.core']['system.smtp.port']) ) {
+                $mail->Port = $ciniki['config']['ciniki.core']['system.smtp.port'];
+            }
 
             $mail->From = $ciniki['config']['ciniki.core']['system.email'];
             $mail->FromName = $ciniki['config']['ciniki.core']['system.email.name'];
