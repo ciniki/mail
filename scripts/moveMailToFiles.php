@@ -71,18 +71,18 @@ foreach($rc['rows'] as $row) {
 //
 // Load mail
 //
-$strsql = "SELECT id, uuid, tnid, html_content, text_content, raw_content "
-    . "FROM ciniki_mail "
-    . "";
-$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.core', 'item');
-if( $rc['stat'] != 'ok' ) {
-    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.core.402', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
-}
-foreach($rc['rows'] as $row) {
-    if( !isset($tenants[$row['tnid']]) ) {
-        print "Missing tenant for " . $row['tnid'] . "\n";
-    } else {
-        $mail_dir = $tenants[$row['tnid']] . '/' . $row['uuid'][0];
+foreach($tenants as $tnid => $uuid) {
+    error_log('processing: ' . $tnid);
+    $strsql = "SELECT id, uuid, tnid, html_content, text_content, raw_content "
+        . "FROM ciniki_mail "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.core', 'item');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.core.402', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+    }
+    foreach($rc['rows'] as $row) {
+        $mail_dir = $uuid . '/' . $row['uuid'][0];
         if( !file_exists($mail_dir) ) {
             mkdir($mail_dir, 0755, true);
         }
