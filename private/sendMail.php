@@ -28,7 +28,7 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
     //
     // Query for mail details
     //
-    $strsql = "SELECT id, status, "
+    $strsql = "SELECT id, uuid, status, "
         . "mailing_id, survey_invite_id, "
         . "customer_id, customer_name, customer_email, "
         . "subject, html_content, text_content "
@@ -49,6 +49,26 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
             ));
     }
     $email = $rc['mail'];
+
+    //
+    // Get the tenant storage directory
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'hooks', 'storageDir');
+    $rc = ciniki_tenants_hooks_storageDir($ciniki, $tnid, array());
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $mail_dir = $rc['storage_dir'] . '/ciniki.mail';
+
+    //
+    // Check for content on disk
+    //
+    if( file_exists($mail_dir . '/' . $email['uuid'][0] . '/' . $email['uuid'] . '.html') ) {
+        $email['html_content'] = file_get_contents($mail_dir . '/' . $email['uuid'][0] . '/' . $email['uuid'] . '.html');
+    }
+    if( file_exists($mail_dir . '/' . $email['uuid'][0] . '/' . $email['uuid'] . '.text') ) {
+        $email['text_content'] = file_get_contents($mail_dir . '/' . $email['uuid'][0] . '/' . $email['uuid'] . '.text');
+    }
 
     //
     // Check for attachments

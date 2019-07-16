@@ -69,6 +69,7 @@ function ciniki_mail_messageGet(&$ciniki) {
     // Get the messages for the label
     //
     $strsql = "SELECT id, "
+        . "uuid, "
         . "customer_id, "
         . "customer_name, "
         . "customer_email, "
@@ -94,7 +95,7 @@ function ciniki_mail_messageGet(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.mail', array(
         array('container'=>'messages', 'fname'=>'id', 'name'=>'message',
-            'fields'=>array('id', 'customer_id', 'customer_name', 'customer_email', 
+            'fields'=>array('id', 'uuid', 'customer_id', 'customer_name', 'customer_email', 
                 'flags', 'status', 'status_text', 'date_sent', 'date_received', 
                 'mail_to', 'mail_cc', 'mail_from', 'from_name', 'from_email', 
                 'subject', 'html_content', 'text_content',
@@ -111,6 +112,29 @@ function ciniki_mail_messageGet(&$ciniki) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.49', 'msg'=>'Unable to find message'));
     } 
     $message = $rc['messages'][0]['message'];
+
+    //
+    // Get the tenant storage directory
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'hooks', 'storageDir');
+    $rc = ciniki_tenants_hooks_storageDir($ciniki, $args['tnid'], array());
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $mail_dir = $rc['storage_dir'] . '/ciniki.mail';
+
+    //
+    // Check for content on disk
+    //
+    if( file_exists($mail_dir . '/' . $message['uuid'][0] . '/' . $message['uuid'] . '.html') ) {
+        $message['html_content'] = file_get_contents($mail_dir . '/' . $message['uuid'][0] . '/' . $message['uuid'] . '.html');
+    }
+    if( file_exists($mail_dir . '/' . $message['uuid'][0] . '/' . $message['uuid'] . '.text') ) {
+        $message['text_content'] = file_get_contents($mail_dir . '/' . $message['uuid'][0] . '/' . $message['uuid'] . '.text');
+    }
+    if( file_exists($mail_dir . '/' . $message['uuid'][0] . '/' . $message['uuid'] . '.raw') ) {
+        $message['raw_content'] = file_get_contents($mail_dir . '/' . $message['uuid'][0] . '/' . $message['uuid'] . '.raw');
+    }
 
     //
     // Get any logs for this message

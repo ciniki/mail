@@ -27,6 +27,26 @@ function ciniki_mail_createCustomerMail($ciniki, $tnid, $settings, $email, $subj
     $uuid = $rc['uuid'];
 
     //
+    // Get the tenant storage directory
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'hooks', 'storageDir');
+    $rc = ciniki_tenants_hooks_storageDir($ciniki, $tnid, array());
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $mail_dir = $rc['storage_dir'] . '/ciniki.mail';
+
+    //
+    // Write mail to disk, when non-empty
+    //
+    if( $html_message != '' ) {
+        file_put_contents($mail_dir . '/' . $uuid[0] . '/' . $uuid . '.html', $html_message);
+    }
+    if( $text_message != '' ) {
+        file_put_contents($mail_dir . '/' . $uuid[0] . '/' . $uuid . '.text', $text_message);
+    }
+    
+    //
     // Prepare the insert
     //
     $strsql = "INSERT INTO ciniki_mail (uuid, tnid, mailing_id, unsubscribe_key, "
@@ -65,8 +85,10 @@ function ciniki_mail_createCustomerMail($ciniki, $tnid, $settings, $email, $subj
     $strsql .= "'', ";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $settings['smtp-from-name']) . " <" . ciniki_core_dbQuote($ciniki, $settings['smtp-from-address']) . ">', ";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $subject) . "', ";
-    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $html_message) . "', ";
-    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $text_message) . "', ";
+    $strsql .= "'', ";
+    $strsql .= "'', ";
+//    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $html_message) . "', ";
+//    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $text_message) . "', ";
     $strsql .= "UTC_TIMESTAMP(), UTC_TIMESTAMP())";
 
     $rc = ciniki_core_dbInsert($ciniki, $strsql, 'ciniki.mail');

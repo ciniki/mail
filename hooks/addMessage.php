@@ -131,6 +131,26 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     $args['uuid'] = $rc['uuid'];
 
     //
+    // Get the tenant storage directory
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'hooks', 'storageDir');
+    $rc = ciniki_tenants_hooks_storageDir($ciniki, $tnid, array());
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $mail_dir = $rc['storage_dir'] . '/ciniki.mail';
+
+    //
+    // Write mail to disk, when non-empty
+    //
+    if( $args['html_content'] != '' ) {
+        file_put_contents($mail_dir . '/' . $args['uuid'][0] . '/' . $args['uuid'] . '.html', $args['html_content']);
+    }
+    if( $args['text_content'] != '' ) {
+        file_put_contents($mail_dir . '/' . $args['uuid'][0] . '/' . $args['uuid'] . '.text', $args['text_content']);
+    }
+    
+    //
     // Add the message
     //
     $strsql = "INSERT INTO ciniki_mail (uuid, tnid, mailing_id, unsubscribe_key, "
@@ -151,8 +171,10 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['subject']) . "', ";
 //  $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['html_content']) . "', ";
 //  $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['text_content']) . "', ";
-    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $html_content) . "', ";
-    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $text_content) . "', ";
+    $strsql .= "'', ";
+    $strsql .= "'', ";
+//    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $html_content) . "', ";
+//    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $text_content) . "', ";
     $strsql .= "UTC_TIMESTAMP(), UTC_TIMESTAMP())";
 
     $rc = ciniki_core_dbInsert($ciniki, $strsql, 'ciniki.mail');
@@ -160,7 +182,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
         return $rc;
     }
     $mail_id = $rc['insert_id'];    
-    
+
     //
     // Add the attachments
     //

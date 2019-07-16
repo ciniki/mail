@@ -55,6 +55,16 @@ function ciniki_mail_hooks_emailSubscriptionLists(&$ciniki, $tnid, $args) {
     $tenant_details = $rc['details'];
 
     //
+    // Get the tenant storage directory
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'hooks', 'storageDir');
+    $rc = ciniki_tenants_hooks_storageDir($ciniki, $tnid, array());
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $mail_dir = $rc['storage_dir'] . '/ciniki.mail';
+
+    //
     // Check for both html and text content
     //
     if( !isset($args['text_content']) && !isset($args['html_content']) ) {
@@ -150,6 +160,16 @@ function ciniki_mail_hooks_emailSubscriptionLists(&$ciniki, $tnid, $args) {
         $args['uuid'] = $rc['uuid'];
 
         //
+        // Write mail to disk, when non-empty
+        //
+        if( $html_content != '' ) {
+            file_put_contents($mail_dir . '/' . $args['uuid'][0] . '/' . $args['uuid'] . '.html', $html_content);
+        }
+        if( $text_content != '' ) {
+            file_put_contents($mail_dir . '/' . $args['uuid'][0] . '/' . $args['uuid'] . '.text', $text_content);
+        }
+    
+        //
         // Add the message
         //
         $strsql = "INSERT INTO ciniki_mail (uuid, tnid, mailing_id, unsubscribe_key, "
@@ -168,8 +188,10 @@ function ciniki_mail_hooks_emailSubscriptionLists(&$ciniki, $tnid, $args) {
         $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['status']) . "', ";
         $strsql .= "'', '', '', ";
         $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['subject']) . "', ";
-        $strsql .= "'" . ciniki_core_dbQuote($ciniki, $html_content) . "', ";
-        $strsql .= "'" . ciniki_core_dbQuote($ciniki, $text_content) . "', ";
+        $strsql .= "'', ";
+        $strsql .= "'', ";
+//        $strsql .= "'" . ciniki_core_dbQuote($ciniki, $html_content) . "', ";
+//        $strsql .= "'" . ciniki_core_dbQuote($ciniki, $text_content) . "', ";
         $strsql .= "UTC_TIMESTAMP(), UTC_TIMESTAMP())";
 
         $rc = ciniki_core_dbInsert($ciniki, $strsql, 'ciniki.mail');
