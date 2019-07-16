@@ -2,7 +2,7 @@
 //
 // Description
 // -----------
-// This script exports the raw_content from ciniki_mail to files.
+// This script will check for the mail files on disk, and remove content from database
 //
 
 //
@@ -52,6 +52,7 @@ ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionRollb
 ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionCommit');
 ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
 ciniki_core_loadMethod($ciniki, 'ciniki', 'cron', 'private', 'logMsg');
+ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUpdate');
 
 //
 // Load tenants
@@ -92,15 +93,26 @@ foreach($tenants as $tnid => $uuid) {
         $html_file = $mail_dir . '/' . $row['uuid'] . '.html';
         $text_file = $mail_dir . '/' . $row['uuid'] . '.text';
         $raw_file = $mail_dir . '/' . $row['uuid'] . '.raw';
-        
-        if( !file_exists($html_file) && $row['html_content'] != '' ) {
-            file_put_contents($html_file, $row['html_content']);
+      
+        $strsql_updates = '';
+        if( file_exists($html_file) && $row['html_content'] != '' ) {
+            $strsql_updates .= ($strsql_updates != '' ? ', ' : '') . "html_content = ''";
         }
-        if( !file_exists($text_file) && $row['text_content'] != '' ) {
-            file_put_contents($text_file, $row['text_content']);
+        if( file_exists($text_file) && $row['text_content'] != '' ) {
+            $strsql_updates .= ($strsql_updates != '' ? ', ' : '') . "text_content = ''";
         }
-        if( !file_exists($raw_file) && $row['raw_content'] != '' ) {
-            file_put_contents($raw_file, $row['raw_content']);
+        if( file_exists($raw_file) && $row['raw_content'] != '' ) {
+            $strsql_updates .= ($strsql_updates != '' ? ', ' : '') . "raw_content = ''";
+        }
+
+        if( $strsql_updates != '' ) {
+            $strsql = "UPDATE ciniki_mail SET $strsql_updates "
+                . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $row['id']) . "' "
+                . "";
+            $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.mail');
+            if( $rc['stat'] != 'ok' ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.71', 'msg'=>'Error updating mail', 'err'=>$rc['err']));
+            }
         }
     }
 }
