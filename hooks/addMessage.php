@@ -144,10 +144,10 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     // Write mail to disk, when non-empty
     //
     if( $args['html_content'] != '' ) {
-        file_put_contents($mail_dir . '/' . $args['uuid'][0] . '/' . $args['uuid'] . '.html', $args['html_content']);
+        file_put_contents($mail_dir . '/' . $args['uuid'][0] . '/' . $args['uuid'] . '.html', $html_content);
     }
     if( $args['text_content'] != '' ) {
-        file_put_contents($mail_dir . '/' . $args['uuid'][0] . '/' . $args['uuid'] . '.text', $args['text_content']);
+        file_put_contents($mail_dir . '/' . $args['uuid'][0] . '/' . $args['uuid'] . '.text', $text_content);
     }
     
     //
