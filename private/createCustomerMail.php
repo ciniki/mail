@@ -36,6 +36,10 @@ function ciniki_mail_createCustomerMail($ciniki, $tnid, $settings, $email, $subj
     }
     $mail_dir = $rc['storage_dir'] . '/ciniki.mail';
 
+    if( !file_exists($mail_dir . '/' . $uuid[0]) ) {
+        mkdir($mail_dir . '/' . $uuid[0], 0755, true);
+    }
+
     //
     // Write mail to disk, when non-empty
     //
