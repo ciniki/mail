@@ -126,7 +126,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUUID');
     $rc = ciniki_core_dbUUID($ciniki, 'ciniki.mail');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.5', 'msg'=>'Unable to get a new UUID', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.73', 'msg'=>'Unable to get a new UUID', 'err'=>$rc['err']));
     }
     $args['uuid'] = $rc['uuid'];
 
@@ -138,16 +138,25 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    $mail_dir = $rc['storage_dir'] . '/ciniki.mail';
+    $mail_dir = $rc['storage_dir'] . '/ciniki.mail/' . $args['uuid'][0];
+
+    //
+    // Create the directory if it doesn't exist
+    //
+    if( !file_exists($mail_dir) ) {
+        if( mkdir($mail_dir, 0700, true) === false ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.72', 'msg'=>'Unable to create mail message', 'err'=>$rc['err']));
+        }
+    }
 
     //
     // Write mail to disk, when non-empty
     //
     if( $args['html_content'] != '' ) {
-        file_put_contents($mail_dir . '/' . $args['uuid'][0] . '/' . $args['uuid'] . '.html', $html_content);
+        file_put_contents($mail_dir . '/' . $args['uuid'] . '.html', $html_content);
     }
     if( $args['text_content'] != '' ) {
-        file_put_contents($mail_dir . '/' . $args['uuid'][0] . '/' . $args['uuid'] . '.text', $text_content);
+        file_put_contents($mail_dir . '/' . $args['uuid'] . '.text', $text_content);
     }
     
     //
@@ -192,7 +201,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
                 $attachment['mail_id'] = $mail_id;
                 $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.mail.attachment', $attachment, 0x04);
                 if( $rc['stat'] != 'ok' ) {
-                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.6', 'msg'=>'Unable to add attachment', 'err'=>$rc['err']));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.74', 'msg'=>'Unable to add attachment', 'err'=>$rc['err']));
                 }
             }
         }
