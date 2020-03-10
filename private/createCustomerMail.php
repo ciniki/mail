@@ -12,7 +12,7 @@
 // Returns
 // -------
 //
-function ciniki_mail_createCustomerMail($ciniki, $tnid, $settings, $email, $subject, $html_message, $text_message, $args) {
+function ciniki_mail_createCustomerMail($ciniki, $tnid, $settings, $customer, $subject, $html_message, $text_message, $args) {
     
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbInsert');
 
@@ -76,29 +76,44 @@ function ciniki_mail_createCustomerMail($ciniki, $tnid, $settings, $email, $subj
     } else {
         $strsql .= "'0', ";
     }
-    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $email['customer_id']) . "', ";
-    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $email['customer_name']) . "', ";
-    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $email['email']) . "', ";
+    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $customer['customer_id']) . "', ";
+    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $customer['customer_name']) . "', ";
+    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $customer['email']) . "', ";
     if( isset($args['flags']) ) {
         $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['flags']) . "', ";
     } else {
         $strsql .= "'0', ";
     }
     $strsql .= "'10', ";
-    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $email['customer_name']) . " <" . ciniki_core_dbQuote($ciniki, $email['email']) . ">', ";
+    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $customer['customer_name']) . " <" . ciniki_core_dbQuote($ciniki, $customer['email']) . ">', ";
     $strsql .= "'', ";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $settings['smtp-from-name']) . " <" . ciniki_core_dbQuote($ciniki, $settings['smtp-from-address']) . ">', ";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $subject) . "', ";
+    // Message stored on disk
     $strsql .= "'', ";
     $strsql .= "'', ";
-//    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $html_message) . "', ";
-//    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $text_message) . "', ";
     $strsql .= "UTC_TIMESTAMP(), UTC_TIMESTAMP())";
 
     $rc = ciniki_core_dbInsert($ciniki, $strsql, 'ciniki.mail');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
+    $mail_id = $rc['insert_id'];
 
-    return array('stat'=>'ok', 'id'=>$rc['insert_id']);
+    //
+    // Add the object references
+    //
+    if( isset($args['object']) && $args['object'] != '' && isset($args['object_id']) && $args['object_id'] != '' ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
+        $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.mail.objref', array(
+            'mail_id'=>$mail_id,
+            'object'=>$args['object'],
+            'object_id'=>$args['object_id'],
+            ), 0x04);
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.76', 'msg'=>'Unable to add object reference', 'err'=>$rc['err']));
+        }
+    }
+
+    return array('stat'=>'ok', 'id'=>$mail_id);
 }

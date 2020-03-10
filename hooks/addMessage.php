@@ -61,7 +61,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     // Check for both html and text content
     //
     if( !isset($args['text_content']) && !isset($args['html_content']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.4', 'msg'=>'No message specified'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.75', 'msg'=>'No message specified'));
     } elseif( isset($args['html_content']) && !isset($args['text_content']) ) {
         $args['text_content'] = strip_tags($args['html_content']);
     } elseif( isset($args['text_content']) && !isset($args['html_content']) ) {
@@ -69,7 +69,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     }
 
     //
-    // FIXME: load tenant template for formatting
+    // load tenant template for formatting
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'loadTenantTemplate');
     $rc = ciniki_mail_loadTenantTemplate($ciniki, $tnid, array(
@@ -126,7 +126,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUUID');
     $rc = ciniki_core_dbUUID($ciniki, 'ciniki.mail');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.73', 'msg'=>'Unable to get a new UUID', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.79', 'msg'=>'Unable to get a new UUID', 'err'=>$rc['err']));
     }
     $args['uuid'] = $rc['uuid'];
 
@@ -145,7 +145,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     //
     if( !file_exists($mail_dir) ) {
         if( mkdir($mail_dir, 0700, true) === false ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.72', 'msg'=>'Unable to create mail message', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.78', 'msg'=>'Unable to create mail message', 'err'=>$rc['err']));
         }
     }
 

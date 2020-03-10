@@ -419,7 +419,7 @@ function ciniki_mail_mailingSend(&$ciniki) {
         $rc = ciniki_mail_createCustomerMail($ciniki, $args['tnid'], $settings, $email, 
             $mailing['subject'], $html_message, $text_message, array(
             'mailing_id'=>$mailing['id'],
-            'flags'=>$flags,
+//            'flags'=>$flags,
             'survey_invite_id'=>$invite_id,
             'unsubscribe_key'=>$unsubscribe_key,
             'flags'=>0x08,          // Set for low priority, subscriptions

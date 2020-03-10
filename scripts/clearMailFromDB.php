@@ -65,7 +65,7 @@ if( isset($argv[1]) && $argv[1] != '' ) {
 }
 $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.core', 'item');
 if( $rc['stat'] != 'ok' ) {
-    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.core.402', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.80', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
 }
 $tenants = array();
 foreach($rc['rows'] as $row) {
@@ -83,7 +83,7 @@ foreach($tenants as $tnid => $uuid) {
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.core', 'item');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.core.402', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.81', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
     }
     foreach($rc['rows'] as $row) {
         $mail_dir = $uuid . '/' . $row['uuid'][0];
