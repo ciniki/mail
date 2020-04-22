@@ -145,7 +145,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     //
     if( !file_exists($mail_dir) ) {
         if( mkdir($mail_dir, 0700, true) === false ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.78', 'msg'=>'Unable to create mail message', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.78', 'msg'=>'Unable to create mail message'));
         }
     }
 
