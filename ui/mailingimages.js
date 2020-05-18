@@ -57,7 +57,7 @@ function ciniki_mail_mailingimages() {
         //
         var appContainer = M.createContainer(appPrefix, 'ciniki_mail_mailingimages', 'yes');
         if( appContainer == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         }
 
@@ -130,15 +130,15 @@ function ciniki_mail_mailingimages() {
     };
 
     this.deleteImage = function() {
-        if( confirm('Are you sure you want to delete this image?') ) {
+        M.confirm('Are you sure you want to delete this image?',null,function() {
             var rsp = M.api.getJSONCb('ciniki.mail.mailingImageDelete', {'tnid':M.curTenantID, 
-                'mailing_image_id':this.edit.mailing_image_id}, function(rsp) {
+                'mailing_image_id':M.ciniki_mail_mailingimages.edit.mailing_image_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
                     }
                     M.ciniki_mail_mailingimages.edit.close();
                 });
-        }
+        });
     };
 }

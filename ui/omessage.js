@@ -82,7 +82,7 @@ function ciniki_mail_omessage() {
         //
         var appContainer = M.createContainer(appPrefix, 'ciniki_mail_omessage', 'yes');
         if( appContainer == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         } 
         

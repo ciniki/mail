@@ -163,7 +163,7 @@ function ciniki_mail_settings() {
                 M.api.err(rsp);
                 return false;
             } 
-            alert('Email sent');
+            M.alert('Email sent');
         });
     }
     this.main.addButton('save', 'Save', 'M.ciniki_mail_settings.main.save();');
@@ -184,7 +184,7 @@ function ciniki_mail_settings() {
         //
         var appContainer = M.createContainer(appPrefix, 'ciniki_mail_settings', 'yes');
         if( appContainer == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         } 
         this.main.open(cb);

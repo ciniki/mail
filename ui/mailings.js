@@ -227,7 +227,7 @@ function ciniki_mail_mailings() {
         //
         var appContainer = M.createContainer(appPrefix, 'ciniki_mail_mailings', 'yes');
         if( appContainer == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         } 
     
@@ -466,7 +466,7 @@ function ciniki_mail_mailings() {
                         return false;
                     }
                     M.stopLoad();
-                    alert('The emails are being delivered');
+                    M.alert('The emails are being delivered');
                     M.ciniki_mail_mailings.mailing.close();
                 });
         }
@@ -479,7 +479,7 @@ function ciniki_mail_mailings() {
                     M.api.err(rsp);
                     return false;
                 }
-                alert('Email sent, please check your email');
+                M.alert('Email sent, please check your email');
             });
     };
 
