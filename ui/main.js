@@ -413,8 +413,7 @@ function ciniki_mail_main() {
     }
 
     this.messageDelete = function(cb, mid) {
-        var msg = "Are you sure you want to move this message to trash?";
-        if( confirm(msg) ) {
+        M.confirm("Are you sure you want to move this message to trash?",null,function() {
             M.api.getJSONCb('ciniki.mail.messageAction', {'tnid':M.curTenantID, 'message_id':mid, 'action':'delete'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -422,12 +421,11 @@ function ciniki_mail_main() {
                 }
                 eval(cb);
             });
-        }
+        });
     }
 
     this.messagePurge = function(cb, mid) {
-        var msg = "Are you sure you want to remove this message?";
-        if( confirm(msg) ) {
+        M.confirm("Are you sure you want to remove this message?",null,function() {
             M.api.getJSONCb('ciniki.mail.messagePurge', {'tnid':M.curTenantID, 'message_id':mid}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -435,6 +433,6 @@ function ciniki_mail_main() {
                 }
                 eval(cb);
             });
-        }
+        });
     }
 }

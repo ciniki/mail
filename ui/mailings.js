@@ -458,9 +458,10 @@ function ciniki_mail_mailings() {
     }
 
     this.sendMailing = function() {
-        if( confirm('Are you sure the message is correct and ready to send?') ) {
-            var rsp = M.api.getJSONCb('ciniki.mail.mailingSend', 
-                {'tnid':M.curTenantID, 'mailing_id':M.ciniki_mail_mailings.mailing.mailing_id}, function(rsp) {
+        M.confirm('Are you sure the message is correct and ready to send?',null,function() {
+            M.api.getJSONCb('ciniki.mail.mailingSend', 
+                {'tnid':M.curTenantID, 'mailing_id':M.ciniki_mail_mailings.mailing.mailing_id}, 
+                function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -469,7 +470,7 @@ function ciniki_mail_mailings() {
                     M.alert('The emails are being delivered');
                     M.ciniki_mail_mailings.mailing.close();
                 });
-        }
+            });
     };
 
     this.sendTest = function() {
@@ -497,8 +498,8 @@ function ciniki_mail_mailings() {
         if( this.mailing.data.status > 10 ) {
             msg = "Are you sure you want to remove this mailing? \n\n**WARNING** This will remote all sent messages, tracking information and images. Any users opening the email will not see the images or files.";
         }
-        if( confirm(msg) ) {
-            var rsp = M.api.getJSONCb('ciniki.mail.mailingDelete', 
+        M.confirm(msg,null,function() {
+            M.api.getJSONCb('ciniki.mail.mailingDelete', 
                 {'tnid':M.curTenantID, 'mailing_id':M.ciniki_mail_mailings.mailing.mailing_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -506,6 +507,6 @@ function ciniki_mail_mailings() {
                     }
                     M.ciniki_mail_mailings.mailing.close();
                 });
-        }
+            });
     };
 }
