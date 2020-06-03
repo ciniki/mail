@@ -42,7 +42,11 @@ function ciniki_mail_hooks_checkObjectUsed($ciniki, $tnid, $args) {
     // Check for subscriptions
     //
     elseif( $args['object'] == 'ciniki.subscriptions.subscription' ) {
-        $strsql = "SELECT 'items', COUNT(*) "
+        //
+        // NOTE: This is now ignored because the subscriptions/public/subscriptionDelete will remove the entries from
+        // ciniki_mailing_subscriptions
+        //
+/*        $strsql = "SELECT 'items', COUNT(*) "
             . "FROM ciniki_mailing_subscriptions "
             . "WHERE subscription_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
             . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -55,7 +59,7 @@ function ciniki_mail_hooks_checkObjectUsed($ciniki, $tnid, $args) {
             $used = 'yes';
             $count = $rc['num']['items'];
             $msg .= ($msg!=''?' ':'') . "There " . ($count==1?'is':'are') . " $count mail message" . ($count==1?'':'s') . " for this subscription.";
-        }
+        } */
     } 
 
     //
