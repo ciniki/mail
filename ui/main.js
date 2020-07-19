@@ -23,22 +23,22 @@ function ciniki_mail_main() {
     }
     this.menu.cellValue = function(s, i, j, d) {
         if( s == 'labels' ) {
-            return d.label.name + (d.label.num_messages!=null?' <span class="count">' + d.label.num_messages + '</span>':'');
+            return d.name + (d.num_messages!=null?' <span class="count">' + d.num_messages + '</span>':'');
         } else if( s == 'messages' ) {
             switch(j) {
                 case 0: 
-                    if( d.message.status == 40 ) {
-                        return '<div class="truncate"><span class="maintext">' + d.message.from_name + '</span><span class="subtext">' + d.message.from_email + '</span></div>';
+                    if( d.status == 40 ) {
+                        return '<div class="truncate"><span class="maintext">' + d.from_name + '</span><span class="subtext">' + d.from_email + '</span></div>';
                     } else {
-                        return '<div class="truncate"><span class="maintext">' + d.message.customer_name + '</span><span class="subtext">' + d.message.customer_email + '</span></div>';
+                        return '<div class="truncate"><span class="maintext">' + d.customer_name + '</span><span class="subtext">' + d.customer_email + '</span></div>';
                     }
-                case 1: return '<div class="truncate"><span class="maintext">' + d.message.subject + '</span><span class="subtext">' + d.message.snippet + '</span></truncate>';
-                case 2: return '<div class="truncate"><span class="maintext">' + d.message.mail_date + '</span><span class="subtext">' + d.message.mail_time + '</span></truncate>';
+                case 1: return '<div class="truncate"><span class="maintext">' + d.subject + '</span><span class="subtext">' + d.snippet + '</span></truncate>';
+                case 2: return '<div class="truncate"><span class="maintext">' + d.mail_date + '</span><span class="subtext">' + d.mail_time + '</span></truncate>';
             }
         }
     }
     this.menu.rowFn = function(s, i, d) {
-        return 'M.ciniki_mail_main.messages.open(\'M.ciniki_mail_main.menu.open();\',0,\'' + d.label.status + '\');';
+        return 'M.ciniki_mail_main.messages.open(\'M.ciniki_mail_main.menu.open();\',0,\'' + d.status + '\');';
     }
     this.menu.liveSearchCb = function(s, i, v) {
         if( v != '' ) {
@@ -54,13 +54,13 @@ function ciniki_mail_main() {
     }
     this.menu.liveSearchResultValue = function(s, f, i, j, d) {
         switch(j) {
-            case 0: return '<div class="truncate"><span class="maintext">' + d.message.customer_name + '</span><span class="subtext">' + d.message.customer_email + '</span></div>';
-            case 1: return '<div class="truncate"><span class="maintext">' + d.message.subject + '</span><span class="subtext">' + d.message.snippet + '</span></truncate>';
-            case 2: return '<div class="truncate"><span class="maintext">' + d.message.status_text + '</span><span class="subtext">' + d.message.mail_date + ' ' + d.message.mail_time + '</span></truncate>';
+            case 0: return '<div class="truncate"><span class="maintext">' + d.customer_name + '</span><span class="subtext">' + d.customer_email + '</span></div>';
+            case 1: return '<div class="truncate"><span class="maintext">' + d.subject + '</span><span class="subtext">' + d.snippet + '</span></truncate>';
+            case 2: return '<div class="truncate"><span class="maintext">' + d.status_text + '</span><span class="subtext">' + d.mail_date + ' ' + d.mail_time + '</span></truncate>';
         }
     }
     this.menu.liveSearchResultRowFn = function(s, f, i, j, d) {
-        return 'M.ciniki_mail_main.message.open(\'M.ciniki_mail_main.menu.open();\', \'' + d.message.id + '\');'; 
+        return 'M.ciniki_mail_main.message.open(\'M.ciniki_mail_main.menu.open();\', \'' + d.id + '\');'; 
     }
     this.menu.liveSearchSubmitFn = function(s, search_str) {
         M.ciniki_mail_main.search.open('M.ciniki_mail_main.menu.open();', search_str, 0);
@@ -106,7 +106,7 @@ function ciniki_mail_main() {
         }
     }
     this.messages.rowFn = function(s, i, d) {
-        return 'M.ciniki_mail_main.message.open(\'M.ciniki_mail_main.messages.open();\',\'' + d.message.id + '\');';
+        return 'M.ciniki_mail_main.message.open(\'M.ciniki_mail_main.messages.open();\',\'' + d.id + '\');';
     }
     this.messages.liveSearchCb = function(s, i, v) {
         if( v != '' ) {
@@ -120,7 +120,7 @@ function ciniki_mail_main() {
     this.messages.liveSearchResultClass = this.menu.liveSearchResultClass;
     this.messages.liveSearchResultValue = this.menu.liveSearchResultValue;
     this.messages.liveSearchResultRowFn = function(s, f, i, j, d) {
-        return 'M.ciniki_mail_main.message.open(\'M.ciniki_mail_main.messages.open();\', \'' + d.message.id + '\');'; 
+        return 'M.ciniki_mail_main.message.open(\'M.ciniki_mail_main.messages.open();\', \'' + d.id + '\');'; 
     }
     this.messages.prevButtonFn = function() {
         if( this.prev_offset >= 0 ) {
@@ -194,6 +194,165 @@ function ciniki_mail_main() {
     this.messages.addLeftButton('prev', 'Prev');
 
     //
+    // The customer messages listing panel
+    //
+    this.customer = new M.panel('Customer Messages',
+        'ciniki_mail_main', 'customer',
+        'mc', 'large mediumaside', 'sectioned', 'ciniki.mail.main.messages');
+    this.customer.data = {};
+    this.customer.label_id = '';
+    this.customer.customer_id = 0;
+    this.customer.offset = 0;
+    this.customer.prev_offset = 0;
+    this.customer.next_offset = 0;
+    this.customer.sections = {
+        'customer_details':{'label':'Customer', 'aside':'yes', 'type':'simplegrid', 'num_cols':2, 
+            'cellClasses':['label', ''],
+            },
+        'labels':{'label':'Folders', 'aside':'yes', 'type':'simplegrid', 'num_cols':1,
+            },
+//        'search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':3, 'hint':'Search messages',
+//            'noData':'No messages found',
+//            },
+        'messages':{'label':'', 'visible':'yes', 'type':'simplegrid', 'num_cols':3, 'limit':this.page_size,
+            'cellClasses':['multiline', 'multiline', 'multiline'],
+            },
+        }
+    this.customer.cellValue = function(s, i, j, d) {
+        if( s == 'customer_details' ) {
+            switch(j) {
+                case 0: return d.label;
+                case 1: return (d.label == 'Email' ? M.linkEmail(d.value):d.value);
+            }
+        }
+        if( s == 'labels' ) {
+            return d.name + (d.num_messages!=null?' <span class="count">' + d.num_messages + '</span>':'');
+        }
+        if( s == 'messages' ) {
+            switch(j) {
+                case 0: return M.multiline(d.mail_date.replace(/ /g, '&nbsp;'), d.mail_time);
+                case 1: return M.multiline(d.subject, 'To: ' + d.customer_email);
+                case 2: return d.status_text;
+            }
+            switch(j) {
+                case 0: 
+                    if( d.status == 40 ) {
+                        return '<div class="truncate"><span class="maintext">' + d.from_name + '</span><span class="subtext">' + d.from_email + '</span></div>';
+                    } else {
+                        return '<div class="truncate"><span class="maintext">' + d.customer_name + '</span><span class="subtext">' + d.customer_email + '</span></div>';
+                    }
+                case 1: return '<div class="truncate"><span class="maintext">' + d.subject + '</span><span class="subtext">' + d.snippet + '</span></truncate>';
+                case 2: return '<div class="truncate"><span class="maintext">' + d.mail_date + '</span><span class="subtext">' + d.mail_time + '</span></truncate>';
+            }
+        }
+    }
+    this.customer.rowClass = function(s, i, d) {
+        if( s == 'labels' && this.status == d.status ) {
+            return 'highlight';
+        }
+    }
+    this.customer.noData = function(s, i, d) {
+        if( s == 'messages' ) {
+            return 'No messages found';
+        }
+    }
+    this.customer.rowFn = function(s, i, d) {
+        if( s == 'labels' ) {
+            return 'M.ciniki_mail_main.customer.open(null,null,0,\'' + d.status + '\');';
+        }
+        if( s == 'messages' ) {
+            return 'M.ciniki_mail_main.message.open(\'M.ciniki_mail_main.customer.open();\',\'' + d.id + '\');';
+        }
+    }
+/*    this.customer.liveSearchCb = function(s, i, v) {
+        if( v != '' ) {
+            M.api.getJSONBgCb('ciniki.mail.messageSearch', {'tnid':M.curTenantID, 'start_needle':v, 'limit':'15'},
+                function(rsp) {
+                    M.ciniki_mail_main.customer.liveSearchShow(s, null, M.gE(M.ciniki_mail_main.customer.panelUID + '_' + s), rsp.messages);
+                });
+        }
+        return true;
+    }
+    this.customer.liveSearchResultClass = this.menu.liveSearchResultClass;
+    this.customer.liveSearchResultValue = this.menu.liveSearchResultValue;
+    this.customer.liveSearchResultRowFn = function(s, f, i, j, d) {
+        return 'M.ciniki_mail_main.message.open(\'M.ciniki_mail_main.customer.open();\', \'' + d.id + '\');'; 
+    } */
+    this.customer.liveSearchSubmitFn = function(s, search_str) {
+        M.ciniki_mail_main.search.open('M.ciniki_mail_main.customer.open();', search_str, 0);
+    }
+    this.customer.open = function(cb, cid, offset, status) {
+        if( cid != null ) { this.customer_id = cid; }
+        if( status != null ) { this.status = status; }
+        if( offset != null ) { this.offset = offset; }
+        M.api.getJSONCb('ciniki.mail.messageList', {'tnid':M.curTenantID, 
+            'status':this.status, 'customer_id':this.customer_id, 'labels':'yes',
+            'offset':this.offset, 'limit':(M.ciniki_mail_main.page_size+1)}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                var p = M.ciniki_mail_main.customer;
+                p.data = rsp;
+                var last_msg = '';
+                if( rsp.messages != null && rsp.messages.length > M.ciniki_mail_main.page_size ) {
+                    // Show next
+                    p.next_offset = parseInt(p.offset) + parseInt(M.ciniki_mail_main.page_size);
+                    last_msg = parseInt(p.offset) + M.ciniki_mail_main.page_size;
+                } else {
+                    if( rsp.messages.length > 0 ) {
+                        last_msg = parseInt(p.offset) + rsp.messages.length;
+                    }
+                    p.next_offset = 0;
+                }
+                if( p.offset >= 50 ) {
+                    p.prev_offset = parseInt(p.offset) - parseInt(M.ciniki_mail_main.page_size);
+                    if( p.prev_offset < 0 ) {
+                        p.prev_offset = 0;
+                    }
+                } else if( p.offset > 0 ) {
+                    p.prev_offset = 0;
+                } else {
+                    p.prev_offset = -1;
+                }
+                p.sections.messages.label = '';
+                switch(p.status) {
+                    case '5': p.sections.messages.label = 'Drafts'; break;
+                    case '7': p.sections.messages.label = 'Drafts'; break;
+                    case '10': p.sections.messages.label = 'Queued'; break;
+                    case '15': p.sections.messages.label = 'Queue Failures'; break;
+                    case '20': p.sections.messages.label = 'Sending'; break;
+                    case '30': p.sections.messages.label = 'Sent'; break;
+                    case '40': p.sections.messages.label = 'Inbox'; break;
+                    case '41': p.sections.messages.label = 'Flagged'; break;
+                    case '50': p.sections.messages.label = 'Failed'; break;
+                    case '60': p.sections.messages.label = 'Trash'; break;
+                }
+                console.log(p.sections.messages.label);
+                if( p.offset > 1 || rsp.messages.length > 5 ) {
+                    p.sections.messages.label += ' ' + (parseInt(p.offset) + 1) + '-' + last_msg;
+                }
+                p.refresh();
+                p.show(cb);
+            });
+    }
+    this.customer.prevButtonFn = function() {
+        if( this.prev_offset >= 0 ) {
+            return 'M.ciniki_mail_main.customer.open(null,null,' + this.prev_offset + ');';
+        }
+        return null;
+    }
+    this.customer.nextButtonFn = function() {
+        if( this.next_offset > 0 ) {
+            return 'M.ciniki_mail_main.customer.open(null,null,' + this.next_offset + ');';
+        }
+        return null;
+    }
+    this.customer.addButton('next', 'Next');
+    this.customer.addClose('Back');
+    this.customer.addLeftButton('prev', 'Prev');
+
+    //
     // The search panel show the full results of a search
     //
     this.search = new M.panel('Search Results',
@@ -215,7 +374,7 @@ function ciniki_mail_main() {
     }
     this.search.noData = this.messages.noData;
     this.search.rowFn = function(s, i, d) {
-        return 'M.ciniki_mail_main.message.open(\'M.ciniki_mail_main.search.open();\',\'' + d.message.id + '\');';
+        return 'M.ciniki_mail_main.message.open(\'M.ciniki_mail_main.search.open();\',\'' + d.id + '\');';
     }
     this.search.prevButtonFn = function() {
         if( this.prev_offset >= 0 ) {
@@ -385,7 +544,9 @@ function ciniki_mail_main() {
             return false;
         } 
 
-        if( args.message_id != null && args.message_id > 0 ) {
+        if( args.customer_id != null && args.customer_id > 0 ) {
+            this.customer.open(cb, args.customer_id, 0, args.status);
+        } else if( args.message_id != null && args.message_id > 0 ) {
             this.message.open(cb, args.message_id);
         } else {
             this.menu.open(cb);

@@ -64,7 +64,7 @@ function ciniki_mail_hooks_uiCustomersData($ciniki, $tnid, $args) {
         . "WHERE mail.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND mail.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' "
         . "ORDER BY date_added DESC "
-        . "LIMIT 26 "
+        . "LIMIT 16 "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.mail', array(
@@ -81,20 +81,23 @@ function ciniki_mail_hooks_uiCustomersData($ciniki, $tnid, $args) {
         return $rc;
     }
     $rsp['tabs'][] = array(
-        'id' => 'ciniki.mail.reminders',
+        'id' => 'ciniki.mail.messages',
         'label' => 'Mail',
+        'priority' => 5000,
         'sections' => array(
             'ciniki.mail.messages' => array(
                 'label' => 'Mail',
                 'type' => 'simplegrid', 
-                'priority' => 5000,
                 'num_cols' => 3,
+                'limit' => 15,
                 'headerValues' => array('Date', 'Subject', 'Status'),
                 'cellClasses' => array('multiline', 'multiline', ''),
                 'noData' => 'No mail message',
                 'addTxt' => 'Add Message',
 //                    'addApp' => array('app'=>'ciniki.mail.reminders', 'args'=>array('customer_id'=>$args['customer_id'])),
                 'editApp' => array('app'=>'ciniki.mail.main', 'args'=>array('message_id'=>'d.id;')),
+                'moreTxt' => 'More',
+                'moreApp' => array('app'=>'ciniki.mail.main', 'args'=>array('customer_id'=>$args['customer_id'], 'status'=>"'30'")),
                 'cellValues' => array(
                     '0' => "M.multiline(d.date, d.time)",
                     '1' => "M.multiline(d.subject, d.email_address)",

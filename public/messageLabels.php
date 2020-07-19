@@ -39,17 +39,17 @@ function ciniki_mail_messageLabels(&$ciniki) {
 
     $rsp = array('stat'=>'ok', 'labels'=>array());
     if( isset($ciniki['tenant']['modules']['ciniki.mail']['flags']) && ($ciniki['tenant']['modules']['ciniki.mail']['flags']&0x10) > 0 ) {
-        $rsp['labels'][] = array('label'=>array('name'=>'Inbox', 'status'=>40));
+        $rsp['labels'][] = array('name'=>'Inbox', 'status'=>40);
     }
-//      array('label'=>array('name'=>'Flagged', 'status'=>41)),
-//      array('label'=>array('name'=>'Drafts', 'status'=>5)),
-    $rsp['labels'][] = array('label'=>array('name'=>'Pending', 'status'=>7));
-    $rsp['labels'][] = array('label'=>array('name'=>'Queued', 'status'=>10));
-    $rsp['labels'][] = array('label'=>array('name'=>'Queue Failures', 'status'=>15));
-    $rsp['labels'][] = array('label'=>array('name'=>'Sending', 'status'=>20));
-    $rsp['labels'][] = array('label'=>array('name'=>'Sent', 'status'=>30));
-    $rsp['labels'][] = array('label'=>array('name'=>'Failed', 'status'=>50));
-    $rsp['labels'][] = array('label'=>array('name'=>'Trash', 'status'=>60));
+//      array('name'=>'Flagged', 'status'=>41),
+//      array('name'=>'Drafts', 'status'=>5),
+    $rsp['labels'][] = array('name'=>'Pending', 'status'=>7);
+    $rsp['labels'][] = array('name'=>'Queued', 'status'=>10);
+    $rsp['labels'][] = array('name'=>'Queue Failures', 'status'=>15);
+    $rsp['labels'][] = array('name'=>'Sending', 'status'=>20);
+    $rsp['labels'][] = array('name'=>'Sent', 'status'=>30);
+    $rsp['labels'][] = array('name'=>'Failed', 'status'=>50);
+    $rsp['labels'][] = array('name'=>'Trash', 'status'=>60);
 
     //
     // Get the counts
@@ -70,8 +70,8 @@ function ciniki_mail_messageLabels(&$ciniki) {
         return $rc;
     }
     foreach($rsp['labels'] as $lid => $label) {
-        if( isset($rc['status'][$label['label']['status']]) ) {
-            $rsp['labels'][$lid]['label']['num_messages'] = $rc['status'][$label['label']['status']]['num_messages'];
+        if( isset($rc['status'][$label['status']]) ) {
+            $rsp['labels'][$lid]['num_messages'] = $rc['status'][$label['status']]['num_messages'];
         }
     }
 
