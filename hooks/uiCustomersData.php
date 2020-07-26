@@ -61,9 +61,13 @@ function ciniki_mail_hooks_uiCustomersData($ciniki, $tnid, $args) {
         . "IF(mail.status = 30, mail.date_sent, mail.date_added) AS dt, "
         . "mail.subject "
         . "FROM ciniki_mail AS mail "
-        . "WHERE mail.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-        . "AND mail.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' "
-        . "ORDER BY date_added DESC "
+        . "WHERE mail.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' ";
+    if( isset($args['customer_ids']) ) {
+        $strsql .= "AND mail.customer_id IN (" . ciniki_core_dbQuoteIDs($ciniki, $args['customer_ids']) . ") ";
+    } else {
+        $strsql .= "AND mail.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' ";
+    }
+    $strsql . "ORDER BY date_added DESC "
         . "LIMIT 16 "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
@@ -79,6 +83,10 @@ function ciniki_mail_hooks_uiCustomersData($ciniki, $tnid, $args) {
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
+    }
+    $moreApp = '';
+    if( isset($args['customer_id']) ) {
+        $moreApp = array('app'=>'ciniki.mail.main', 'args'=>array('customer_id'=>$args['customer_id'], 'status'=>"'30'"));
     }
     $rsp['tabs'][] = array(
         'id' => 'ciniki.mail.messages',
@@ -97,7 +105,7 @@ function ciniki_mail_hooks_uiCustomersData($ciniki, $tnid, $args) {
 //                    'addApp' => array('app'=>'ciniki.mail.reminders', 'args'=>array('customer_id'=>$args['customer_id'])),
                 'editApp' => array('app'=>'ciniki.mail.main', 'args'=>array('message_id'=>'d.id;')),
                 'moreTxt' => 'More',
-                'moreApp' => array('app'=>'ciniki.mail.main', 'args'=>array('customer_id'=>$args['customer_id'], 'status'=>"'30'")),
+                'moreApp' => $moreApp,
                 'cellValues' => array(
                     '0' => "M.multiline(d.date, d.time)",
                     '1' => "M.multiline(d.subject, d.email_address)",
