@@ -67,9 +67,10 @@ function ciniki_mail_hooks_uiCustomersData($ciniki, $tnid, $args) {
     } else {
         $strsql .= "AND mail.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' ";
     }
-    $strsql . "ORDER BY date_added DESC "
+    $strsql .= "ORDER BY mail.date_added DESC "
         . "LIMIT 16 "
         . "";
+    error_log($strsql);
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.mail', array(
         array('container'=>'data', 'fname'=>'id', 
