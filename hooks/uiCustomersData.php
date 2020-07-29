@@ -70,7 +70,6 @@ function ciniki_mail_hooks_uiCustomersData($ciniki, $tnid, $args) {
     $strsql .= "ORDER BY mail.date_added DESC "
         . "LIMIT 16 "
         . "";
-    error_log($strsql);
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.mail', array(
         array('container'=>'data', 'fname'=>'id', 
