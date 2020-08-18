@@ -62,6 +62,7 @@ function ciniki_mail_reporting_blockPending(&$ciniki, $tnid, $args) {
     }
     $mail = isset($rc['mail']) ? $rc['mail'] : array();
 
+    $chunks = array();
     if( count($mail) > 0 ) {
         //
         // Create the report blocks
