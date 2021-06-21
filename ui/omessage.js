@@ -5,9 +5,10 @@ function ciniki_mail_omessage() {
         'ciniki_mail_omessage', 'message',
         'mc', 'medium narrowaside', 'sectioned', 'ciniki.mail.omessage.message');
     this.message.data = {};
+    this.message.customers_removeable = 'no';
     this.message.sections = {
         'customers':{'label':'To', 'type':'simplegrid', 'num_cols':1, 'aside':'yes',
-            'cellClasses':[''],
+            'cellClasses':['', 'alignright'],
             },
         'details':{'label':'Subject', 'fields':{
             'subject':{'label':'Subject', 'hidelabel':'yes', 'type':'text'},
@@ -28,6 +29,7 @@ function ciniki_mail_omessage() {
                 + (d.name != null ? d.name : (d.customer_name != null ? d.customer_name : 'Unknown'))
                 // + '</span><span class="subtext">' + (d.emails != null ? d.emails : '') + '</span>'
                 + '';
+            case 1: return '<button onclick="M.ciniki_mail_omessage.message.removeCustomer(' + d.id + ');">Remove</button>';
         }
     }
     this.message.open = function(cb, subject, list, object, oid) {
@@ -40,6 +42,14 @@ function ciniki_mail_omessage() {
         }
         this.refresh();
         this.show(cb);
+    }
+    this.message.removeCustomer = function(cid) {
+        for(var i in this.data.customers) {
+            if( this.data.customers[i].id == cid ) {   
+                delete this.data.customers[i];
+            }
+        }
+        this.refreshSection('customers');
     }
     this.message.send = function() {
         var customer_ids = [];
@@ -85,6 +95,11 @@ function ciniki_mail_omessage() {
             M.alert('App Error');
             return false;
         } 
+        if( args.removeable != null && args.removeable == 'yes' ) {
+            this.message.sections.customers.num_cols = 2;
+        } else {
+            this.message.sections.customers.num_cols = 1;
+        }
         
         this.message.open(cb, args.subject, args.list, args.object, args.object_id);
     }
