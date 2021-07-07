@@ -525,6 +525,112 @@ function ciniki_mail_main() {
     this.message.addClose('Back');
 
     //
+    // Compose a new message
+    //
+    this.compose = new M.panel('New Message',
+        'ciniki_mail_main', 'compose',
+        'mc', 'large narrowaside', 'sectioned', 'ciniki.mail.main.compose');
+    this.compose.data = {};
+    this.compose.customers_removeable = 'yes';
+    this.compose.sections = {
+        'customers':{'label':'To', 'type':'simplegrid', 'num_cols':2, 'aside':'yes',
+            'cellClasses':['', 'buttonicons alignright'],
+            },
+        'details':{'label':'Subject', 'fields':{
+            'subject':{'label':'Subject', 'hidelabel':'yes', 'type':'text'},
+            }},
+        '_content':{'label':'Message', 'fields':{
+            'text_content':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'medium'},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'send':{'label':'Send Message', 'fn':'M.ciniki_mail_main.compose.send();'},
+            }},
+        };
+    this.compose.fieldValue = function(s, i, d) {
+        return this.data[i];
+    }
+    this.compose.cellValue = function(s, i, j, d) {
+        switch(j) {
+            case 0: return (d.name != null ? d.name : (d.display_name != null ? d.display_name : (d.customer_name != null ? d.customer_name : 'Unknown')));
+            case 1: return '<span class="faicon">&#xf014;</span>&nbsp';
+//            case 1: return '<button onclick="M.ciniki_mail_main.compose.removeCustomer(' + d.id + ');">Remove</button>';
+        }
+    }
+    this.compose.cellFn = function(s, i, j, d) {
+        if( s == 'customers' && j == 1 ) {
+            return 'M.ciniki_mail_main.compose.removeCustomer(' + d.id + ');';
+        }
+        return '';
+    }
+    this.compose.open = function(cb, args) {
+        this.data = {
+            'customers':[],
+            'subject':(args.subject != null ? args.subject : ''),
+            'content':'',
+            'object':(args.object != null ? args.object : ''),
+            'object_id':(args.oid != null ? args.oid : 0),
+        }
+        if( args.customer_id != null && args.customer_id > 0 ) {
+            this.data.customers = [];
+            M.api.getJSONCb('ciniki.customers.get', {'tnid':M.curTenantID, 'customer_id':args.customer_id}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                } 
+                var p = M.ciniki_mail_main.compose;
+
+                p.data.customers.push(rsp.customer);
+
+                p.refresh();
+                p.show(cb); 
+                });
+        } else if( args.list != null ) {
+            this.data.customers = args.list;
+            this.refresh();
+            this.show(cb);
+        } else {
+            this.refresh();
+            this.show(cb);
+        }
+    }
+    this.compose.removeCustomer = function(cid) {
+        for(var i in this.data.customers) {
+            if( this.data.customers[i].id == cid ) {   
+                delete this.data.customers[i];
+            }
+        }
+        this.refreshSection('customers');
+    }
+    this.compose.send = function() {
+        var customer_ids = [];
+        for(var i in this.data.customers) {
+            if( this.data.customers[i].customer_id != null ) {
+                customer_ids.push(this.data.customers[i].customer_id);
+            } else if( this.data.customers[i].id != null ) {
+                customer_ids.push(this.data.customers[i].id);
+            }
+        }
+        var c = this.serializeForm('yes');
+        c += '&customer_ids=' + customer_ids.join();
+        if( this.data.object != null && this.data.object != '' ) {
+            c += '&object=' + this.data.object;
+            c += '&object_id=' + this.data.object_id;
+        }
+        if( c != '' ) {
+            M.api.postJSONCb('ciniki.mail.customerListSend', {'tnid':M.curTenantID}, c, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                } 
+                M.ciniki_mail_main.compose.close();
+            });
+        } else {
+            this.compose.close();
+        }
+    }
+    this.compose.addClose('Back');
+
+    //
     // Arguments:
     // aG - The arguments to be parsed into args
     //
@@ -544,7 +650,9 @@ function ciniki_mail_main() {
             return false;
         } 
 
-        if( args.customer_id != null && args.customer_id > 0 ) {
+        if( args.compose != null && args.compose == 'yes' ) {
+            this.compose.open(cb, args);
+        } else if( args.customer_id != null && args.customer_id > 0 ) {
             this.customer.open(cb, args.customer_id, 0, args.status);
         } else if( args.message_id != null && args.message_id > 0 ) {
             this.message.open(cb, args.message_id);

@@ -20,8 +20,8 @@ function ciniki_mail_customerListSend(&$ciniki) {
         'customer_ids'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'idlist', 'name'=>'Customers'), 
         'subject'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Subject'), 
         'text_content'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Message'), 
-        'object'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Object'), 
-        'object_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Object ID'), 
+        'object'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Object'), 
+        'object_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Object ID'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -157,8 +157,8 @@ function ciniki_mail_customerListSend(&$ciniki) {
                 //
                 $rc = ciniki_mail_createCustomerMail($ciniki, $args['tnid'], $settings, $email, 
                     $args['subject'], $html_content, $text_content, array(
-                        'object' => $args['object'],
-                        'object_id' => $args['object_id'],
+                        'object' => (isset($args['object']) ? $args['object'] : ''),
+                        'object_id' => (isset($args['object_id']) ? $args['object_id'] : ''),
                     ));
                 if( $rc['stat'] != 'ok' ) {
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.84', 'msg'=>'Unable to send message to customer', 'err'=>$rc['err']));

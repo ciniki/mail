@@ -3,7 +3,7 @@ function ciniki_mail_omessage() {
 
     this.message = new M.panel('New Message',
         'ciniki_mail_omessage', 'message',
-        'mc', 'medium narrowaside', 'sectioned', 'ciniki.mail.omessage.message');
+        'mc', 'large narrowaside', 'sectioned', 'ciniki.mail.omessage.message');
     this.message.data = {};
     this.message.customers_removeable = 'no';
     this.message.sections = {
@@ -29,8 +29,15 @@ function ciniki_mail_omessage() {
                 + (d.name != null ? d.name : (d.customer_name != null ? d.customer_name : 'Unknown'))
                 // + '</span><span class="subtext">' + (d.emails != null ? d.emails : '') + '</span>'
                 + '';
-            case 1: return '<button onclick="M.ciniki_mail_omessage.message.removeCustomer(' + d.id + ');">Remove</button>';
+            case 1: return '<span class="faicon">&#xf014;</span>&nbsp';
+//            case 1: return '<button onclick="M.ciniki_mail_omessage.message.removeCustomer(' + d.id + ');">Remove</button>';
         }
+    }
+    this.message.cellFn = function(s, i, j, d) {
+        if( s == 'customers' && j == 1 ) {
+            return 'M.ciniki_mail_omessage.message.removeCustomer(' + d.id + ');';
+        }
+        return '';
     }
     this.message.open = function(cb, subject, list, object, oid) {
         this.data = {
