@@ -85,8 +85,10 @@ function ciniki_mail_hooks_uiCustomersData($ciniki, $tnid, $args) {
         return $rc;
     }
     $moreApp = '';
+    $addTopApp = '';
     if( isset($args['customer_id']) ) {
         $moreApp = array('app'=>'ciniki.mail.main', 'args'=>array('customer_id'=>$args['customer_id'], 'status'=>"'30'"));
+        $addTopApp = array('app'=>'ciniki.mail.main', 'args'=>array('customer_id'=>$args['customer_id'], 'compose'=>"'yes'"));
     }
     $rsp['tabs'][] = array(
         'id' => 'ciniki.mail.messages',
@@ -102,7 +104,7 @@ function ciniki_mail_hooks_uiCustomersData($ciniki, $tnid, $args) {
                 'cellClasses' => array('multiline', 'multiline', ''),
                 'noData' => 'No mail message',
                 'addTxt' => 'Send Message',
-                'addTopApp' => array('app'=>'ciniki.mail.main', 'args'=>array('customer_id'=>$args['customer_id'], 'compose'=>"'yes'")),
+                'addTopApp' => $addTopApp,
                 'editApp' => array('app'=>'ciniki.mail.main', 'args'=>array('message_id'=>'d.id;')),
                 'moreTxt' => 'More',
                 'moreApp' => $moreApp,
