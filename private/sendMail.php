@@ -165,46 +165,50 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
             }
         }
 
-        //
-        // Send to mailgun api
-        //
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        curl_setopt($ch, CURLOPT_USERPWD, 'api:' . $settings['mailgun-key']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_ENCODING, 'UTF-8');
-        curl_setopt($ch, CURLOPT_URL, 'https://api.mailgun.net/v3/' . $settings['mailgun-domain'] . '/messages');
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $msg);
-
-        $rsp = json_decode(curl_exec($ch));
-
-        $info = curl_getinfo($ch);
-        if( $info['http_code'] != 200 ) {
+        if( isset($ciniki['config']['ciniki.mail']['block.outgoing']) ) {
+            error_log('EMAIL BLOCK BY CONFIG: ' . $msg['to'] . ' - ' . $msg['subject']);
+        } else {
             //
-            // Update the mail status to failed
+            // Send to mailgun api
             //
-            $strsql = "UPDATE ciniki_mail SET status = 50, last_updated = UTC_TIMESTAMP() "
-                . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $mail_id) . "' "
-                . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-                . "";
-            $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.mail');
-            if( $rc['stat'] != 'ok' ) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            curl_setopt($ch, CURLOPT_USERPWD, 'api:' . $settings['mailgun-key']);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_HEADER, false);
+            curl_setopt($ch, CURLOPT_ENCODING, 'UTF-8');
+            curl_setopt($ch, CURLOPT_URL, 'https://api.mailgun.net/v3/' . $settings['mailgun-domain'] . '/messages');
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $msg);
+
+            $rsp = json_decode(curl_exec($ch));
+
+            $info = curl_getinfo($ch);
+            if( $info['http_code'] != 200 ) {
+                //
+                // Update the mail status to failed
+                //
+                $strsql = "UPDATE ciniki_mail SET status = 50, last_updated = UTC_TIMESTAMP() "
+                    . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $mail_id) . "' "
+                    . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                    . "";
+                $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.mail');
+                if( $rc['stat'] != 'ok' ) {
+                    curl_close($ch);
+                    return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.66', 'msg'=>'Unable to send message and unable to unlock.', 'pmsg'=>'Could not set status=50',
+                        'mail_id'=>$mail_id, 'severity'=>50, 'err'=>$rc['err'],
+                        ));
+                }
+                ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $tnid, 
+                    2, 'ciniki_mail', $mail_id, 'status', '50');
                 curl_close($ch);
-                return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.66', 'msg'=>'Unable to send message and unable to unlock.', 'pmsg'=>'Could not set status=50',
-                    'mail_id'=>$mail_id, 'severity'=>50, 'err'=>$rc['err'],
+                return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.67', 'msg'=>'Unable to send message to ' . $msg['to'], 'pmsg'=>$rsp->message,
+                    'mail_id'=>$mail_id, 'severity'=>50,
                     ));
             }
-            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $tnid, 
-                2, 'ciniki_mail', $mail_id, 'status', '50');
             curl_close($ch);
-            return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.67', 'msg'=>'Unable to send message to ' . $msg['to'], 'pmsg'=>$rsp->message,
-                'mail_id'=>$mail_id, 'severity'=>50,
-                ));
         }
-        curl_close($ch);
     } 
    
     //
@@ -294,7 +298,9 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
             }
         }
 
-        if( !$mail->Send() ) {
+        if( isset($ciniki['config']['ciniki.mail']['block.outgoing']) ) {
+            error_log('EMAIL BLOCK BY CONFIG: ' . $email['customer_email'] . ' - ' . $email['subject']);
+        } elseif( !$mail->Send() ) {
             ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.57', 'msg'=>'Unable to send message, trying again.', 'pmsg'=>$mail->ErrorInfo,
                 'mail_id'=>$mail_id, 'severity'=>30,
                 ));
