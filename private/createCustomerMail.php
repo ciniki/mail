@@ -15,6 +15,7 @@
 function ciniki_mail_createCustomerMail($ciniki, $tnid, $settings, $customer, $subject, $html_message, $text_message, $args) {
     
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbInsert');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
 
     //
     // Get a uuid
@@ -99,6 +100,21 @@ function ciniki_mail_createCustomerMail($ciniki, $tnid, $settings, $customer, $s
         return $rc;
     }
     $mail_id = $rc['insert_id'];
+
+    //
+    // Add the attachments
+    //
+    if( isset($args['attachments']) ) {
+        foreach($args['attachments'] as $attachment) {
+            if( isset($attachment['filename']) && isset($attachment['content']) ) {
+                $attachment['mail_id'] = $mail_id;
+                $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.mail.attachment', $attachment, 0x04);
+                if( $rc['stat'] != 'ok' ) {
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.90', 'msg'=>'Unable to add attachment', 'err'=>$rc['err']));
+                }
+            }
+        }
+    }
 
     //
     // Add the object references

@@ -142,6 +142,27 @@ function ciniki_mail_customerListSend(&$ciniki) {
     $customers = isset($rc['customers']) ? $rc['customers'] : array();
 
     //
+    // Check for attachments
+    //
+    $attachments = array();
+    for($i = 1; $i <= 15; $i++) {
+        if( isset($_FILES["attachment{$i}"]['error']) && $_FILES["attachment{$i}"]['error'] == UPLOAD_ERR_INI_SIZE ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.87', 'msg'=>"Attachment {$i} too large."));
+        }
+        if( !isset($_FILES["attachment{$i}"]) ) {
+            continue;
+        }
+        $extension = preg_replace('/^.*\.([a-zA-Z]+)$/', '$1', $_FILES["attachment{$i}"]['name']);
+        if( !in_array($extension, ['jpg', 'jpeg', 'png', 'pdf']) ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.89', 'msg'=>"Attachment {$i} file type not allowed."));
+        }
+        $attachments[] = array(
+            'filename' => $_FILES["attachment{$i}"]['name'],
+            'content' => file_get_contents($_FILES["attachment{$i}"]['tmp_name']),
+            );
+    }
+
+    //
     // Loop through the customers
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'createCustomerMail');
@@ -159,6 +180,7 @@ function ciniki_mail_customerListSend(&$ciniki) {
                     $args['subject'], $html_content, $text_content, array(
                         'object' => (isset($args['object']) ? $args['object'] : ''),
                         'object_id' => (isset($args['object_id']) ? $args['object_id'] : ''),
+                        'attachments' => $attachments,
                     ));
                 if( $rc['stat'] != 'ok' ) {
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.84', 'msg'=>'Unable to send message to customer', 'err'=>$rc['err']));

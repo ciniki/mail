@@ -14,7 +14,15 @@ function ciniki_mail_omessage() {
             'subject':{'label':'Subject', 'hidelabel':'yes', 'type':'text'},
             }},
         '_content':{'label':'Message', 'fields':{
-            'text_content':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'medium'},
+            'text_content':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'large'},
+            }},
+        '_file':{'label':'Attach Files', 
+            'fields':{
+                'attachment1':{'label':'File 1', 'type':'file', 'hidelabel':'no'},
+                'attachment2':{'label':'File 2', 'type':'file', 'hidelabel':'no'},
+                'attachment3':{'label':'File 3', 'type':'file', 'hidelabel':'no'},
+                'attachment4':{'label':'File 4', 'type':'file', 'hidelabel':'no'},
+                'attachment5':{'label':'File 5', 'type':'file', 'hidelabel':'no'},
             }},
         '_buttons':{'label':'', 'buttons':{
             'send':{'label':'Send Message', 'fn':'M.ciniki_mail_omessage.message.send();'},
@@ -67,21 +75,20 @@ function ciniki_mail_omessage() {
                 customer_ids.push(this.data.customers[i].id);
             }
         }
-        var c = this.serializeForm('yes');
-        c += '&customer_ids=' + customer_ids.join();
-        c += '&object=' + this.data.object;
-        c += '&object_id=' + this.data.object_id;
-        if( c != '' ) {
-            M.api.postJSONCb('ciniki.mail.customerListSend', {'tnid':M.curTenantID}, c, function(rsp) {
-                if( rsp.stat != 'ok' ) {
-                    M.api.err(rsp);
-                    return false;
-                } 
-                M.ciniki_mail_omessage.message.close();
-            });
-        } else {
-            this.message.close();
-        }
+        var c = this.serializeFormData('yes');
+        var args = {
+            'tnid':M.curTenantID,
+            'customer_ids':customer_ids.join(),
+            'object':this.data.object,
+            'object_id':this.data.object_id,
+            };
+        M.api.postJSONCb('ciniki.mail.customerListSend', args, c, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            } 
+            M.ciniki_mail_omessage.message.close();
+        });
     }
     this.message.addClose('Back');
 
