@@ -61,10 +61,10 @@ function ciniki_mail_emailProcessContent($ciniki, $tnid, $theme, $unprocessed_co
     $processed_content = preg_replace('/<p class=\'[A-Za-z\- ]*\'>(<h[1-6][^\>]*>[^<]+<\/h[1-6]>)<\/p>/', '$1', $processed_content);
     $processed_content = preg_replace('/([^>])\n/m', "$1<br/>", $processed_content);
     $processed_content = preg_replace('/<p>/', "<p style='$p_style'>", $processed_content);
-    $processed_content = preg_replace('/<h1/', "<h1 style='$p_style'", $processed_content);
-    $processed_content = preg_replace('/<h2/', "<h2 style='$p_style'", $processed_content);
-    $processed_content = preg_replace('/<h3/', "<h3 style='$p_style'", $processed_content);
-    $processed_content = preg_replace('/<h4/', "<h4 style='$p_style'", $processed_content);
+    $processed_content = preg_replace('/<h1/', "<h1 style='$h1_style'", $processed_content);
+    $processed_content = preg_replace('/<h2/', "<h2 style='$h2_style'", $processed_content);
+    $processed_content = preg_replace('/<h3/', "<h3 style='$h3_style'", $processed_content);
+    $processed_content = preg_replace('/<h4/', "<h4 style='$h4_style'", $processed_content);
     $processed_content = preg_replace('/<table/', "<table style='$table_style'", $processed_content);
     $processed_content = preg_replace("/<table style='([^>]+)' style=('|\")/", "<table style=$2$1", $processed_content);
     $processed_content = preg_replace('/<td(>| )/', "<td style='$td_style'$1", $processed_content);
