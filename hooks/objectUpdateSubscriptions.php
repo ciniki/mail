@@ -112,7 +112,7 @@ function ciniki_mail_hooks_objectUpdateSubscriptions($ciniki, $tnid, $args) {
             // 
             // If mailing has been sent, no more changes are permitted
             //
-            if( $mailing['status'] <= 10 ) {
+            if( isset($mailing['status']) && $mailing['status'] <= 10 ) {
                 //
                 // Add/Update/Delete the subscriptions attached to the mailing
                 //
