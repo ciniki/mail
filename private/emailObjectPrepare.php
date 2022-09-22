@@ -217,7 +217,7 @@ function ciniki_mail_emailObjectPrepare($ciniki, $tnid, $theme, $mailing, $objec
     //
     if( isset($object['linkback']['url']) && $object['linkback']['url'] != '' ) {
         // IF linkback starts with / then reference website
-        if( $object['linkback']['url'][0] = '/' ) {
+        if( $object['linkback']['url'][0] == '/' ) {
             $url = $domain_base_url . $object['linkback']['url'];
         } else {
             $url = $object['linkback']['url'];
