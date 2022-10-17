@@ -114,8 +114,8 @@ function ciniki_mail_objects($ciniki) {
         'sync'=>'yes',
         'table'=>'ciniki_mail_attachments',
         'fields'=>array(
-            'mail_id'=>array('ref'=>'ciniki.mail.message'),
-            'filename'=>array(),
+            'mail_id'=>array('name'=>'Mail Message', 'ref'=>'ciniki.mail.message'),
+            'filename'=>array('name'=>'Filename'),
             'content'=>array(),
             ),
         'history_table'=>'ciniki_mail_history',

@@ -42,6 +42,16 @@ function ciniki_mail_messagePurge($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
 
     //
+    // Get the tenant storage directory
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'hooks', 'storageDir');
+    $rc = ciniki_tenants_hooks_storageDir($ciniki, $args['tnid'], array());
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $mail_dir = $rc['storage_dir'] . '/ciniki.mail';
+
+    //
     // Get the message
     //
     $strsql = "SELECT id, status, uuid "
@@ -88,6 +98,17 @@ function ciniki_mail_messagePurge($ciniki) {
     if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
         $items = $rc['rows'];
         foreach($items as $iid => $item) {
+            //
+            // Remove the files
+            //
+            $filename = $mail_dir . '/' . $item['uuid'][0] . '/' . $item['uuid'] . '.attachment';
+            if( file_exists($filename) ) {
+                unlink($filename);
+            }
+
+            //
+            // Remove the object
+            //
             $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.mail.attachment', 
                 $item['id'], $item['uuid'], 0x04);
             if( $rc['stat'] != 'ok' ) {
@@ -120,6 +141,18 @@ function ciniki_mail_messagePurge($ciniki) {
                 return $rc; 
             }
         }
+    }
+
+    //
+    // Remove the mail files
+    //
+    $html_filename = $mail_dir . '/' . $message['uuid'][0] . '/' . $message['uuid'] . '.attachment';
+    if( file_exists($html_filename) ) {
+        unlink($html_filename);
+    }
+    $text_filename = $mail_dir . '/' . $message['uuid'][0] . '/' . $message['uuid'] . '.attachment';
+    if( file_exists($text_filename) ) {
+        unlink($text_filename);
     }
 
     //

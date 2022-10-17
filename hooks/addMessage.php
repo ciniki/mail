@@ -138,13 +138,13 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    $mail_dir = $rc['storage_dir'] . '/ciniki.mail/' . $args['uuid'][0];
+    $mail_dir = $rc['storage_dir'] . '/ciniki.mail';
 
     //
     // Create the directory if it doesn't exist
     //
-    if( !file_exists($mail_dir) ) {
-        if( mkdir($mail_dir, 0700, true) === false ) {
+    if( !file_exists($mail_dir . '/' . $args['uuid'][0]) ) {
+        if( mkdir($mail_dir . '/' . $args['uuid'][0], 0700, true) === false ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.78', 'msg'=>'Unable to create mail message'));
         }
     }
@@ -153,10 +153,10 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     // Write mail to disk, when non-empty
     //
     if( $args['html_content'] != '' ) {
-        file_put_contents($mail_dir . '/' . $args['uuid'] . '.html', $html_content);
+        file_put_contents($mail_dir . '/' . $args['uuid'][0] . '/' . $args['uuid'] . '.html', $html_content);
     }
     if( $args['text_content'] != '' ) {
-        file_put_contents($mail_dir . '/' . $args['uuid'] . '.text', $text_content);
+        file_put_contents($mail_dir . '/' . $args['uuid'][0] . '/' . $args['uuid'] . '.text', $text_content);
     }
     
     //
@@ -199,6 +199,25 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
         foreach($args['attachments'] as $attachment) {
             if( isset($attachment['filename']) && isset($attachment['content']) ) {
                 $attachment['mail_id'] = $mail_id;
+                //
+                // Get uuid
+                //
+                ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUUID');
+                $rc = ciniki_core_dbUUID($ciniki, 'ciniki.mail');
+                if( $rc['stat'] != 'ok' ) {
+                    return $rc;
+                }
+                $attachment['uuid'] = $rc['uuid'];
+
+                //
+                // Save attachment to disk
+                //
+                file_put_contents($mail_dir . '/' . $attachment['uuid'][0] . '/' . $attachment['uuid'] . '.attachment', $attachment['content']);
+                $attachment['content'] = '';
+
+                //
+                // Save object
+                //
                 $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.mail.attachment', $attachment, 0x04);
                 if( $rc['stat'] != 'ok' ) {
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.74', 'msg'=>'Unable to add attachment', 'err'=>$rc['err']));

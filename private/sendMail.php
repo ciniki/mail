@@ -73,7 +73,7 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
     //
     // Check for attachments
     //
-    $strsql = "SELECT id, filename, content "
+    $strsql = "SELECT id, uuid, filename, content "
         . "FROM ciniki_mail_attachments "
         . "WHERE ciniki_mail_attachments.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_mail_attachments.mail_id = '" . ciniki_core_dbQuote($ciniki, $email['id']) . "' "
@@ -156,9 +156,10 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
         $file_index = 1;
         if( isset($email['attachments']) ) {
             foreach($email['attachments'] as $attachment) {
-                $tmpname = tempnam(sys_get_temp_dir(), 'mailgun');
-                file_put_contents($tmpname, $attachment['content']);
-                $cfile = curl_file_create($tmpname);
+                $attachment_file = $mail_dir . '/' . $attachment['uuid'][0] . '/' . $attachment['uuid'] . '.attachment';
+//                $tmpname = tempnam(sys_get_temp_dir(), 'mailgun');
+//                file_put_contents($tmpname, $attachment['content']);
+                $cfile = curl_file_create($attachment_file);
                 $cfile->setPostFilename($attachment['filename']);
                 $msg['attachment[' . $file_index .']'] = $cfile;
                 $file_index++;
@@ -294,6 +295,7 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
         //
         if( isset($email['attachments']) ) {
             foreach($email['attachments'] as $attachment) {
+                $attachment['content'] = file_get_contents($mail_dir . '/' . $attachment['uuid'][0] . '/' . $attachment['uuid'] . '.attachment');
                 $mail->addStringAttachment($attachment['content'], $attachment['filename']);
             }
         }
