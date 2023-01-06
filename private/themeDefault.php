@@ -33,7 +33,7 @@ function ciniki_mail_themeDefault($ciniki, $tnid) {
 //        'td_header'=>'padding: 10px; padding-left: 0px; padding-right: 0px; margin-bottom: 5px; border-bottom: 1px solid #555555;',
         'td_header'=>'padding: 10px; padding-left: 0px; padding-right: 0px; margin-bottom: 5px; border-bottom: 0px solid #555555; text-align: center;',
         'td_body'=>'padding: 10px; padding-left: 0px; padding-right: 0px;',
-        'td_footer'=>'margin-top: 20px; padding: 10px; padding-left: 0px; padding-right: 0px; border-top: 0px solid #cccccc;',
+        'td_footer'=>'margin-top: 20px; padding: 10px; padding-left: 0px; padding-right: 0px; border-top: 1px solid #dddddd;',
         'a_footer'=>'color: #439BBD; text-decoration: none; font-size: 10px;',
         'h1'=>'text-decoration: bold; font-size: 24px; font-family: Helvetica, sans-serif; color: #439BBD;',
         'h2'=>'text-decoration: bold; font-size: 22px; font-family: Helvetica, sans-serif; color: #439BBD;',
