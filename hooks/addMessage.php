@@ -178,6 +178,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['status']) . "', ";
     $strsql .= "'', '', '', ";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['subject']) . "', ";
+//  Content stored in file system now
 //  $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['html_content']) . "', ";
 //  $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['text_content']) . "', ";
     $strsql .= "'', ";
