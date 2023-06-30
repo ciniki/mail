@@ -269,8 +269,16 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
                 $mail->Port = $ciniki['config']['ciniki.core']['system.smtp.port'];
             }
 
-            $mail->From = $ciniki['config']['ciniki.core']['system.email'];
-            $mail->FromName = $ciniki['config']['ciniki.core']['system.email.name'];
+            if( isset($settings['smtp-from-address']) && $settings['smtp-from-address'] != '' ) {
+                $mail->From = $settings['smtp-from-address'];
+            } else {
+                $mail->From = $ciniki['config']['ciniki.core']['system.email'];
+            }
+            if( isset($settings['smtp-from-name']) && $settings['smtp-from-name'] != '' ) {
+                $mail->FromName = $settings['smtp-from-name'];
+            } else {
+                $mail->FromName = $ciniki['config']['ciniki.core']['system.email.name'];
+            }
         }
 
 
