@@ -189,6 +189,12 @@ function ciniki_mail_objects($ciniki) {
             'raw_logs'=>array('default'=>''),
             ),
         );
+    $objects['setting'] = array(
+        'type'=>'settings',
+        'name'=>'Mail Settings',
+        'table'=>'ciniki_mail_settings',
+        'history_table'=>'ciniki_mail_history',
+        );
 
     
     return array('stat'=>'ok', 'objects'=>$objects);
