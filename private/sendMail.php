@@ -287,9 +287,12 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
     //  $mail->Password = $ciniki['config']['ciniki.core']['system.smtp.password'];
 
         $mail->IsHTML(true);
-        $mail->Subject = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['subject']);
-        $mail->Body = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['html_content']);
-        $mail->AltBody = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['text_content']);
+        $mail->Subject = $email['subject'];
+        $mail->Body = $email['html_content'];
+        $mail->AltBody = $email['text_content'];
+//        $mail->Subject = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['subject']);
+//        $mail->Body = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['html_content']);
+//        $mail->AltBody = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['text_content']);
 
         if( isset($ciniki['config']['ciniki.mail']['force.mailto']) ) {
             $mail->AddAddress($ciniki['config']['ciniki.mail']['force.mailto'], $email['customer_name']);
