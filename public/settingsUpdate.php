@@ -67,6 +67,7 @@ function ciniki_mail_settingsUpdate(&$ciniki) {
         'smtp-port',
         'smtp-from-name',
         'smtp-from-address',
+        'smtp-reply-address',
         'mail-default-theme',
         'message-disclaimer',
         'smtp-5min-limit',

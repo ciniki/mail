@@ -38,6 +38,7 @@ function ciniki_mail_settings() {
             'fields':{
                 'smtp-from-name':{'label':'Name', 'type':'text'},
                 'smtp-from-address':{'label':'Address', 'type':'email'},
+                'smtp-reply-address':{'label':'Reply To Address', 'type':'email'},
             }},
         'throttling':{'label':'Sending Limits', 
             'visible':function() { var s=M.ciniki_mail_settings.main.sections._tabs.selected; return (s == 'smtp' || s == 'mailgun' ? 'yes' : 'hidden'); },

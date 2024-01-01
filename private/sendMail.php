@@ -281,6 +281,17 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
             }
         }
 
+        //
+        // Check for replyto_email
+        //
+        if( isset($settings['smtp-reply-address']) && $settings['smtp-reply-address'] != '' ) { 
+            if( isset($settings['smtp-from-name']) && $settings['smtp-from-name'] != '' ) {
+                $mail->addReplyTo($settings['smtp-reply-address'], $settings['smtp-from-name']);
+            } else {
+                $mail->addReplyTo($settings['smtp-reply-address']);
+            }
+        }
+
 
     //  $mail->SMTPAuth = true;
     //  $mail->Username = $ciniki['config']['ciniki.core']['system.smtp.username'];
