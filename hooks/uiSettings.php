@@ -47,9 +47,9 @@ function ciniki_mail_hooks_uiSettings($ciniki, $tnid, $args) {
     } 
 
     if( isset($ciniki['tenant']['modules']['ciniki.mail'])
-        && (isset($args['permissions']['owners'])
-            || isset($args['permissions']['resellers'])
-            || ($ciniki['session']['user']['perms']&0x01) == 0x01
+        && (/*isset($args['permissions']['owners'])
+            || isset($args['permissions']['resellers']) 
+            ||*/ ($ciniki['session']['user']['perms']&0x01) == 0x01
             )
         ) {
         $rsp['settings_menu_items'][] = array('priority'=>2000, 'label'=>'Mail', 'edit'=>array('app'=>'ciniki.mail.settings'));
