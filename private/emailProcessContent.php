@@ -57,7 +57,7 @@ function ciniki_mail_emailProcessContent($ciniki, $tnid, $theme, $unprocessed_co
         $url = $display_url;
         if( isset($match[2]) && ($match[2] == "http://" || $match[2] == "https://") ) {
             $display_url = substr($display_url, strlen($match[2]));
-            $display_url = preg_replace("/\\\\/$/", "", $display_url);
+            $display_url = preg_replace("/\\/$/", "", $display_url);
         } elseif( isset($match[2]) && $match[2] == "www." )  {
             $url = "http://" . $display_url;
         }
