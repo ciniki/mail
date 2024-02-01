@@ -93,7 +93,7 @@ function ciniki_mail_hooks_uiCustomersData($ciniki, $tnid, $args) {
     $rsp['tabs'][] = array(
         'id' => 'ciniki.mail.messages',
         'label' => 'Mail',
-        'priority' => 5000,
+        'priority' => 1000,
         'sections' => array(
             'ciniki.mail.messages' => array(
                 'label' => 'Mail',
