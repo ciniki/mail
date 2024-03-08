@@ -97,8 +97,8 @@ function ciniki_mail_messageSearch(&$ciniki) {
         $strsql .= "LIMIT " . filter_var($args['limit'], FILTER_SANITIZE_NUMBER_INT);
     }
 
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
-    $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.mail', array(
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.mail', array(
         array('container'=>'messages', 'fname'=>'id', 'name'=>'message',
             'fields'=>array('id', 'subject', 'customer_id', 'customer_name', 'customer_email', 'snippet', 
                 'mail_time'=>'mail_date', 'mail_date', 'status', 'status_text'),
@@ -112,13 +112,13 @@ function ciniki_mail_messageSearch(&$ciniki) {
     }
     if( isset($rc['messages']) ) {
         foreach($rc['messages'] as $mid => $message) {
-            $snippet = preg_replace('/<\/p>/', ' ', $message['message']['snippet']);
+            $snippet = preg_replace('/<\/p>/', ' ', $message['snippet']);
             $snippet = preg_replace('/<style>.*<\/style>/m', '', $snippet);
             $snippet = strip_tags($snippet);
             if( strlen($snippet) > 150) {
                 $snippet = substr($snippet, 0, 150);
             }
-            $rc['messages'][$mid]['message']['snippet'] = $snippet;
+            $rc['messages'][$mid]['snippet'] = $snippet;
         }
         return array('stat'=>'ok', 'messages'=>$rc['messages']);
     } 
