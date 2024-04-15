@@ -236,7 +236,7 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
                 'allow_self_signed'=> true,
             ),
         );
-
+        $mail->XMailer = ' ';
         $mail->IsSMTP();
         $use_config = 'yes';
         if( isset($settings['smtp-servers']) && $settings['smtp-servers'] != ''
@@ -254,6 +254,7 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
                 $mail->Port = $settings['smtp-port'];
             }
             $mail->From = $settings['smtp-from-address'];
+            $mail->Sender = $settings['smtp-from-address'];
             $mail->FromName = $settings['smtp-from-name'];
         } else {
             $mail->Host = $ciniki['config']['ciniki.core']['system.smtp.servers'];
@@ -271,8 +272,10 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
 
             if( isset($settings['smtp-from-address']) && $settings['smtp-from-address'] != '' ) {
                 $mail->From = $settings['smtp-from-address'];
+                $mail->Sender = $settings['smtp-from-address'];
             } else {
                 $mail->From = $ciniki['config']['ciniki.core']['system.email'];
+                $mail->Sender = $ciniki['config']['ciniki.core']['system.email'];
             }
             if( isset($settings['smtp-from-name']) && $settings['smtp-from-name'] != '' ) {
                 $mail->FromName = $settings['smtp-from-name'];
