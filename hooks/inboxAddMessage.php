@@ -81,6 +81,13 @@ function ciniki_mail_hooks_inboxAddMessage(&$ciniki, $tnid, $args) {
     $mail_dir = $rc['storage_dir'] . '/ciniki.mail';
 
     //
+    // Make sure the mail directory exists
+    //
+    if( !file_exists($mail_dir . '/' . $args['uuid'][0]) ) {
+        mkdir($mail_dir . '/' . $args['uuid'][0]);
+    }
+
+    //
     // Write mail to disk, when non-empty
     //
     if( $args['html_content'] != '' ) {
