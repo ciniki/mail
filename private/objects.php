@@ -44,8 +44,8 @@ function ciniki_mail_objects($ciniki) {
         'sync'=>'yes',
         'table'=>'ciniki_mail',
         'fields'=>array(
-            'parent_id'=>array('ref'=>'ciniki.mail.message'),
-            'account_id'=>array('default'=>'0', 'ref'=>'ciniki.mail.account'),
+            'parent_id'=>array('ref'=>'ciniki.mail.message', 'default'=>0),
+            'account_id'=>array('ref'=>'ciniki.mail.account', 'default'=>0,),
             'mailing_id'=>array('ref'=>'ciniki.mail.mailing'),
             'unsubscribe_key'=>array('default'=>''),
             'survey_invite_id'=>array('ref'=>'ciniki.surveys.survey', 'default'=>'0'),

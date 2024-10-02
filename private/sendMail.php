@@ -219,141 +219,153 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
         //  
         // The from address can be set in the config file.
         //  
-        require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/PHPMailer/class.phpmailer.php');
-        require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/PHPMailer/class.smtp.php');
+//        require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/PHPMailer/class.phpmailer.php');
+//        require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/PHPMailer/class.smtp.php');
+        require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/PHPMailer_v6/src/PHPMailer.php');
+        require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/PHPMailer_v6/src/SMTP.php');
+        require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/PHPMailer_v6/src/Exception.php');
 
-        $mail = new PHPMailer;
+        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
 
-        $mail->SMTPOptions = array(
-            'tls'=>array(
-                'verify_peer'=> false,
-                'verify_peer_name'=> false,
-                'allow_self_signed'=> true,
-            ),
-            'ssl'=>array(
-                'verify_peer'=> false,
-                'verify_peer_name'=> false,
-                'allow_self_signed'=> true,
-            ),
-        );
-        $mail->XMailer = ' ';
-        $mail->IsSMTP();
-        $use_config = 'yes';
-        if( isset($settings['smtp-servers']) && $settings['smtp-servers'] != ''
-            ) {
-            $mail->Host = $settings['smtp-servers'];
-            if( isset($settings['smtp-username']) && $settings['smtp-username'] != '' ) {
-                $mail->SMTPAuth = true;
-                $mail->Username = $settings['smtp-username'];
-                $mail->Password = $settings['smtp-password'];
-            }
-            if( isset($settings['smtp-secure']) && $settings['smtp-secure'] != '' ) {
-                $mail->SMTPSecure = $settings['smtp-secure'];
-            }
-            if( isset($settings['smtp-port']) && $settings['smtp-port'] != '' ) {
-                $mail->Port = $settings['smtp-port'];
-            }
-            $mail->From = $settings['smtp-from-address'];
-            $mail->Sender = $settings['smtp-from-address'];
-            $mail->FromName = $settings['smtp-from-name'];
-        } else {
-            $mail->Host = $ciniki['config']['ciniki.core']['system.smtp.servers'];
-            if( isset($ciniki['config']['ciniki.core']['system.smtp.username']) ) {
-                $mail->SMTPAuth = true;
-                $mail->Username = $ciniki['config']['ciniki.core']['system.smtp.username'];
-                $mail->Password = $ciniki['config']['ciniki.core']['system.smtp.password'];
-            }
-            if( isset($ciniki['config']['ciniki.core']['system.smtp.secure']) ) {
-                $mail->SMTPSecure = $ciniki['config']['ciniki.core']['system.smtp.secure'];
-            }
-            if( isset($ciniki['config']['ciniki.core']['system.smtp.port']) ) {
-                $mail->Port = $ciniki['config']['ciniki.core']['system.smtp.port'];
-            }
-
-            if( isset($settings['smtp-from-address']) && $settings['smtp-from-address'] != '' ) {
+        try {
+            $mail->SMTPOptions = array(
+                'tls'=>array(
+                    'verify_peer'=> false,
+                    'verify_peer_name'=> false,
+                    'allow_self_signed'=> true,
+                ),
+                'ssl'=>array(
+                    'verify_peer'=> false,
+                    'verify_peer_name'=> false,
+                    'allow_self_signed'=> true,
+                ),
+            );
+            $mail->XMailer = ' ';
+            $mail->IsSMTP();
+            $use_config = 'yes';
+            if( isset($settings['smtp-servers']) && $settings['smtp-servers'] != ''
+                ) {
+                $mail->Host = $settings['smtp-servers'];
+                if( isset($settings['smtp-username']) && $settings['smtp-username'] != '' ) {
+                    $mail->SMTPAuth = true;
+                    $mail->Username = $settings['smtp-username'];
+                    $mail->Password = $settings['smtp-password'];
+                }
+                if( isset($settings['smtp-secure']) && $settings['smtp-secure'] != '' ) {
+                    $mail->SMTPSecure = $settings['smtp-secure'];
+                }
+                if( isset($settings['smtp-port']) && $settings['smtp-port'] != '' ) {
+                    $mail->Port = $settings['smtp-port'];
+                }
                 $mail->From = $settings['smtp-from-address'];
                 $mail->Sender = $settings['smtp-from-address'];
-            } else {
-                $mail->From = $ciniki['config']['ciniki.core']['system.email'];
-                $mail->Sender = $ciniki['config']['ciniki.core']['system.email'];
-            }
-            if( isset($settings['smtp-from-name']) && $settings['smtp-from-name'] != '' ) {
                 $mail->FromName = $settings['smtp-from-name'];
             } else {
-                $mail->FromName = $ciniki['config']['ciniki.core']['system.email.name'];
-            }
-        }
+                $mail->Host = $ciniki['config']['ciniki.core']['system.smtp.servers'];
+                if( isset($ciniki['config']['ciniki.core']['system.smtp.username']) ) {
+                    $mail->SMTPAuth = true;
+                    $mail->Username = $ciniki['config']['ciniki.core']['system.smtp.username'];
+                    $mail->Password = $ciniki['config']['ciniki.core']['system.smtp.password'];
+                }
+                if( isset($ciniki['config']['ciniki.core']['system.smtp.secure']) ) {
+                    $mail->SMTPSecure = $ciniki['config']['ciniki.core']['system.smtp.secure'];
+                }
+                if( isset($ciniki['config']['ciniki.core']['system.smtp.port']) ) {
+                    $mail->Port = $ciniki['config']['ciniki.core']['system.smtp.port'];
+                }
 
-        //
-        // Check for replyto_email
-        //
-        if( isset($settings['smtp-reply-address']) && $settings['smtp-reply-address'] != '' ) { 
-            if( isset($settings['smtp-from-name']) && $settings['smtp-from-name'] != '' ) {
-                $mail->addReplyTo($settings['smtp-reply-address'], $settings['smtp-from-name']);
+                if( isset($settings['smtp-from-address']) && $settings['smtp-from-address'] != '' ) {
+                    $mail->From = $settings['smtp-from-address'];
+                    $mail->Sender = $settings['smtp-from-address'];
+                } else {
+                    $mail->From = $ciniki['config']['ciniki.core']['system.email'];
+                    $mail->Sender = $ciniki['config']['ciniki.core']['system.email'];
+                }
+                if( isset($settings['smtp-from-name']) && $settings['smtp-from-name'] != '' ) {
+                    $mail->FromName = $settings['smtp-from-name'];
+                } else {
+                    $mail->FromName = $ciniki['config']['ciniki.core']['system.email.name'];
+                }
+            }
+
+            //
+            // Check for replyto_email
+            //
+            if( isset($settings['smtp-reply-address']) && $settings['smtp-reply-address'] != '' ) { 
+                if( isset($settings['smtp-from-name']) && $settings['smtp-from-name'] != '' ) {
+                    $mail->addReplyTo($settings['smtp-reply-address'], $settings['smtp-from-name']);
+                } else {
+                    $mail->addReplyTo($settings['smtp-reply-address']);
+                }
+            }
+
+
+        //  $mail->SMTPAuth = true;
+        //  $mail->Username = $ciniki['config']['ciniki.core']['system.smtp.username'];
+        //  $mail->Password = $ciniki['config']['ciniki.core']['system.smtp.password'];
+
+            $mail->IsHTML(true);
+            $mail->Subject = $email['subject'];
+            $mail->Body = $email['html_content'];
+            $mail->AltBody = $email['text_content'];
+    //        $mail->Subject = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['subject']);
+    //        $mail->Body = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['html_content']);
+    //        $mail->AltBody = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['text_content']);
+
+            if( isset($ciniki['config']['ciniki.mail']['force.mailto']) ) {
+                $mail->AddAddress($ciniki['config']['ciniki.mail']['force.mailto'], $email['customer_name']);
+                $mail->Subject .= ' [' . $email['customer_email'] . ']';
             } else {
-                $mail->addReplyTo($settings['smtp-reply-address']);
+                $mail->AddAddress($email['customer_email'], $email['customer_name']);
             }
-        }
 
-
-    //  $mail->SMTPAuth = true;
-    //  $mail->Username = $ciniki['config']['ciniki.core']['system.smtp.username'];
-    //  $mail->Password = $ciniki['config']['ciniki.core']['system.smtp.password'];
-
-        $mail->IsHTML(true);
-        $mail->Subject = $email['subject'];
-        $mail->Body = $email['html_content'];
-        $mail->AltBody = $email['text_content'];
-//        $mail->Subject = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['subject']);
-//        $mail->Body = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['html_content']);
-//        $mail->AltBody = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $email['text_content']);
-
-        if( isset($ciniki['config']['ciniki.mail']['force.mailto']) ) {
-            $mail->AddAddress($ciniki['config']['ciniki.mail']['force.mailto'], $email['customer_name']);
-            $mail->Subject .= ' [' . $email['customer_email'] . ']';
-        } else {
-            $mail->AddAddress($email['customer_email'], $email['customer_name']);
-        }
-
-        //
-        // Add attachments
-        //
-        if( isset($email['attachments']) ) {
-            foreach($email['attachments'] as $attachment) {
-                $attachment['content'] = file_get_contents($mail_dir . '/' . $attachment['uuid'][0] . '/' . $attachment['uuid'] . '.attachment');
-                $mail->addStringAttachment($attachment['content'], $attachment['filename']);
+            //
+            // Add attachments
+            //
+            if( isset($email['attachments']) ) {
+                foreach($email['attachments'] as $attachment) {
+                    $attachment['content'] = file_get_contents($mail_dir . '/' . $attachment['uuid'][0] . '/' . $attachment['uuid'] . '.attachment');
+                    $mail->addStringAttachment($attachment['content'], $attachment['filename']);
+                }
             }
-        }
 
-        if( isset($ciniki['config']['ciniki.mail']['block.outgoing']) ) {
-            error_log('EMAIL BLOCK BY CONFIG: ' . $email['customer_email'] . ' - ' . $email['subject']);
-        } elseif( !$mail->Send() ) {
-            ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.57', 'msg'=>'Unable to send message, trying again.', 'pmsg'=>$mail->ErrorInfo,
-                'mail_id'=>$mail_id, 'severity'=>30,
-                ));
-            sleep(3);
-            if( !$mail->Send() ) {  
-                //
-                // Update the mail status to failed
-                //
-                $strsql = "UPDATE ciniki_mail SET status = 50, last_updated = UTC_TIMESTAMP() "
-                    . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $mail_id) . "' "
-                    . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-                    . "";
-                $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.mail');
-                if( $rc['stat'] != 'ok' ) {
-                    return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.58', 'msg'=>'Unable to send message and unable to unlock.', 'pmsg'=>'Could not set status=50',
-                        'mail_id'=>$mail_id, 'severity'=>50, 'err'=>$rc['err'],
+            if( isset($ciniki['config']['ciniki.mail']['block.outgoing']) ) {
+                error_log('EMAIL BLOCK BY CONFIG: ' . $email['customer_email'] . ' - ' . $email['subject']);
+            } 
+            $mail->Send();
+            ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'0', 'msg'=>'Message sent.', 'mail_id'=>$mail_id, 'severity'=>10,)); 
+            /*
+            ** NOTE: Changed to PHPMailer v6 and no longer using multiple tries, as it always failed a second time anyway.
+                ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.57', 'msg'=>'Unable to send message, trying again.', 'pmsg'=>$mail->ErrorInfo,
+                    'mail_id'=>$mail_id, 'severity'=>30,
+                    ));
+                sleep(3);
+                if( !$mail->Send() ) {  
+                    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $tnid, 
+                        2, 'ciniki_mail', $mail_id, 'status', '50');
+                    return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.59', 'msg'=>'Unable to send message.', 'pmsg'=>$mail->ErrorInfo,
+                        'mail_id'=>$mail_id, 'severity'=>50,
                         ));
                 }
-                ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.mail', 'ciniki_mail_history', $tnid, 
-                    2, 'ciniki_mail', $mail_id, 'status', '50');
-                return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.59', 'msg'=>'Unable to send message.', 'pmsg'=>$mail->ErrorInfo,
-                    'mail_id'=>$mail_id, 'severity'=>50,
+            } */
+        } catch(Exception $e) {
+            //
+            // Update the mail status to failed
+            //
+            $strsql = "UPDATE ciniki_mail SET status = 50, last_updated = UTC_TIMESTAMP() "
+                . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $mail_id) . "' "
+                . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . "";
+            $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.mail');
+            if( $rc['stat'] != 'ok' ) {
+                return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.58', 'msg'=>'Unable to send message and unable to unlock.', 'pmsg'=>'Could not set status=50',
+                    'mail_id'=>$mail_id, 'severity'=>50, 'err'=>$rc['err'],
                     ));
             }
+            return ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'ciniki.mail.94', 'msg'=>$e->getMessage(), 'pmsg'=>$e->getMessage(),
+                'mail_id'=>$mail_id, 'severity'=>50,
+                ));
         }
-        ciniki_mail_logMsg($ciniki, $tnid, array('code'=>'0', 'msg'=>'Message sent.', 'mail_id'=>$mail_id, 'severity'=>10,));
     }
 
     //

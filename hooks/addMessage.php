@@ -162,30 +162,33 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     //
     // Add the message
     //
-    $strsql = "INSERT INTO ciniki_mail (uuid, tnid, mailing_id, unsubscribe_key, "
+    $strsql = "INSERT INTO ciniki_mail (uuid, tnid, parent_id, account_id, mailing_id, unsubscribe_key, "
         . "survey_invite_id, "
         . "customer_id, customer_name, customer_email, flags, status, "
-        . "mail_to, mail_cc, mail_from, "
+        . "mail_to, mail_cc, mail_from, from_name, from_email, "
         . "subject, html_content, text_content, "
-        . "date_added, last_updated) VALUES ("
+        . "raw_headers, raw_content, date_sent, date_received, date_read, date_added, last_updated) VALUES ("
         . "'" . ciniki_core_dbQuote($ciniki, $args['uuid']) . "', "
         . "'" . ciniki_core_dbQuote($ciniki, $tnid) . "', "
-        . "0, '', 0, ";
+        . "0, 0, 0, '', 0, ";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "', ";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['customer_name']) . "', ";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['customer_email']) . "', ";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['flags']) . "', ";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['status']) . "', ";
-    $strsql .= "'', '', '', ";
+    $strsql .= "'', '', '', '', '',";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['subject']) . "', ";
 //  Content stored in file system now
 //  $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['html_content']) . "', ";
 //  $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['text_content']) . "', ";
     $strsql .= "'', ";
     $strsql .= "'', ";
+    $strsql .= "'', ";
+    $strsql .= "'', ";
 //    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $html_content) . "', ";
 //    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $text_content) . "', ";
-    $strsql .= "UTC_TIMESTAMP(), UTC_TIMESTAMP())";
+    $strsql .= "'0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00', "
+        . "UTC_TIMESTAMP(), UTC_TIMESTAMP())";
 
     $rc = ciniki_core_dbInsert($ciniki, $strsql, 'ciniki.mail');
     if( $rc['stat'] != 'ok' ) {
