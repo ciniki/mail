@@ -305,6 +305,7 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
         //  $mail->Password = $ciniki['config']['ciniki.core']['system.smtp.password'];
 
             $mail->IsHTML(true);
+            $mail->CharSet = "UTF-8";
             $mail->Subject = $email['subject'];
             $mail->Body = $email['html_content'];
             $mail->AltBody = $email['text_content'];
