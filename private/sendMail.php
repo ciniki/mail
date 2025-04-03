@@ -99,6 +99,7 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
     $strsql = "UPDATE ciniki_mail SET status = 20, last_updated = UTC_TIMESTAMP() "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $mail_id) . "' "
         . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "AND status <> 20 "
         . "";
     $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.mail');
     if( $rc['stat'] != 'ok' ) {
