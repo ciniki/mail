@@ -209,7 +209,9 @@ function ciniki_mail_mailingSend(&$ciniki) {
             return $rc;
         }
     } else {
-        $header_title = $tenant_details['name'];
+//        $header_title = $tenant_details['name'];
+//        $header_title = $mailing['subject'];
+        $header_title = '';
     }
 
     //
