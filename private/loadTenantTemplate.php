@@ -62,6 +62,9 @@ function ciniki_mail_loadTenantTemplate($ciniki, $tnid, $args) {
     if( !file_exists($ciniki['config']['ciniki.core']['modules_dir'] . '/mail/private/theme' . $args['theme'] . '.php') ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.77', 'msg'=>'Theme does not exist'));
     }
+    if( isset($args['tinymce']) && $args['tinymce'] == 'yes' ) {
+        $args['theme'] = 'Tinymce';
+    }
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'theme' . $args['theme']);
     $theme_load = 'ciniki_mail_theme' . $args['theme'];
     $rc = $theme_load($ciniki, $tnid);
@@ -99,19 +102,30 @@ function ciniki_mail_loadTenantTemplate($ciniki, $tnid, $args) {
     // Prepare the html_header
     //
     $text_header = "";
-    $html_header = "<html><head><style>\n"
-        . $theme['header_style']
-        . "</style></head>\n"
-        . "<body>\n"
-        . "<div style='" . $theme['wrapper_style'] . "'>"
-        . "<table width='100%' style='width:100%;'>\n"
-        . "";
+    if( isset($args['tinymce']) && $args['tinymce'] == 'yes' ) {
+        $html_header = "<html>"
+//            . "<head><style>"
+//            . $theme['header_style']
+//            . "</style></head>"
+            . "<body>"
+            . "<div style=\"" . $theme['wrapper_style'] . "\">\n"
+//            . "<table width='100%' style='width:100%;'>\n"
+            . "";
+    } else {
+        $html_header = "<html><head><style>\n"
+            . $theme['header_style']
+            . "</style></head>\n"
+            . "<body>\n"
+            . "<div style='" . $theme['wrapper_style'] . "'>"
+            . "<table width='100%' style='width:100%;'>\n"
+            . "";
 
-    //
-    // Add header to the email
-    //
-    if( isset($args['title']) && $args['title'] != '' && (!isset($theme['title_show']) || $theme['title_show'] != 'no') ) {
-        $html_header .= "<tr><td style='$td_header'><p style='$title_style'>" . $args['title'] . "</p></td></tr>";
+        //
+        // Add header to the email
+        //
+        if( isset($args['title']) && $args['title'] != '' && (!isset($theme['title_show']) || $theme['title_show'] != 'no') ) {
+            $html_header .= "<tr><td style='$td_header'><p style='$title_style'>" . $args['title'] . "</p></td></tr>";
+        }
     }
 
     $links = '';
@@ -128,11 +142,20 @@ function ciniki_mail_loadTenantTemplate($ciniki, $tnid, $args) {
     //
     $html_footer = '';
     if( $links != '' ) {
-        $html_footer .= "<tr><td style='$td_body;align=center;'><center>$links</center></td></tr>";
+        if( isset($args['tinymce']) && $args['tinymce'] == 'yes' ) {
+            $html_footer .= "<div style='text-align: center;'>$links</div>";
+        } else {
+            $html_footer .= "<tr><td style='$td_body;align=center;'><center>$links</center></td></tr>";
+        }
     }
-    $html_footer .= "<tr><td style='$td_footer'>"
-        . "<p style='$p_footer'>All content &copy; Copyright " . date('Y') . " by " . $args['tenant_name'] . "</p>\n"
-        . "";
+    if( isset($args['tinymce']) && $args['tinymce'] == 'yes' ) {
+        $html_footer .= "<div style='border-top:1px solid #ddd;margin-top:20px;padding-top:1px;'></div><div style='$p_footer'>All content &copy; Copyright " . date('Y') . " by " . $args['tenant_name'] . "</div>\n"
+            . "";
+    } else {
+        $html_footer .= "<tr><td style='$td_footer'>"
+            . "<p style='$p_footer'>All content &copy; Copyright " . date('Y') . " by " . $args['tenant_name'] . "</p>\n"
+            . "";
+    }
     $text_footer = "\n\nAll content Copyright " . date('Y') . " by " . $args['tenant_name'];
     if( isset($ciniki['config']['ciniki.mail']['poweredby.url']) 
         && $ciniki['config']['ciniki.mail']['poweredby.url'] != '' 
@@ -154,12 +177,16 @@ function ciniki_mail_loadTenantTemplate($ciniki, $tnid, $args) {
         $text_footer .= "\n\n";
     }
 
-    $html_footer .= "</td></tr>\n";
-    $html_footer .= "</table>\n"
-        . "</div>\n"
-        . "</body>\n"
-        . "</html>\n"
-        . "";
+    if( isset($args['tinymce']) && $args['tinymce'] == 'yes' ) {
+        $html_footer .= "</div></body></html>";
+    } else {
+        $html_footer .= "</td></tr>\n";
+        $html_footer .= "</table>\n"
+            . "</div>\n"
+            . "</body>\n"
+            . "</html>\n"
+            . "";
+    }
 
     return array('stat'=>'ok', 'theme'=>$theme, 'template'=>array(
         'html_header'=>$html_header,

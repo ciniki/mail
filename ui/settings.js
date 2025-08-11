@@ -45,9 +45,12 @@ function ciniki_mail_settings() {
             'fields':{
                 'smtp-5min-limit':{'label':'5 Minutes', 'type':'text', 'size':'small'},
             }},
-//          'theme':{'label':'Options', 'fields':{
-//              'mail-default-theme':{'label':'Theme', 'type':'select', 'options':this.themes},
-//          }},
+          'theme':{'label':'Options', 'fields':{
+                'mail-default-theme':{'label':'Theme', 'type':'select', 'default':'default', 'options':{
+                    'Default':'Default',
+                    'TwentyFive':'Twenty Five',
+                }},
+          }},
         '_disclaimer':{'label':'Disclaimer', 
             'visible':function() { var s=M.ciniki_mail_settings.main.sections._tabs.selected; return (s == 'smtp' || s == 'mailgun' ? 'yes' : 'hidden'); },
             'fields':{

@@ -74,6 +74,7 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'loadTenantTemplate');
     $rc = ciniki_mail_loadTenantTemplate($ciniki, $tnid, array(
         'theme'=>(isset($args['theme'])?$args['theme']:''),
+        'tinymce'=>(isset($args['tinymce'])?$args['tinymce']:''),
         'title'=>(isset($args['title'])?$args['title']:$args['subject']),
         'unsubscribe_url'=>(isset($args['unsubscribe_url'])?$args['unsubscribe_url']:''),
         'unsubscribe_text'=>(isset($args['unsubscribe_text'])?$args['unsubscribe_text']:''),
@@ -99,12 +100,16 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     //
     // Process the html email content to format
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'emailProcessContent');
-    $rc = ciniki_mail_emailProcessContent($ciniki, $tnid, $theme, $args['html_content']);
-    if( $rc['stat'] != 'ok' ) {
-        return $rc;
+    if( isset($args['tinymce']) && $args['tinymce'] == 'yes' ) {
+        $html_content .= $args['html_content'];
+    } else {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'emailProcessContent');
+        $rc = ciniki_mail_emailProcessContent($ciniki, $tnid, $theme, $args['html_content']);
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        $html_content .= "<tr><td style='" . $theme['td_body'] . "'>" . $rc['content'] . "</td></tr>";
     }
-    $html_content .= "<tr><td style='" . $theme['td_body'] . "'>" . $rc['content'] . "</td></tr>";
 
     //
     // Add disclaimer if set
