@@ -81,7 +81,12 @@ function ciniki_mail_attachmentDownload(&$ciniki) {
         header('Pragma: no-cache');
 
         // Specify Filename
-        header('Content-Disposition: attachment;filename="' . $attachment['filename'] . '"');
+        if( preg_match("/\.pdf$/", $attachment['filename']) ) {
+            header('Content-type: application/pdf');
+            header('Content-Disposition: inline;filename="' . $attachment['filename'] . '"');
+        } else {
+            header('Content-Disposition: attachment;filename="' . $attachment['filename'] . '"');
+        }
         header('Content-Length: ' . strlen($binary_content));
         header('Cache-Control: max-age=0');
 
