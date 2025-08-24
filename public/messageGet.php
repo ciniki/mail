@@ -68,33 +68,39 @@ function ciniki_mail_messageGet(&$ciniki) {
     //
     // Get the messages for the label
     //
-    $strsql = "SELECT id, "
-        . "uuid, "
-        . "customer_id, "
-        . "customer_name, "
-        . "customer_email, "
-        . "from_name, "
-        . "from_email, "
-        . "flags, "
-        . "status, "
-        . "status AS status_text, "
-        . "date_sent, "
-        . "date_received, "
-        . "mail_to, "
-        . "mail_cc, "
-        . "mail_from, "
-        . "subject, "
-        . "html_content, "
-        . "text_content, "
-        . "raw_headers, "
-        . "raw_content "
-        . "FROM ciniki_mail "
-        . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['message_id']) . "' "
-        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+    $strsql = "SELECT messages.id, "
+        . "messages.uuid, "
+        . "messages.customer_id, "
+        . "messages.customer_name, "
+        . "messages.customer_email, "
+        . "messages.from_name, "
+        . "messages.from_email, "
+        . "messages.flags, "
+        . "messages.status, "
+        . "messages.status AS status_text, "
+        . "messages.date_sent, "
+        . "messages.date_received, "
+        . "messages.mail_to, "
+        . "messages.mail_cc, "
+        . "messages.mail_from, "
+        . "messages.subject, "
+        . "messages.html_content, "
+        . "messages.text_content, "
+        . "messages.raw_headers, "
+        . "messages.raw_content, "
+        . "attachments.id AS attachment_id, "
+        . "attachments.filename "
+        . "FROM ciniki_mail AS messages "
+        . "LEFT JOIN ciniki_mail_attachments AS attachments ON ( "
+            . "messages.id = attachments.mail_id "
+            . "AND attachments.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . ") "
+        . "WHERE messages.id = '" . ciniki_core_dbQuote($ciniki, $args['message_id']) . "' "
+        . "AND messages.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
-    $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.mail', array(
-        array('container'=>'messages', 'fname'=>'id', 'name'=>'message',
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.mail', array(
+        array('container'=>'messages', 'fname'=>'id', 
             'fields'=>array('id', 'uuid', 'customer_id', 'customer_name', 'customer_email', 
                 'flags', 'status', 'status_text', 'date_sent', 'date_received', 
                 'mail_to', 'mail_cc', 'mail_from', 'from_name', 'from_email', 
@@ -104,14 +110,17 @@ function ciniki_mail_messageGet(&$ciniki) {
             'utctotz'=>array('date_sent'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),
                 'date_received'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format)),
             ),
+        array('container'=>'attachments', 'fname'=>'attachment_id', 
+            'fields'=>array('id'=>'attachment_id', 'filename'),
+            ),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( !isset($rc['messages'][0]['message']) ) {
+    if( !isset($rc['messages'][0]) ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.49', 'msg'=>'Unable to find message'));
     } 
-    $message = $rc['messages'][0]['message'];
+    $message = $rc['messages'][0];
 
     //
     // Get the tenant storage directory
@@ -146,8 +155,8 @@ function ciniki_mail_messageGet(&$ciniki) {
         . "AND mail_id = '" . ciniki_core_dbQuote($ciniki, $args['message_id']) . "' "
         . "ORDER BY log_date "
         . "";
-    $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.mail', array(
-        array('container'=>'logs', 'fname'=>'id', 'name'=>'log',
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.mail', array(
+        array('container'=>'logs', 'fname'=>'id', 
             'fields'=>array('id', 'severity_text', 'log_date', 'log_date_date', 'log_date_time', 'code', 'msg', 'pmsg', 'errors', 'raw_logs'),
             'maps'=>array('severity_text'=>$maps['log']['severity']),
             'utctotz'=>array( 'log_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),

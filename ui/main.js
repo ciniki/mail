@@ -441,6 +441,10 @@ function ciniki_mail_main() {
             'subject':{'label':'Subject'},
             }},
         'html_content':{'label':'Message', 'type':'htmlcontent'},
+        'attachments':{'label':'Attachments', 'type':'simplegrid', 'num_cols':2,
+            'cellClasses':['', 'alignright fabuttons'],
+            'noData':'No Attachments',
+            },
         'logs':{'label':'Logs', 'visible':'no', 'type':'simplegrid', 'num_cols':3,
             'cellClasses':['multiline','multiline','multiline'],
             },
@@ -463,10 +467,18 @@ function ciniki_mail_main() {
         return this.data[s];
     }
     this.message.cellValue = function(s, i, j, d) {
-        switch(j) {
-            case 0: return '<span class="maintext">' + d.log.log_date_date + '</span><span class="subtext">' + d.log.log_date_time + '</span>';
-            case 1: return '<span class="maintext">' + d.log.severity_text + '</span><span class="subtext">' + (d.log.code != '' ?'error: '+d.log.code:'') + '</span>';
-            case 2: return '<span class="maintext">' + d.log.msg + '</span><span class="subtext">' + ((M.userPerms&0x01)>0?d.log.pmsg:'') + '</span>';
+        if( s == 'attachments' ) {
+            switch(j) {
+                case 0: return d.filename;
+                case 1: return M.faBtn('&#xf019;', 'Download', 'M.ciniki_mail_main.message.attachmentDownload(' + d.id + ');');
+            }
+        } 
+        if( s == 'logs' ) {
+            switch(j) {
+                case 0: return '<span class="maintext">' + d.log_date_date + '</span><span class="subtext">' + d.log_date_time + '</span>';
+                case 1: return '<span class="maintext">' + d.severity_text + '</span><span class="subtext">' + (d.code != '' ?'error: '+d.code:'') + '</span>';
+                case 2: return '<span class="maintext">' + d.msg + '</span><span class="subtext">' + ((M.userPerms&0x01)>0?d.pmsg:'') + '</span>';
+            }
         }
     }
     this.message.listLabel = function(s, i, d) {
@@ -476,6 +488,9 @@ function ciniki_mail_main() {
     }
     this.message.listValue = function(s, i, d) {
         return this.data[i];
+    }
+    this.message.attachmentDownload = function(id) {
+        M.api.openFile('ciniki.mail.attachmentDownload', {'tnid':M.curTenantID, 'message_id':this.message_id, 'attachment_id':id});
     }
     this.message.open = function(cb, mid) {
         if( mid != null ) { this.message_id = mid; }
