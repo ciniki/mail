@@ -41,7 +41,11 @@ function ciniki_mail_hooks_objectMessages($ciniki, $tnid, $args) {
     // Check for messages
     //
     if( isset($args['object']) && $args['object'] != '' 
-        && isset($args['object_id']) && $args['object_id'] != ''
+        && (
+            (isset($args['object_id']) && $args['object_id'] != '')
+            ||
+            (isset($args['object_ids']) && is_array($args['object_ids']))
+            )
         && isset($args['xml']) && $args['xml'] == 'no'
         ) {
         //
@@ -50,6 +54,7 @@ function ciniki_mail_hooks_objectMessages($ciniki, $tnid, $args) {
         $strsql = "SELECT ciniki_mail.id, "
             . "ciniki_mail.status, "
             . "ciniki_mail.status AS status_text, "
+            . "UNIX_TIMESTAMP(ciniki_mail.date_sent) AS ts_date_sent, "
             . "ciniki_mail.date_sent, "
             . "ciniki_mail.customer_id, "
             . "ciniki_mail.customer_name, "
@@ -57,9 +62,13 @@ function ciniki_mail_hooks_objectMessages($ciniki, $tnid, $args) {
             . "ciniki_mail.subject "
             . "FROM ciniki_mail_objrefs, ciniki_mail "
             . "WHERE ciniki_mail_objrefs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "AND ciniki_mail_objrefs.object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
-            . "AND ciniki_mail_objrefs.object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
-            . "AND ciniki_mail_objrefs.mail_id = ciniki_mail.id "
+            . "AND ciniki_mail_objrefs.object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' ";
+        if( isset($args['object_ids']) && is_array($args['object_ids']) ) {
+            $strsql .= "AND ciniki_mail_objrefs.object_id IN (" . ciniki_core_dbQuoteIDs($ciniki, $args['object_ids']) . ") ";
+        } else {
+            $strsql .= "AND ciniki_mail_objrefs.object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' ";
+        }
+        $strsql .= "AND ciniki_mail_objrefs.mail_id = ciniki_mail.id "
             . "AND ciniki_mail.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
@@ -70,7 +79,7 @@ function ciniki_mail_hooks_objectMessages($ciniki, $tnid, $args) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.mail', array(
             array('container'=>'messages', 'fname'=>'id', 
-                'fields'=>array('id', 'status', 'status_text', 'date_sent', 'customer_name', 'customer_email', 'subject'),
+                'fields'=>array('id', 'status', 'status_text', 'ts_date_sent', 'date_sent', 'customer_id', 'customer_name', 'customer_email', 'subject'),
                 'maps'=>array('status_text'=>$maps['mail']['status']),
                 'utctotz'=>array('date_sent'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format)),
                 ),
