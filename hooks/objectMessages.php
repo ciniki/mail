@@ -11,6 +11,7 @@
 //
 function ciniki_mail_hooks_objectMessages($ciniki, $tnid, $args) {
 
+
     //
     // Load the status maps for the text description of each status
     //
@@ -64,6 +65,7 @@ function ciniki_mail_hooks_objectMessages($ciniki, $tnid, $args) {
             . "WHERE ciniki_mail_objrefs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_mail_objrefs.object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' ";
         if( isset($args['object_ids']) && is_array($args['object_ids']) ) {
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
             $strsql .= "AND ciniki_mail_objrefs.object_id IN (" . ciniki_core_dbQuoteIDs($ciniki, $args['object_ids']) . ") ";
         } else {
             $strsql .= "AND ciniki_mail_objrefs.object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' ";
