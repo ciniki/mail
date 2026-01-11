@@ -19,7 +19,8 @@ function ciniki_mail_customerListSend(&$ciniki) {
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'customer_ids'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'idlist', 'name'=>'Customers'), 
         'subject'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Subject'), 
-        'text_content'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Message'), 
+//        'text_content'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Message'), 
+        'html_content'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Message'), 
         'object'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Object'), 
         'object_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Object ID'), 
         )); 
@@ -68,13 +69,14 @@ function ciniki_mail_customerListSend(&$ciniki) {
     }   
     $tenant_details = $rc['details'];
 
+    error_log(print_r($args,true));
     //
     // Check for both html and text content
     //
     if( !isset($args['text_content']) && !isset($args['html_content']) ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.4', 'msg'=>'No message specified'));
     } elseif( isset($args['html_content']) && !isset($args['text_content']) ) {
-        $args['text_content'] = strip_tags($args['html_content']);
+        $args['text_content'] = html_entity_decode(strip_tags($args['html_content']));
     } elseif( isset($args['text_content']) && !isset($args['html_content']) ) {
         $args['html_content'] = $args['text_content'];
     }

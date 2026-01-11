@@ -14,7 +14,7 @@ function ciniki_mail_omessage() {
             'subject':{'label':'Subject', 'hidelabel':'yes', 'type':'text'},
             }},
         '_content':{'label':'Message', 'fields':{
-            'text_content':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'large'},
+            'html_content':{'label':'', 'hidelabel':'yes', 'type':'htmlarea', 'size':'large'},
             }},
         '_file':{'label':'Attach Files', 
             'fields':{

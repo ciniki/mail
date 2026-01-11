@@ -555,7 +555,7 @@ function ciniki_mail_main() {
             'subject':{'label':'Subject', 'hidelabel':'yes', 'type':'text'},
             }},
         '_content':{'label':'Message', 'fields':{
-            'text_content':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'medium'},
+            'html_content':{'label':'', 'hidelabel':'yes', 'type':'htmlarea', 'size':'medium'},
             }},
         '_buttons':{'label':'', 'buttons':{
             'send':{'label':'Send Message', 'fn':'M.ciniki_mail_main.compose.send();'},
