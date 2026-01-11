@@ -69,7 +69,6 @@ function ciniki_mail_customerListSend(&$ciniki) {
     }   
     $tenant_details = $rc['details'];
 
-    error_log(print_r($args,true));
     //
     // Check for both html and text content
     //
