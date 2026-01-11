@@ -108,7 +108,7 @@ function ciniki_mail_loadTenantTemplate($ciniki, $tnid, $args) {
 //            . $theme['header_style']
 //            . "</style></head>"
             . "<body>"
-            . "<div style=\"" . $theme['wrapper_style'] . "\">\n"
+//            . "<div style=\"" . $theme['wrapper_style'] . "\">\n"
 //            . "<table width='100%' style='width:100%;'>\n"
             . "";
     } else {
@@ -178,7 +178,7 @@ function ciniki_mail_loadTenantTemplate($ciniki, $tnid, $args) {
     }
 
     if( isset($args['tinymce']) && $args['tinymce'] == 'yes' ) {
-        $html_footer .= "</div></body></html>";
+        $html_footer .= "</body></html>";
     } else {
         $html_footer .= "</td></tr>\n";
         $html_footer .= "</table>\n"

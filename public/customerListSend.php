@@ -90,6 +90,7 @@ function ciniki_mail_customerListSend(&$ciniki) {
         'unsubscribe_url'=>(isset($args['unsubscribe_url'])?$args['unsubscribe_url']:''),
         'unsubscribe_text'=>(isset($args['unsubscribe_text'])?$args['unsubscribe_text']:''),
         'tenant_name'=>$tenant_details['name'],
+        'tinymce'=>'yes',
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -111,12 +112,13 @@ function ciniki_mail_customerListSend(&$ciniki) {
     //
     // Process the html email content to format
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'emailProcessContent');
-    $rc = ciniki_mail_emailProcessContent($ciniki, $args['tnid'], $theme, $args['html_content']);
-    if( $rc['stat'] != 'ok' ) {
-        return $rc;
-    }
-    $html_content .= "<tr><td style='" . $theme['td_body'] . "'>" . $rc['content'] . "</td></tr>";
+//    ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'emailProcessContent');
+//    $rc = ciniki_mail_emailProcessContent($ciniki, $args['tnid'], $theme, $args['html_content']);
+//    if( $rc['stat'] != 'ok' ) {
+//        return $rc;
+//    }
+//    $html_content .= "<tr><td style='" . $theme['td_body'] . "'>" . $rc['content'] . "</td></tr>";
+    $html_content .= $args['html_content'];
 
     //
     // Add disclaimer if set
