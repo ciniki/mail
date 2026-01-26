@@ -57,6 +57,8 @@ function ciniki_mail_hooks_objectMessages($ciniki, $tnid, $args) {
             . "ciniki_mail.status AS status_text, "
             . "UNIX_TIMESTAMP(ciniki_mail.date_sent) AS ts_date_sent, "
             . "ciniki_mail.date_sent, "
+            . "ciniki_mail.date_sent AS date, "
+            . "ciniki_mail.date_sent AS time, "
             . "ciniki_mail.customer_id, "
             . "ciniki_mail.customer_name, "
             . "ciniki_mail.customer_email, "
@@ -81,9 +83,15 @@ function ciniki_mail_hooks_objectMessages($ciniki, $tnid, $args) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.mail', array(
             array('container'=>'messages', 'fname'=>'id', 
-                'fields'=>array('id', 'status', 'status_text', 'ts_date_sent', 'date_sent', 'customer_id', 'customer_name', 'customer_email', 'subject'),
+                'fields'=>array('id', 'status', 'status_text', 'ts_date_sent', 'date_sent', 'date', 'time', 
+                    'customer_id', 'customer_name', 'customer_email', 'subject',
+                    ),
                 'maps'=>array('status_text'=>$maps['mail']['status']),
-                'utctotz'=>array('date_sent'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format)),
+                'utctotz'=>array(
+                    'date_sent'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),
+                    'date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
+                    'time'=>array('timezone'=>$intl_timezone, 'format'=>$time_format),
+                    ),
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {
