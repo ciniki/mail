@@ -174,7 +174,6 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
             $from_name = $args['from_name'];
         }
         if( isset($args['from_address']) && $args['from_address'] != '' ) {
-            error_log('two');
             $from_address = $args['from_address'];
         }
     }
