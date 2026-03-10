@@ -31,6 +31,7 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
     $strsql = "SELECT id, uuid, status, "
         . "mailing_id, survey_invite_id, "
         . "customer_id, customer_name, customer_email, "
+        . "from_name, from_email, "
         . "subject, html_content, text_content "
         . "FROM ciniki_mail "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $mail_id) . "' "
@@ -286,6 +287,17 @@ function ciniki_mail_sendMail($ciniki, $tnid, &$settings, $mail_id) {
                     $mail->FromName = $settings['smtp-from-name'];
                 } else {
                     $mail->FromName = $ciniki['config']['ciniki.core']['system.email.name'];
+                }
+            }
+            //
+            // Check if message specific from is allowed
+            //
+            if( isset($settings['smtp-alternate-addresses']) && $settings['smtp-alternate-addresses'] != '' ) { 
+                if( isset($email['from_name']) && $email['from_name'] != '' ) { 
+                    $mail->FromName = $email['from_name'];
+                }
+                if( isset($email['from_email']) && $email['from_email'] != '' ) { 
+                    $mail->From = $email['from_email'];
                 }
             }
 

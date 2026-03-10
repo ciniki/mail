@@ -51,7 +51,7 @@
 #                   15 - queued to be sent, initial failure
 #                   20 - sending
 #                   30 - sent
-#                   40 - received **future**
+#                   40 - received, currently from wng contact form
 #                   41 - flagged **future**
 #                   50 - failed
 #                   60 - trash
@@ -68,8 +68,8 @@
 # mail_cc:          The cc addresses for the message. **for incoming mail only**
 # mail_from:        Who the message was from. **for incoming mail only**
 #
-# from_name:        The name the email was received from.
-# from_email:       The email address the email was received from.
+# from_name:        The name the email was received from or name email sent from.
+# from_email:       The email address the email was received from or sent from.
 #
 # html_content:     The html content of the message.
 # text_content:     The alt/text content of the message.

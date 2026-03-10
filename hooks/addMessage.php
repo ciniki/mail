@@ -163,6 +163,21 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     if( $args['text_content'] != '' ) {
         file_put_contents($mail_dir . '/' . $args['uuid'][0] . '/' . $args['uuid'] . '.text', $text_content);
     }
+
+    //
+    // Check if specified from name/address
+    //
+    $from_name = '';
+    $from_address = '';
+    if( isset($settings['smtp-alternate-addresses']) && $settings['smtp-alternate-addresses'] == 'yes' ) {
+        if( isset($args['from_name']) && $args['from_name'] != '' ) {
+            $from_name = $args['from_name'];
+        }
+        if( isset($args['from_address']) && $args['from_address'] != '' ) {
+            error_log('two');
+            $from_address = $args['from_address'];
+        }
+    }
     
     //
     // Add the message
@@ -181,7 +196,9 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['customer_email']) . "', ";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['flags']) . "', ";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['status']) . "', ";
-    $strsql .= "'', '', '', '', '',";
+    $strsql .= "'', '', '', ";
+    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $from_name) . "', ";
+    $strsql .= "'" . ciniki_core_dbQuote($ciniki, $from_address) . "', ";
     $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['subject']) . "', ";
 //  Content stored in file system now
 //  $strsql .= "'" . ciniki_core_dbQuote($ciniki, $args['html_content']) . "', ";

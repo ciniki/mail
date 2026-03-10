@@ -68,6 +68,7 @@ function ciniki_mail_settingsUpdate(&$ciniki) {
         'smtp-from-name',
         'smtp-from-address',
         'smtp-reply-address',
+        'smtp-alternate-addresses',
         'mail-default-theme',
         'message-disclaimer',
         'smtp-5min-limit',
