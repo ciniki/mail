@@ -2,8 +2,7 @@
 //
 // Description
 // -----------
-// This script will remove an attachment that has been sent out via a tenant. This is useful
-// when really large attachment gets sent.
+// This script will check for attachments on disk that no longer exist in the database
 //
 
 //
@@ -65,23 +64,13 @@ if( !isset($argv[1]) || $argv[1] == '' ) {
 }
 $tnid = $argv[1];
 
-//
-// Make sure attachment name specified
-//
-if( !isset($argv[2]) || $argv[2] == '' ) {
-    print "Must include attachment name\n";
-    exit;
-}
-$filename = $argv[2];
-
 $strsql = "SELECT id, uuid, mail_id, filename "
     . "FROM ciniki_mail_attachments "
     . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-    . "AND filename = '" . ciniki_core_dbQuote($ciniki, $filename) . "' "
     . "";
-ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
-$rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.mail', array(
-    array('container'=>'attachments', 'fname'=>'id', 
+ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.mail', array(
+    array('container'=>'attachments', 'fname'=>'uuid', 
         'fields'=>array('id', 'uuid', 'mail_id', 'filename'),
         ),
     ));
@@ -98,21 +87,29 @@ $rc = ciniki_tenants_hooks_storageDir($ciniki, $tnid, array());
 if( $rc['stat'] != 'ok' ) {
     return $rc;
 }
-$tenant_storage_dir = $rc['storage_dir'];
+$mail_storage_dir = $rc['storage_dir'] . '/ciniki.mail';
 
-//
-// Remove the attachments
-//
-foreach($attachments as $attachment) {
-    $f = $tenant_storage_dir . '/ciniki.mail/' . $attachment['uuid'][0] . '/' . $attachment['uuid'];
-    if( file_exists($f) ) {
-        unlink(f);
+foreach(['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'] as $d1) {
+   
+    $dir = $mail_storage_dir . '/' . $d1;
+    if( file_exists($dir) ) {
+        if( $h = opendir($dir) ) {
+            while (false !== ($file = readdir($h))) {
+                if ($file == '.' || $file == '..') {
+                    continue;
+                }
+                if( preg_match("/^(.*)\.attachment/", $file, $m) ) {
+                    if( !isset($attachments[$m[1]]) ) {
+                        print "Remove: $dir/$file\n";
+                        unlink($dir . '/' . $file);
+                    }
+                }
+            }
+        } else {
+            print "Unable to open dir\n";
+        }
     }
-
-    $rc = ciniki_core_objectDelete($ciniki, $tnid, 'ciniki.mail.attachment', 
-        $attachment['id'], $attachment['uuid'], 0x04);
 }
-
 
 exit(0);
 ?>
