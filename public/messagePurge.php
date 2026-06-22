@@ -82,86 +82,12 @@ function ciniki_mail_messagePurge($ciniki) {
         return $rc;
     }   
 
-    //
-    // Remove the mail attachments
-    //
-    $strsql = "SELECT id, uuid "
-        . "FROM ciniki_mail_attachments "
-        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-        . "AND mail_id = '" . ciniki_core_dbQuote($ciniki, $args['message_id']) . "' "
-        . "";
-    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'item');
+
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'private', 'messagePurge');
+    $rc = ciniki_mail__messagePurge($ciniki, $args['tnid'], $args['message_id']);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
-        return $rc;
-    }
-    if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
-        $items = $rc['rows'];
-        foreach($items as $iid => $item) {
-            //
-            // Remove the files
-            //
-            $filename = $mail_dir . '/' . $item['uuid'][0] . '/' . $item['uuid'] . '.attachment';
-            if( file_exists($filename) ) {
-                unlink($filename);
-            }
-
-            //
-            // Remove the object
-            //
-            $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.mail.attachment', 
-                $item['id'], $item['uuid'], 0x04);
-            if( $rc['stat'] != 'ok' ) {
-                ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
-                return $rc; 
-            }
-        }
-    }
-
-    //
-    // Remove the mail objrefs
-    //
-    $strsql = "SELECT id, uuid "
-        . "FROM ciniki_mail_objrefs "
-        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-        . "AND mail_id = '" . ciniki_core_dbQuote($ciniki, $args['message_id']) . "' "
-        . "";
-    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.mail', 'item');
-    if( $rc['stat'] != 'ok' ) {
-        ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
-        return $rc;
-    }
-    if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
-        $items = $rc['rows'];
-        foreach($items as $iid => $item) {
-            $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.mail.objref', 
-                $item['id'], $item['uuid'], 0x04);
-            if( $rc['stat'] != 'ok' ) {
-                ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
-                return $rc; 
-            }
-        }
-    }
-
-    //
-    // Remove the mail files
-    //
-    $html_filename = $mail_dir . '/' . $message['uuid'][0] . '/' . $message['uuid'] . '.attachment';
-    if( file_exists($html_filename) ) {
-        unlink($html_filename);
-    }
-    $text_filename = $mail_dir . '/' . $message['uuid'][0] . '/' . $message['uuid'] . '.attachment';
-    if( file_exists($text_filename) ) {
-        unlink($text_filename);
-    }
-
-    //
-    // Delete the message
-    //
-    $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.mail.message', $args['message_id'], $message['uuid'], 0x04);
-    if( $rc['stat'] != 'ok' ) {
-        ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
-        return $rc;
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.99', 'msg'=>'', 'err'=>$rc['err']));
     }
 
     //
