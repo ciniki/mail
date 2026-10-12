@@ -79,7 +79,7 @@ $strsql = "SELECT id, uuid "
     . '';
 $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.core', 'item');
 if( $rc['stat'] != 'ok' ) {
-    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.80', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.101', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
 }
 $storage_dir = '';
 foreach($rc['rows'] as $row) {
@@ -97,7 +97,7 @@ $strsql = "SELECT id, uuid, tnid, customer_id, customer_email, date_sent "
     . "";
 $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.core', 'item');
 if( $rc['stat'] != 'ok' ) {
-    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.81', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.102', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
 }
 foreach($rc['rows'] as $row) {
     print "Purge: {$row['date_sent']} to {$row['customer_email']}\n";

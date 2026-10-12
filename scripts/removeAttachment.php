@@ -86,7 +86,7 @@ $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.mail', array(
         ),
     ));
 if( $rc['stat'] != 'ok' ) {
-    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.98', 'msg'=>'Unable to load attachments', 'err'=>$rc['err']));
+    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.105', 'msg'=>'Unable to load attachments', 'err'=>$rc['err']));
 }
 $attachments = isset($rc['attachments']) ? $rc['attachments'] : array();
 

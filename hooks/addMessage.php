@@ -115,7 +115,11 @@ function ciniki_mail_hooks_addMessage(&$ciniki, $tnid, $args) {
     // Add disclaimer if set
     //
     if( isset($settings['message-disclaimer']) && $settings['message-disclaimer'] != '' ) {
-        $html_content .= "<tr><td style='" . $theme['td_body'] . "'><p style='" . $theme['p'] . "'>" . $settings['message-disclaimer'] . "</p></td></tr>";
+        if( isset($args['tinymce']) && $args['tinymce'] == 'yes' ) {
+            $html_content .= "<p style='center'>" . $settings['message-disclaimer'] . "</p>";
+        } else {
+            $html_content .= "<tr><td style='" . $theme['td_body'] . "'><p style='" . $theme['p'] . "'>" . $settings['message-disclaimer'] . "</p></td></tr>";
+        }
         $text_content .= "\n\n" . $settings['message-disclaimer'];
     }
 

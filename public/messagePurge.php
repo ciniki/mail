@@ -65,7 +65,7 @@ function ciniki_mail_messagePurge($ciniki) {
         return $rc;
     }
     if( !isset($rc['message']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.50', 'msg'=>'The message does not exist'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.mail.100', 'msg'=>'The message does not exist'));
     }
     $message = $rc['message'];
 

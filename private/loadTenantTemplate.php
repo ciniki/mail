@@ -143,7 +143,7 @@ function ciniki_mail_loadTenantTemplate($ciniki, $tnid, $args) {
     $html_footer = '';
     if( $links != '' ) {
         if( isset($args['tinymce']) && $args['tinymce'] == 'yes' ) {
-            $html_footer .= "<div style='text-align: center;'>$links</div>";
+            $html_footer .= "<p style='text-align: center;'>$links</p>";
         } else {
             $html_footer .= "<tr><td style='$td_body;align=center;'><center>$links</center></td></tr>";
         }
